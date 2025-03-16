@@ -1,0 +1,13 @@
+
+  ktor:
+    deployment:
+      port: 8080
+    application:
+      modules:
+        - com.example.ApplicationKt.module
+    database:
+      centralDatabase:
+        driver: org.postgresql.Driver
+        url: "jdbc:postgresql://localhost:5432/central_db"
+        user: "postgres"
+        password: "Giorgos13"
