@@ -1,8 +1,12 @@
 package com.example.models.databaseModels
 
+import com.example.models.databaseModels.customerTable.default
+import com.example.models.databaseModels.customerTable.nullable
 import com.example.models.databaseModels.fieldReportsTable.default
 import com.example.models.databaseModels.ticketTable.default
 import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.statements.UpdateBuilder
+import org.jetbrains.exposed.sql.update
 import java.util.*
 
 object customerTable : Table("customerTable") {
@@ -22,3 +26,7 @@ object customerTable : Table("customerTable") {
     val version = varchar("Version", 20).nullable()
     override val primaryKey = PrimaryKey(customerTable.customerId)
 }
+// Extension function for insertOrUpdate
+
+
+

@@ -30,6 +30,28 @@ class DatabaseConnectionManager(private val secretKey: String) {
             null
         }
     }
+    fun getSyncApiConnection(token: String): Connection? {
+        return try {
+            // Decode the JWT token
+            val decodedJwt = decodeJwt(token)
+
+            // Extract database credentials
+            val dbName = decodedJwt.getClaim("databaseName").asString()
+            val dbHost = decodedJwt.getClaim("databaseHost").asString()
+            val dbPort = decodedJwt.getClaim("databasePort").asInt()
+            val dbUser = decodedJwt.getClaim("databaseUser").asString()
+            val dbPassword = decodedJwt.getClaim("databasePassword").asString()
+
+            // Construct JDBC URL for the syncApi
+            val jdbcUrl = "jdbc:postgresql://$dbHost:$dbPort/$dbName"
+
+            // Connect to syncApi database
+            DriverManager.getConnection(jdbcUrl, dbUser, dbPassword)
+        } catch (e: Exception) {
+            println("SyncApi Database Connection Error: ${e.message}")
+            null
+        }
+    }
 
     private fun decodeJwt(token: String): DecodedJWT {
         val algorithm = Algorithm.HMAC256(secretKey)

@@ -1,10 +1,12 @@
 package com.example.models.databaseModels
+import com.example.models.databaseModels.userTable.default
+import com.example.models.databaseModels.userTable.nullable
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.CurrentDateTime
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import java.util.UUID
 
-object userTable : Table("Users") {
+object userTable : Table("users") {
     val userId = varchar("UserId",36).default(java.util.UUID.randomUUID().toString())
     val remoteId = integer("RemoteId").nullable()
     val name = varchar("Name", 255).nullable()

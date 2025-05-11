@@ -19,27 +19,28 @@ fun Route.dbCreation(){
 
                 transaction(db) {
                     SchemaUtils.createMissingTablesAndColumns(
+                        userTable,
                         customerTable,
+                        equipmentTable,
+                        ticketHistoryTable,
                         categoryAssetTable,
                         checkFormsTable,
                         contractEquipmentsTable,
                         contractsTable,
-                        departmentTable,
-                        equipmentTable,
-                        fieldReportEquipmentTable,
                         fieldReportCheckformTable,
-                        fieldReportInventoryTable,
                         fieldReportToolsTable,
                         fieldReportsTable,
+                        fieldReportInventoryTable,
+                        fieldReportEquipmentTable,
                         inventoryTable,
-                        maintenancesTable,
                         manufacturerTable,
+                        maintenancesTable,
                         modelAssetTable,
                         settingsTable,
                         tasksTable,
                         ticketTable,
-                        toolsTable,
-                        userTable                        )
+                        toolsTable
+                    )
                 }
 
             }catch (e: Exception){

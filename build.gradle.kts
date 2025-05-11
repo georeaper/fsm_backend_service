@@ -35,6 +35,8 @@ dependencies {
     implementation("at.favre.lib:bcrypt:0.10.2")
     implementation("io.ktor:ktor-server-auth-jwt:2.0.0")
 
+    implementation("com.google.code.gson:gson:2.8.8") // Add this line for Gson
+
 
     // Additional Exposed dependencies
     implementation("org.jetbrains.exposed:exposed-core:0.43.0")
@@ -43,4 +45,9 @@ dependencies {
 
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:0.43.0")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+
+    //Jackson Dependecies
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.3")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.13.3")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.13.3")
 }

@@ -1,4 +1,7 @@
 package com.example.models.databaseModels
+import com.example.models.databaseModels.equipmentTable.default
+import com.example.models.databaseModels.equipmentTable.nullable
+import com.example.models.databaseModels.equipmentTable.references
 import com.example.models.databaseModels.ticketTable.nullable
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.CurrentDateTime
@@ -25,3 +28,4 @@ object equipmentTable : Table("equipmentTable") {
     val customerId = varchar("CustomerId",36).references(customerTable.customerId).nullable()
     override val primaryKey= PrimaryKey(equipmentId)
 }
+
