@@ -257,20 +257,26 @@ fun filterServerDataForSync(
             val filtered = serverList.filter { serverItem ->
                 val clientItem = clientMap[serverItem.CustomerID]
 
+//                val serverModified = try {
+//                    // First, parse server string (which includes timezone offset)
+//                    val serverRawFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+//                    val parsedDate = serverRawFormat.parse(serverItem.LastModified)
+//
+//                    // Then format it into your app's date string format
+//                    val appFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
+//                    val formattedDateStr = parsedDate?.let { appFormat.format(it) }
+//
+//                    // Finally, parse it back to a Date using your app's formatter
+//                    formattedDateStr?.let { appFormat.parse(it) }
+//
+//                } catch (e: Exception) {
+//                    println("Failed to parse/convert server LastModified: ${serverItem.LastModified}")
+//                    null
+//                }
                 val serverModified = try {
-                    // First, parse server string (which includes timezone offset)
-                    val serverRawFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-                    val parsedDate = serverRawFormat.parse(serverItem.LastModified)
-
-                    // Then format it into your app's date string format
-                    val appFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
-                    val formattedDateStr = parsedDate?.let { appFormat.format(it) }
-
-                    // Finally, parse it back to a Date using your app's formatter
-                    formattedDateStr?.let { appFormat.parse(it) }
-
+                    dateFormat.parse(serverItem.LastModified)
                 } catch (e: Exception) {
-                    println("Failed to parse/convert server LastModified: ${serverItem.LastModified}")
+                    println("Failed to parse server LastModified: ${serverItem.LastModified}")
                     null
                 }
 
