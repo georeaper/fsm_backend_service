@@ -1,7 +1,3 @@
-# fsm_backend_service
-
----
-
 ## 🔐 1. **Authentication & Authorization**
 
 * ✅ **JWT (or session-based auth)**: Ensure token validation and refresh logic.
