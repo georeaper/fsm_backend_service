@@ -1,3 +1,4 @@
+//build.gradle.kts under ktor-sample project
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ktor)
@@ -46,8 +47,9 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:0.43.0")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
 
-    //Jackson Dependecies
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.3")
-    implementation("com.fasterxml.jackson.core:jackson-annotations:2.13.3")
-    implementation("com.fasterxml.jackson.core:jackson-core:2.13.3")
+    //Jackson Dependencies
+
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.3")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.15.3")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.15.3")
 }
