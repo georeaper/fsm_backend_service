@@ -1,6 +1,6 @@
 package com.example
 
- import com.example.services.api.LoginRequest
+ import com.example.dto.LoginRequest
  import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*

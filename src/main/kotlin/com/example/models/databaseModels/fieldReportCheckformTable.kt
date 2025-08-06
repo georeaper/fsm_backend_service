@@ -5,7 +5,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.CurrentDateTime
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import java.util.UUID
 
-object fieldReportCheckformTable : Table("fieldReportCheckform") {
+object fieldReportCheckformTable : Table("fieldreport_checkform") {
     val fieldReportCheckFormId = varchar("FieldReportCheckFormId",36).default(java.util.UUID.randomUUID().toString())
     val remoteId = integer("RemoteId").nullable()
     val fieldReportEquipmentId = varchar("FieldReportEquipmentId", 36).references(fieldReportEquipmentTable.fieldReportEquipmentID).nullable()

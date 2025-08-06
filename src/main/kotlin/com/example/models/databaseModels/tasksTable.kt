@@ -6,7 +6,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.CurrentDateTime
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import java.util.UUID
 
-object tasksTable : Table("tasksTable") {
+object tasksTable : Table("tasks") {
     val taskId = varchar("TaskId",36).default(java.util.UUID.randomUUID().toString())
     val title = varchar("Title", 255).nullable()
     val description = text("Description").nullable()

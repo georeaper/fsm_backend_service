@@ -7,7 +7,7 @@ import org.jetbrains.exposed.sql.ReferenceOption
 import java.util.UUID
 
 
-object fieldReportsTable : Table("fieldReportsTable") {
+object fieldReportsTable : Table("fieldreports") {
     val fieldReportId= varchar("FieldReportId", 36).default(UUID.randomUUID().toString())
     val remoteID = integer("RemoteId").nullable()
     val reportNumber = varchar("ReportNumber", 255).nullable()

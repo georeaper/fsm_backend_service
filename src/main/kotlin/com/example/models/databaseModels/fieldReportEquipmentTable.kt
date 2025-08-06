@@ -5,7 +5,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.CurrentDateTime
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import java.util.UUID
 
-object fieldReportEquipmentTable : Table("fieldReportEquipmentTable") {
+object fieldReportEquipmentTable : Table("fieldreport_equipment") {
     val fieldReportEquipmentID= varchar("FieldReportEquipmentId", 36).default(UUID.randomUUID().toString())
     val remoteID = integer("RemoteId").nullable()
     val completedStatus = bool("CompletedStatus").nullable()

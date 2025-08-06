@@ -4,8 +4,8 @@ import at.favre.lib.crypto.bcrypt.BCrypt
 import com.example.JwtConfig
 import com.example.models.authenticationModels.CompanyTable
 import com.example.models.authenticationModels.UserTable
-import com.example.services.api.LoginRequest
-import com.example.services.api.LoginResponse
+import com.example.dto.LoginRequest
+import com.example.dto.LoginResponse
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*

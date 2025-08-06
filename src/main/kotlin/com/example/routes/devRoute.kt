@@ -4,11 +4,30 @@ import com.example.JwtConfig
 import com.example.json
 import com.example.models.api.*
 import com.example.models.authenticationModels.UserTable
-import com.example.models.databaseModels.customerTable
-import com.example.models.syncClientSchema
-import com.example.services.DatabaseConnectionManager
-import com.example.services.handlers.*
-import com.google.gson.Gson
+import com.example.infrastructure.DatabaseConnectionManager
+import com.example.services.entityHandlers
+import com.example.services.upsertCategoryAssetData
+import com.example.services.upsertCheckFormsData
+import com.example.services.upsertContractEquipmentsData
+import com.example.services.upsertContractsData
+import com.example.services.upsertCustomerData
+import com.example.services.upsertDepartmentsData
+import com.example.services.upsertFieldReportCheckFormData
+import com.example.services.upsertFieldReportEquipmentData
+import com.example.services.upsertFieldReportInventoryData
+import com.example.services.upsertFieldReportToolsData
+import com.example.services.upsertFieldReportsData
+import com.example.services.upsertInventoryData
+import com.example.services.upsertMaintenancesData
+import com.example.services.upsertManufacturerData
+import com.example.services.upsertModelAssetData
+import com.example.services.upsertSettingsData
+import com.example.services.upsertTasksData
+import com.example.services.upsertTicketHistoryData
+import com.example.services.upsertTicketsData
+import com.example.services.upsertToolsData
+import com.example.services.upsertUEquipmentData
+import com.example.services.upsertUsersData
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.response.*
@@ -22,7 +41,6 @@ import org.slf4j.LoggerFactory
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.serializer
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -76,7 +94,7 @@ fun Route.protectedRoutes() {
 }
 
 
-private val logger = LoggerFactory.getLogger("SyncRoutes")
+val logger = LoggerFactory.getLogger("SyncRoutes")
 
 @OptIn(InternalSerializationApi::class)
 fun Route.syncRoutes() {

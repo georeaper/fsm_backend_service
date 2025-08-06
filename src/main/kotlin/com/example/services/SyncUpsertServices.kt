@@ -1,4 +1,4 @@
-package com.example.services.handlers
+package com.example.services
 
 
 import com.example.models.api.*

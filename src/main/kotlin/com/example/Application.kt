@@ -5,7 +5,9 @@ import com.example.models.authenticationModels.CompanyTable
 import com.example.models.authenticationModels.UserTable
 import com.example.routes.authRoutes
 import com.example.routes.dbCreation
+import com.example.routes.equipmentsRoute
 import com.example.routes.protectedRoutes
+import com.example.routes.seedCompanyARoute
 import com.example.routes.syncRoutes
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -34,9 +36,11 @@ fun Application.module() {
         anyHost()
         allowHeader(HttpHeaders.ContentType)
         allowHeader(HttpHeaders.Accept)
+        allowHeader(HttpHeaders.Authorization)  // <-- Add this line!
         allowHeader("X-Custom-Header")
         allowMethod(HttpMethod.Get)
         allowMethod(HttpMethod.Post)
+        allowMethod(HttpMethod.Options)  // <-- Also add OPTIONS to handle preflight
         allowCredentials = true
     }
 
@@ -72,11 +76,14 @@ fun Application.module() {
     configureRouting()
 
     routing {
+        equipmentsRoute()
+        seedCompanyARoute()
         authRoutes()
         dbCreation()
         authenticate("auth-jwt") {  // ✅ Wrap protectedRoutes inside authenticate
             protectedRoutes()
         }
         syncRoutes()
+
     }
 }

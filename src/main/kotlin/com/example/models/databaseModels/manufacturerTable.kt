@@ -4,7 +4,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.CurrentDateTime
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import java.util.UUID
 
-object manufacturerTable : Table("manufacturerTable") {
+object manufacturerTable : Table("manufacturer") {
     val manufacturerId = varchar("ManufacturerId", 36).default(UUID.randomUUID().toString())
     val remoteId = integer("RemoteId").nullable()
     val name = varchar("Name", 255).nullable()

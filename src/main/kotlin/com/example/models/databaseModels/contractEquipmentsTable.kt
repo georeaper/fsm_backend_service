@@ -5,7 +5,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.CurrentDateTime
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import java.util.UUID
 
-object contractEquipmentsTable : Table("ContractEquipmentsTable") {
+object contractEquipmentsTable : Table("Contract_equipments") {
     val contractEquipmentId = varchar("ContractEquipmentId",36).default(java.util.UUID.randomUUID().toString())
     val remoteId = integer("RemoteId").nullable()
     val value = double("Value").nullable()

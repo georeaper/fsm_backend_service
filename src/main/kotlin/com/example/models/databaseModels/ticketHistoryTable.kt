@@ -9,7 +9,7 @@ import com.example.models.databaseModels.ticketTable.nullable
 import com.example.models.databaseModels.ticketTable.references
 import org.jetbrains.exposed.sql.Table
 
-object ticketHistoryTable : Table("ticketHistoryTable") {
+object ticketHistoryTable : Table("ticket_history") {
     val ticketHistoryId = varchar("TicketHistoryId",36).default(java.util.UUID.randomUUID().toString())
     val remoteId = integer("RemoteId").nullable()
     val title = varchar("Title", 255).nullable()

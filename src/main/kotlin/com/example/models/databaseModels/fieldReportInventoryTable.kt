@@ -6,7 +6,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.jetbrains.exposed.sql.ReferenceOption
 import java.util.UUID
 
-object fieldReportInventoryTable : Table("fieldReportInventoryTable") {
+object fieldReportInventoryTable : Table("fieldreport_inventory") {
     val fieldReportInventoryId = varchar("FieldReportInventoryId", 36).default(UUID.randomUUID().toString())
     val remoteID = integer("RemoteId").nullable()
     val lastModified = varchar("LastModified", 255).nullable()

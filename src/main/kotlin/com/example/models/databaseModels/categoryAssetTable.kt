@@ -4,7 +4,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.CurrentDateTime
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import java.util.UUID
 
-object categoryAssetTable : Table("categoryAssetTable") {
+object categoryAssetTable : Table("category_asset") {
     val categoryAssetId = varchar("CategoryAssetId",36).default(java.util.UUID.randomUUID().toString())
     val remoteId = integer("RemoteId").nullable()
     val name = varchar("Name", 255).nullable()

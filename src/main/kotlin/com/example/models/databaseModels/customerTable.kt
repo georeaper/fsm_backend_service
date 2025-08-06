@@ -9,7 +9,7 @@ import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.update
 import java.util.*
 
-object customerTable : Table("customerTable") {
+object customerTable : Table("customer") {
     val customerId = varchar("CustomerId", 36).default(UUID.randomUUID().toString())
     val remoteId = integer("RemoteId").nullable()
     val name = varchar("Name", 255).nullable()
