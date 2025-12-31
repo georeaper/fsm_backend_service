@@ -11,8 +11,9 @@ version = "0.0.1"
 application {
     mainClass.set("io.ktor.server.netty.EngineMain")
 
-    val isDevelopment: Boolean = project.hasProperty("development")
-    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+    //val isDevelopment: Boolean = project.hasProperty("development")
+    //applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+    applicationDefaultJvmArgs = listOf("-Dktor.config=application.yaml")
 }
 
 repositories {
@@ -33,11 +34,13 @@ dependencies {
 
     implementation(libs.ktor.server.cors)
 
+
     implementation("at.favre.lib:bcrypt:0.10.2")
     implementation("io.ktor:ktor-server-auth-jwt:2.0.0")
 
     implementation("com.google.code.gson:gson:2.8.8") // Add this line for Gson
 
+    implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
 
     // Additional Exposed dependencies
     implementation("org.jetbrains.exposed:exposed-core:0.43.0")

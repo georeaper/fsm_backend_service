@@ -9,6 +9,7 @@ import com.example.routes.equipmentsRoute
 import com.example.routes.protectedRoutes
 import com.example.routes.seedCompanyARoute
 import com.example.routes.syncRoutes
+import io.github.cdimascio.dotenv.dotenv
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -23,11 +24,14 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
+import java.io.File
 
 
 fun main(args: Array<String>) = EngineMain.main(args)
 
 fun Application.module() {
+
+
     install(ContentNegotiation) {
         json()
     }
@@ -55,16 +59,29 @@ fun Application.module() {
             }
         }
     }
+    val dotenv = loadDotenv()
+//    val dotenv = dotenv {
+//        directory = "./assets"
+//        filename = "env.dev" // instead of '.env', use 'env'
+//    }
 
     val logger = LoggerFactory.getLogger("Application")
-    val dbConfig = environment.config.config("ktor.database.centralDatabase")
-    logger.info(dbConfig.toString())
 
+    val url ="jdbc:postgresql://${dotenv["DB_HOST"]}:${dotenv["DB_PORT"]}/${dotenv["DB_NAME"]}"
+    val driver = "org.postgresql.Driver"
+    val user ="${dotenv["DB_USER"]}"
+    val password ="${dotenv["DB_PASSWORD"]}"
+    println("======CONFIG DB INIT========")
+    println(url)
+    println(driver)
+    println(user)
+    println(password)
+    println("======CONFIG DB END========")
     Database.connect(
-        url = dbConfig.property("url").getString(),
-        driver = dbConfig.property("driver").getString(),
-        user = dbConfig.property("user").getString(),
-        password = dbConfig.property("password").getString()
+        url = url,
+        driver = driver,
+        user = user,
+        password = password
     )
 
     transaction {
@@ -86,4 +103,29 @@ fun Application.module() {
         syncRoutes()
 
     }
+}
+
+
+fun loadDotenv(): io.github.cdimascio.dotenv.Dotenv {
+    val env = System.getenv("ENV") ?: "dev"
+
+    val fileName = when (env) {
+        "dev" -> "env.dev"
+        "prod" -> "env.prod"
+        else -> error("Invalid ENV value: $env (use dev or prod)")
+    }
+
+    val file = File("assets/$fileName")
+    require(file.exists()) {
+        "Missing environment file: assets/$fileName"
+    }
+
+    println("Running in ENV=$env")
+
+    return dotenv {
+        directory = "./assets"
+        filename = fileName
+    }
+
+
 }
