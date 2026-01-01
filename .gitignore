@@ -5,6 +5,7 @@ build/
 !**/src/test/**/build/
 /tokens.json
 assets/env.dev
+assets/env.prod
 assets/user_credentials
 
 ### STS ###
