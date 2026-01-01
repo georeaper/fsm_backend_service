@@ -3,14 +3,16 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ktor)
     alias(libs.plugins.kotlin.plugin.serialization)
+   //id("com.github.johnrengelman.shadow") version "8.1.1"
+   id("com.gradleup.shadow") version "8.3.4"
 }
 
 group = "com.example"
 version = "0.0.1"
 
 application {
-    mainClass.set("io.ktor.server.netty.EngineMain")
-
+//    mainClass.set("io.ktor.server.netty.EngineMain")
+    mainClass.set("com.example.ApplicationKt")
     //val isDevelopment: Boolean = project.hasProperty("development")
     //applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
     applicationDefaultJvmArgs = listOf("-Dktor.config=application.yaml")
@@ -18,8 +20,16 @@ application {
 
 repositories {
     mavenCentral()
-}
 
+}
+tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
+    archiveBaseName.set("fsm-backend")
+    archiveClassifier.set("") // removes "-all" suffix
+    archiveVersion.set("0.0.1")
+    manifest {
+        attributes["Main-Class"] = "com.example.ApplicationKt"
+    }
+}
 dependencies {
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.serialization.kotlinx.json)

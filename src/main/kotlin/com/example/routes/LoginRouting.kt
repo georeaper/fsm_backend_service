@@ -6,6 +6,8 @@ import com.example.models.authenticationModels.CompanyTable
 import com.example.models.authenticationModels.UserTable
 import com.example.dto.LoginRequest
 import com.example.dto.LoginResponse
+import com.example.loadDotenv
+import io.github.cdimascio.dotenv.dotenv
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
@@ -20,14 +22,20 @@ fun Route.authRoutes() {
         post("/login") {
             try {
                 val request = call.receive<LoginRequest>()
-                println("Received Login Request: $request")  // Log the incoming request
+                println("Step 1 :Received Login Request: $request")  // Log the incoming request
+                val dotenv = loadDotenv()
 
+                val url ="jdbc:postgresql://${dotenv["DB_HOST"]}:${dotenv["DB_PORT"]}/${dotenv["DB_NAME"]}"
+                val driver = "org.postgresql.Driver"
+                val userdb ="${dotenv["DB_USER"]}"
+                val password ="${dotenv["DB_PASSWORD"]}"
+                println("Step 2: $url")
                 // Connect to central_db (stores user credentials and database info)
                 Database.connect(
-                    url = "jdbc:postgresql://localhost:5432/central_db",
-                    driver = "org.postgresql.Driver",
-                    user = "postgres",
-                    password = "Giorgos13"
+                    url = url,
+                    driver = driver,
+                    user = userdb,
+                    password = password
                 )
 
                 val user = transaction {

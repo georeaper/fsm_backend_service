@@ -5,7 +5,7 @@ build/
 !**/src/test/**/build/
 /tokens.json
 assets/env.dev
-
+assets/user_credentials
 
 ### STS ###
 .apt_generated

@@ -60,10 +60,6 @@ fun Application.module() {
         }
     }
     val dotenv = loadDotenv()
-//    val dotenv = dotenv {
-//        directory = "./assets"
-//        filename = "env.dev" // instead of '.env', use 'env'
-//    }
 
     val logger = LoggerFactory.getLogger("Application")
 
