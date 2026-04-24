@@ -1,6 +1,7 @@
 package com.example
 
 
+import com.example.infrastructure.DatabaseFactory
 import com.example.models.authenticationModels.CompanyTable
 import com.example.models.authenticationModels.UserTable
 import com.example.routes.authRoutes
@@ -15,11 +16,19 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
+import io.ktor.server.http.content.defaultResource
+import io.ktor.server.http.content.resources
+import io.ktor.server.http.content.static
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
+import io.ktor.server.response.respond
 
 import io.ktor.server.routing.*
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -29,6 +38,7 @@ import java.io.File
 
 fun main(args: Array<String>) = EngineMain.main(args)
 
+@OptIn(DelicateCoroutinesApi::class)
 fun Application.module() {
 
 
@@ -61,45 +71,98 @@ fun Application.module() {
     }
     val dotenv = loadDotenv()
 
-    val logger = LoggerFactory.getLogger("Application")
+ //  DatabaseFactory.init(dotenv)
 
-    val url ="jdbc:postgresql://${dotenv["DB_HOST"]}:${dotenv["DB_PORT"]}/${dotenv["DB_NAME"]}"
-    val driver = "org.postgresql.Driver"
-    val user ="${dotenv["DB_USER"]}"
-    val password ="${dotenv["DB_PASSWORD"]}"
-    println("======CONFIG DB INIT========")
-    println(url)
-    println(driver)
-    println(user)
-    println(password)
-    println("======CONFIG DB END========")
-    Database.connect(
-        url = url,
-        driver = driver,
-        user = user,
-        password = password
-    )
+//    val dotenv = loadDotenv()
+//
+//    val logger = LoggerFactory.getLogger("Application")
+//
+//    val url ="jdbc:postgresql://${dotenv["DB_HOST"]}:${dotenv["DB_PORT"]}/${dotenv["DB_NAME"]}"
+//    val driver = "org.postgresql.Driver"
+//    val user ="${dotenv["DB_USER"]}"
+//    val password ="${dotenv["DB_PASSWORD"]}"
+//    println("======CONFIG DB INIT========")
+//    println(url)
+//    println(driver)
+//    println(user)
+//    println(password)
+//    println("======CONFIG DB END========")
+//    Database.connect(
+//        url = url,
+//        driver = driver,
+//        user = user,
+//        password = password
+//    )
+//
+//    transaction {
+//        SchemaUtils.createMissingTablesAndColumns(CompanyTable, UserTable)
+//    }
+//
+//    logger.info("Database initialized successfully!")
 
-    transaction {
-        SchemaUtils.createMissingTablesAndColumns(CompanyTable, UserTable)
-    }
-
-    logger.info("Database initialized successfully!")
-
-    configureRouting()
-
+    //configureRouting()
     routing {
-        equipmentsRoute()
-        seedCompanyARoute()
-        authRoutes()
-        dbCreation()
-        authenticate("auth-jwt") {  // ✅ Wrap protectedRoutes inside authenticate
-            protectedRoutes()
-        }
-        syncRoutes()
 
+//        get("/health") {
+//            if (DatabaseFactory.isConnected) {
+//                call.respond(HttpStatusCode.OK, "OK")
+//            } else {
+//                call.respond(HttpStatusCode.ServiceUnavailable, "DB not connected")
+//            }
+//        }
+        GlobalScope.launch {
+            while (true) {
+                if (!DatabaseFactory.isConnected) {
+                    println("Trying to reconnect DB...")
+                    DatabaseFactory.init(dotenv)
+                }
+                delay(5000)
+            }
+        }
+
+        route("/") {
+            static("/") {
+           resources("static")
+            defaultResource("static/index.html")
+        }
+            intercept(ApplicationCallPipeline.Call) {
+                if (!DatabaseFactory.isConnected) {
+                    call.respond(
+                        HttpStatusCode.ServiceUnavailable,
+                        mapOf("error" to "Database not connected")
+                    )
+                    finish()
+                }
+            }
+
+            // Όλα τα routes σου εδώ
+            equipmentsRoute()
+            seedCompanyARoute()
+            authRoutes()
+            dbCreation()
+            authenticate("auth-jwt") {  // ✅ Wrap protectedRoutes inside authenticate
+                protectedRoutes()
+            }
+            syncRoutes()
+        }
     }
-}
+
+//    routing {
+//        static("/") {
+//            resources("static")
+//            defaultResource("static/index.html")
+//        }
+//        equipmentsRoute()
+//        seedCompanyARoute()
+//        authRoutes()
+//        dbCreation()
+//        authenticate("auth-jwt") {  // ✅ Wrap protectedRoutes inside authenticate
+//            protectedRoutes()
+//        }
+//        syncRoutes()
+//
+//    }
+    }
 
 
 fun loadDotenv(): io.github.cdimascio.dotenv.Dotenv {
