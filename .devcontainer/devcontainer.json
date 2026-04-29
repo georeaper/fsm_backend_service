@@ -2,6 +2,12 @@
   "name": "Ktor Kotlin Dev",
   "image": "mcr.microsoft.com/devcontainers/java:21",
 
+  "features": {
+    "ghcr.io/devcontainers/features/postgres:1": {
+      "version": "15"
+    }
+  },
+
   "customizations": {
     "vscode": {
       "extensions": [
@@ -11,13 +17,5 @@
     }
   },
 
-  "postCreateCommand": "./gradlew build",
-  "forwardPorts": [8080],
-
-  "portsAttributes": {
-    "8080": {
-      "label": "Ktor App",
-      "onAutoForward": "openBrowser"
-    }
-  }
+  "forwardPorts": [8080, 5432]
 }
