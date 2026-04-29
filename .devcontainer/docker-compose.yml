@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  app:
+    image: mcr.microsoft.com/devcontainers/java:21
+    volumes:
+      - ..:/workspaces/fsm_backend_service
+    command: sleep infinity
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Giorgos13
+      POSTGRES_DB: central_db
+    ports:
+      - "5432:5432"

@@ -1,12 +1,11 @@
 {
   "name": "Ktor Kotlin Dev",
-  "image": "mcr.microsoft.com/devcontainers/java:21",
 
-  "features": {
-    "ghcr.io/devcontainers/features/postgres:1": {
-      "version": "15"
-    }
-  },
+  "dockerComposeFile": "docker-compose.yml",
+
+  "service": "app",
+
+  "workspaceFolder": "/workspaces/fsm_backend_service",
 
   "customizations": {
     "vscode": {
@@ -17,5 +16,7 @@
     }
   },
 
-  "forwardPorts": [8080, 5432]
+  "forwardPorts": [8080, 5432],
+
+  "postCreateCommand": ".devcontainer/init-env.sh && ./gradlew build"
 }
