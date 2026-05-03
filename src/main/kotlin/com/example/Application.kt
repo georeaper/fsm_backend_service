@@ -1,10 +1,10 @@
 package com.example
 
 
+import com.example.core.AppContainer
 import com.example.infrastructure.DatabaseFactory
-import com.example.models.authenticationModels.CompanyTable
-import com.example.models.authenticationModels.UserTable
 import com.example.routes.authRoutes
+import com.example.feature.customers.customersRoute
 import com.example.routes.dbCreation
 import com.example.routes.equipmentsRoute
 import com.example.routes.protectedRoutes
@@ -29,10 +29,6 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.transactions.transaction
-import org.slf4j.LoggerFactory
 import java.io.File
 
 
@@ -69,6 +65,7 @@ fun Application.module() {
             }
         }
     }
+    val container = AppContainer()
     val dotenv = loadDotenv()
 
  //  DatabaseFactory.init(dotenv)
@@ -136,6 +133,7 @@ fun Application.module() {
             }
 
             // Όλα τα routes σου εδώ
+            customersRoute(container.getCustomersUseCase)
             equipmentsRoute()
             seedCompanyARoute()
             authRoutes()
