@@ -2,7 +2,9 @@ version: "3.8"
 
 services:
   app:
-    image: mcr.microsoft.com/devcontainers/java:21
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - ..:/workspaces/fsm_backend_service
     command: sleep infinity

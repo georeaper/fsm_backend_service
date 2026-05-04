@@ -2,19 +2,27 @@
   "name": "Ktor Kotlin Dev",
 
   "dockerComposeFile": "docker-compose.yml",
-
   "service": "app",
 
   "workspaceFolder": "/workspaces/fsm_backend_service",
 
   "customizations": {
-    "vscode": {
-      "extensions": [
-        "fwcd.kotlin",
-        "vscjava.vscode-java-pack"
-      ]
+  "vscode": {
+    "extensions": [
+      "fwcd.kotlin",
+      "vscjava.vscode-java-pack"
+    ],
+    "settings": {
+      "java.jdt.ls.java.home": "/usr/lib/jvm/msopenjdk-current",
+      "java.import.gradle.java.home": "/usr/lib/jvm/msopenjdk-current"
     }
-  },
+  }
+},
+
+  "remoteEnv": {
+  "JAVA_HOME": "/usr/lib/jvm/msopenjdk-current",
+  "PATH": "/usr/lib/jvm/msopenjdk-current/bin:${env:PATH}"
+},
 
   "forwardPorts": [8080, 5432],
 
