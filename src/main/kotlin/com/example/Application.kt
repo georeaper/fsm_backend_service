@@ -104,7 +104,8 @@ fun Application.module() {
             }
 
             // Όλα τα routes σου εδώ
-            customersRoute(container.getCustomersUseCase)
+            customersRoute(container.getCustomersUseCase ,
+                container.createCustomerUseCase)
             equipmentsRoute()
             seedCompanyARoute()
             authRoutes()

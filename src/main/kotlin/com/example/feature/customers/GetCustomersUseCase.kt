@@ -1,9 +1,8 @@
 package com.example.feature.customers
 
+import com.example.core.DateUtils
 import com.example.feature.customers.dto.CustomerResponse
-import com.example.feature.customers.dto.CustomersDto
 import com.example.core.RequestContext
-import com.example.models.databaseModels.customerTable
 
 class GetCustomersUseCase(
     private val repository: CustomersRepository
@@ -21,8 +20,8 @@ class GetCustomersUseCase(
                 zipCode = it.zipCode,
                 notes = it.notes,
                 description = it.description,
-                dateCreated = it.dateCreated,
-                lastModified = it.lastModified,
+                dateCreated = DateUtils.storageToUi(it.dateCreated) ?: "",
+                lastModified = DateUtils.storageToUi(it.lastModified) ?: "",
                 status = it.status
             )
 

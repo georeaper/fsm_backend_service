@@ -1,5 +1,6 @@
 package com.example.core
 
+import com.example.feature.customers.CreateCustomerUseCase
 import com.example.feature.customers.CustomerRepositoryImpl
 import com.example.feature.customers.GetCustomersUseCase
 
@@ -16,7 +17,7 @@ class AppContainer {
         GetCustomersUseCase(customerRepository)
     }
 
-//    val createCustomerUseCase by lazy {
-//        CreateCustomerUseCase(customerRepository)
-//    }
+    val createCustomerUseCase by lazy {
+        CreateCustomerUseCase(customerRepository)
+    }
 }
