@@ -19,9 +19,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 
 fun Route.customersRoute(getCustomersUseCase: GetCustomersUseCase) {
-//    val dbProvider = DatabaseProvider()
-//    val customerRepository = CustomerRepositoryImpl(dbProvider)
-//    val getCustomersUseCase = GetCustomersUseCase(customerRepository)
+
     authenticate("auth-jwt") {
         get("/get-customers") {
             // 1. Get JWT principal provided by Ktor's JWT auth
