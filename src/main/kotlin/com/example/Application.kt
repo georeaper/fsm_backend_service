@@ -9,7 +9,7 @@ import com.example.models.authenticationModels.UserTable
 import com.example.routes.authRoutes
 import com.example.routes.customersRoute
 import com.example.routes.dbCreation
-import com.example.routes.equipmentsRoute
+import com.example.feature.equipments.equipmentsRoute
 import com.example.routes.protectedRoutes
 import com.example.routes.seedCompanyARoute
 import com.example.routes.syncRoutes
@@ -106,7 +106,8 @@ fun Application.module() {
             // Όλα τα routes σου εδώ
             customersRoute(container.getCustomersUseCase ,
                 container.createCustomerUseCase)
-            equipmentsRoute()
+            equipmentsRoute(container.getEquipmentUseCase ,
+                container.createEquipmentUseCase)
             seedCompanyARoute()
             authRoutes()
             dbCreation()

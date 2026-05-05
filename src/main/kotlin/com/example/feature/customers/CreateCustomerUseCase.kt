@@ -4,7 +4,6 @@ import com.example.core.DateUtils
 import com.example.core.RequestContext
 import com.example.feature.customers.dto.CreateCustomerRequest
 import com.example.models.api.Customers
-import java.time.Instant
 import java.util.UUID
 
 
@@ -18,21 +17,21 @@ class CreateCustomerUseCase(
     ): Customers {
 
         // ✅ validation
-        require(input.name.isNotBlank()) { "Name is required" }
-        require(input.email.isNotBlank()) { "Email is required" }
+//        require(input.name.isNotBlank()) { "Name is required" }
+//        require(input.email.isNotBlank()) { "Email is required" }
 
         // basic normalization
-        val email = input.email.trim().lowercase()
+        val email = input.email?.trim()?.lowercase()
 
         // (optional simple validation)
-        require(email.contains("@")) { "Invalid email format" }
+//        require(email?.contains("@")) { "Invalid email format" }
 
 //        val now = Instant.now()
         val storageDate = DateUtils.nowStorage()
 
         val customer = Customers(
             CustomerID = UUID.randomUUID().toString(),
-            Name = input.name.trim(),
+            Name = input.name?.trim(),
             Email = email,
             Phone = input.phone?.trim(),
             Address = input.address?.trim(),

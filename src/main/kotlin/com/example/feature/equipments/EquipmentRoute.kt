@@ -1,9 +1,9 @@
-package com.example.feature.customers
-
+package com.example.feature.equipments
 
 import com.example.core.RequestContext
-import com.example.feature.customers.dto.CreateCustomerRequest
-
+import com.example.feature.equipments.dto.CreateEquipmentResponse
+import io.ktor.server.auth.authenticate
+import io.ktor.server.routing.Route
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.routing.*
@@ -11,17 +11,11 @@ import io.ktor.server.response.*
 import io.ktor.http.*
 import io.ktor.server.request.receive
 
-
-
-
-
-
-fun Route.customersRoute(getCustomersUseCase: GetCustomersUseCase,
-                         createCustomerUseCase: CreateCustomerUseCase ) {
-
+fun Route.equipmentsRoute(
+    getEquipmentUseCase: GetEquipmentUseCase,
+    createEquipmentUseCase: CreateEquipmentUseCase ){
     authenticate("auth-jwt") {
-
-        get("/customers"){
+        get("/equipments"){
             val principal = call.principal<JWTPrincipal>()
                 ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
@@ -32,11 +26,10 @@ fun Route.customersRoute(getCustomersUseCase: GetCustomersUseCase,
                 dbName = dbName,
                 username = principal.getClaim("username", String::class)
             )
-            val result = getCustomersUseCase.execute(ctx)
+            val result=getEquipmentUseCase.execute(ctx)
             call.respond(result)
-
         }
-        post("/customers") {
+        post("/equipments"){
             val principal = call.principal<JWTPrincipal>()
                 ?: return@post call.respond(HttpStatusCode.Unauthorized)
 
@@ -47,14 +40,9 @@ fun Route.customersRoute(getCustomersUseCase: GetCustomersUseCase,
                 username = principal.getClaim("username", String::class),
                 dbName = dbName
             )
-
-            val request = call.receive<CreateCustomerRequest>()
-
-            val result = createCustomerUseCase.execute(ctx, request)
-
+            val request=call.receive<CreateEquipmentResponse>()
+            val result=createEquipmentUseCase.execute(ctx,request)
             call.respond(HttpStatusCode.Created, result)
         }
     }
 }
-
-
