@@ -20,5 +20,6 @@ data class EquipmentsResponse(
     val LastModified: String?,
     val DateCreated: String?,
     val Version: String?,
-    val CustomerID: String?
+    val CustomerID: String?,
+    val CustomerName : String?
 )

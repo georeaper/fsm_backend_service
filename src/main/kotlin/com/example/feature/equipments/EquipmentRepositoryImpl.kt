@@ -8,8 +8,10 @@ import com.example.models.api.Equipments
 import com.example.models.databaseModels.customerTable
 import com.example.models.databaseModels.equipmentTable
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.leftJoin
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 
 class EquipmentRepositoryImpl (
 private val dbProvider: DatabaseProvider
@@ -48,7 +50,8 @@ private val dbProvider: DatabaseProvider
     override fun findAll(ctx: RequestContext): List<EquipmentsResponse> {
         val db = dbProvider.getDatabase(ctx.dbName)
         return transaction(db) {
-            val map = equipmentTable.selectAll().map {
+            val joinQuery = equipmentTable.leftJoin(customerTable)
+            val map = joinQuery.selectAll().map {
                 EquipmentsResponse(
                     EquipmentID = it[equipmentTable.equipmentId],
                     RemoteID = it[equipmentTable.remoteId],
@@ -66,7 +69,8 @@ private val dbProvider: DatabaseProvider
                     LastModified = it[equipmentTable.lastModified],
                     DateCreated = it[equipmentTable.dateCreated],
                     Version = it[equipmentTable.version],
-                    CustomerID = it[equipmentTable.customerId]
+                    CustomerID = it[equipmentTable.customerId],
+                    CustomerName = it[customerTable.name]
                 )
             }
             map
@@ -75,9 +79,54 @@ private val dbProvider: DatabaseProvider
 
     override fun edit(
         ctx: RequestContext,
-        data: Equipments
+        data: EditEquipmentResponse
     ): EditEquipmentResponse {
-        TODO("Not yet implemented")
+        val db=dbProvider.getDatabase(ctx.dbName)
+
+        val eq=EditEquipmentResponse(
+            EquipmentID = data.EquipmentID,
+            RemoteID = data.RemoteID,
+            Name = data.Name,
+            SerialNumber = data.SerialNumber,
+            Model = data.Model,
+            Manufacturer = data.Manufacturer,
+            Notes = data.Notes,
+            Description = data.Description,
+            EquipmentVersion = data.EquipmentVersion,
+            EquipmentCategory = data.EquipmentCategory,
+            Warranty = data.Warranty,
+            EquipmentStatus = data.EquipmentStatus,
+            InstallationDate = data.InstallationDate,
+            LastModified = data.LastModified,
+            DateCreated = data.DateCreated,
+            Version = data.Version,
+            CustomerID = data.CustomerID
+            
+        )
+        transaction(db) {
+            equipmentTable.update({ equipmentTable.equipmentId eq eq.EquipmentID })  {
+
+                    it[equipmentId]=eq.EquipmentID
+                    it[remoteId] = eq.RemoteID
+                    it[name] =eq.Name
+                    it[serialNumber] =eq.SerialNumber
+                    it[model] =eq.Model
+                    it[manufacturer] =eq.Manufacturer
+                    it[notes] =eq.Notes
+                    it[description] =eq.Description
+                    it[equipmentVersion] =eq.EquipmentVersion
+                    it[equipmentCategory] =eq.EquipmentCategory
+                    it[warranty] =eq.Warranty
+                    it[equipmentStatus] =eq.EquipmentStatus
+                    it[installationDate] =eq.InstallationDate
+                    it[lastModified] =eq.LastModified
+                    it[dateCreated] =eq.DateCreated
+                    it[version] =eq.Version
+                    it[customerId]= eq.CustomerID
+
+            }
+        }
+        return eq
     }
 
 }

@@ -9,5 +9,5 @@ import com.example.models.api.Equipments
 interface EquipmentRepository {
     fun save(ctx: RequestContext,data: Equipments): Equipments
     fun findAll(ctx: RequestContext): List<EquipmentsResponse>
-    fun edit(ctx: RequestContext,data: Equipments): EditEquipmentResponse
+    fun edit(ctx: RequestContext,data: EditEquipmentResponse): EditEquipmentResponse
 }
