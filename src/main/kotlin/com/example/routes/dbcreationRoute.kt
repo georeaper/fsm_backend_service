@@ -5,13 +5,18 @@ import io.ktor.server.routing.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
+import com.example.loadDotenv
 
 fun Route.dbCreation(){
     route("/sign-up"){
-        get("/init-db"){
+        get("/init-db"){          
+
+        
             try{
+                val dotenv = loadDotenv()
+                val url = "jdbc:postgresql://${dotenv["DB_HOST"]}:${dotenv["DB_PORT"]}/CompanyA"
                 val db = Database.connect(
-                    url = "jdbc:postgresql://localhost:5432/CompanyA",
+                    url = url,
                     driver = "org.postgresql.Driver",
                     user = "postgres",
                     password = "Giorgos13"

@@ -8,7 +8,7 @@ This project runs inside GitHub Codespaces using a full devcontainer setup with 
 
 - Kotlin
 - Ktor
-- PostgreSQL (Docker)
+- PostgreSQL (Docker) <- psql -h db -U postgres -d central_db
 - Exposed ORM
 - GitHub Codespaces Dev Containers
 
