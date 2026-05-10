@@ -2,6 +2,8 @@ package com.example.feature.equipments
 
 import com.example.core.RequestContext
 import com.example.feature.equipments.dto.CreateEquipmentResponse
+import com.example.feature.equipments.usecase.CreateEquipmentUseCase
+import com.example.feature.equipments.usecase.GetEquipmentUseCase
 import io.ktor.server.auth.authenticate
 import io.ktor.server.routing.Route
 import io.ktor.server.auth.*
@@ -13,7 +15,8 @@ import io.ktor.server.request.receive
 
 fun Route.equipmentsRoute(
     getEquipmentUseCase: GetEquipmentUseCase,
-    createEquipmentUseCase: CreateEquipmentUseCase ){
+    createEquipmentUseCase: CreateEquipmentUseCase
+){
     authenticate("auth-jwt") {
         get("/equipments"){
             val principal = call.principal<JWTPrincipal>()

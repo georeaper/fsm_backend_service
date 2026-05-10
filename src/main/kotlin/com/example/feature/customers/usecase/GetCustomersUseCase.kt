@@ -1,8 +1,9 @@
-package com.example.feature.customers
+package com.example.feature.customers.usecase
 
 import com.example.core.DateUtils
-import com.example.feature.customers.dto.CustomerResponse
 import com.example.core.RequestContext
+import com.example.feature.customers.dto.CustomerResponse
+import com.example.feature.customers.repository.CustomersRepository
 
 class GetCustomersUseCase(
     private val repository: CustomersRepository
@@ -12,7 +13,7 @@ class GetCustomersUseCase(
         return customers.map { it->
             CustomerResponse(
                 id = it.id,
-                name =it.name,
+                name = it.name,
                 email = it.email,
                 phone = it.phone,
                 address = it.address,

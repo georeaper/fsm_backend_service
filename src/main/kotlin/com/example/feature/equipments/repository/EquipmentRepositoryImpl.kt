@@ -1,4 +1,4 @@
-package com.example.feature.equipments
+package com.example.feature.equipments.repository
 
 import com.example.core.DatabaseProvider
 import com.example.core.RequestContext
@@ -8,7 +8,6 @@ import com.example.models.api.Equipments
 import com.example.models.databaseModels.customerTable
 import com.example.models.databaseModels.equipmentTable
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.leftJoin
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
@@ -22,25 +21,25 @@ private val dbProvider: DatabaseProvider
     ): Equipments {
         val db=dbProvider.getDatabase(ctx.dbName)
         transaction(db) {
-            equipmentTable.insert{
+            equipmentTable.insert {
 
-                    it[equipmentId]=data.EquipmentID
-                    it[remoteId] = data.RemoteID
-                    it[ name] =data.Name
-                    it[ serialNumber] =data.SerialNumber
-                    it[ model] =data.Model
-                    it[ manufacturer] =data.Manufacturer
-                    it[ notes] =data.Notes
-                    it[ description] =data.Description
-                    it[ equipmentVersion] =data.EquipmentVersion
-                    it[ equipmentCategory] =data.EquipmentCategory
-                    it[ warranty] =data.Warranty
-                    it[ equipmentStatus] =data.EquipmentStatus
-                    it[ installationDate] =data.InstallationDate
-                    it[ lastModified] =data.LastModified
-                    it[ dateCreated] =data.DateCreated
-                    it[version] =data.Version
-                    it[ customerId ]= data.CustomerID
+                it[equipmentId] = data.EquipmentID
+                it[remoteId] = data.RemoteID
+                it[name] = data.Name
+                it[serialNumber] = data.SerialNumber
+                it[model] = data.Model
+                it[manufacturer] = data.Manufacturer
+                it[notes] = data.Notes
+                it[description] = data.Description
+                it[equipmentVersion] = data.EquipmentVersion
+                it[equipmentCategory] = data.EquipmentCategory
+                it[warranty] = data.Warranty
+                it[equipmentStatus] = data.EquipmentStatus
+                it[installationDate] = data.InstallationDate
+                it[lastModified] = data.LastModified
+                it[dateCreated] = data.DateCreated
+                it[version] = data.Version
+                it[customerId] = data.CustomerID
 
             }
         }
@@ -83,7 +82,7 @@ private val dbProvider: DatabaseProvider
     ): EditEquipmentResponse {
         val db=dbProvider.getDatabase(ctx.dbName)
 
-        val eq=EditEquipmentResponse(
+        val eq= EditEquipmentResponse(
             EquipmentID = data.EquipmentID,
             RemoteID = data.RemoteID,
             Name = data.Name,
@@ -101,28 +100,28 @@ private val dbProvider: DatabaseProvider
             DateCreated = data.DateCreated,
             Version = data.Version,
             CustomerID = data.CustomerID
-            
+
         )
         transaction(db) {
-            equipmentTable.update({ equipmentTable.equipmentId eq eq.EquipmentID })  {
+            equipmentTable.update({ equipmentTable.equipmentId eq eq.EquipmentID }) {
 
-                    it[equipmentId]=eq.EquipmentID
-                    it[remoteId] = eq.RemoteID
-                    it[name] =eq.Name
-                    it[serialNumber] =eq.SerialNumber
-                    it[model] =eq.Model
-                    it[manufacturer] =eq.Manufacturer
-                    it[notes] =eq.Notes
-                    it[description] =eq.Description
-                    it[equipmentVersion] =eq.EquipmentVersion
-                    it[equipmentCategory] =eq.EquipmentCategory
-                    it[warranty] =eq.Warranty
-                    it[equipmentStatus] =eq.EquipmentStatus
-                    it[installationDate] =eq.InstallationDate
-                    it[lastModified] =eq.LastModified
-                    it[dateCreated] =eq.DateCreated
-                    it[version] =eq.Version
-                    it[customerId]= eq.CustomerID
+                it[equipmentId] = eq.EquipmentID
+                it[remoteId] = eq.RemoteID
+                it[name] = eq.Name
+                it[serialNumber] = eq.SerialNumber
+                it[model] = eq.Model
+                it[manufacturer] = eq.Manufacturer
+                it[notes] = eq.Notes
+                it[description] = eq.Description
+                it[equipmentVersion] = eq.EquipmentVersion
+                it[equipmentCategory] = eq.EquipmentCategory
+                it[warranty] = eq.Warranty
+                it[equipmentStatus] = eq.EquipmentStatus
+                it[installationDate] = eq.InstallationDate
+                it[lastModified] = eq.LastModified
+                it[dateCreated] = eq.DateCreated
+                it[version] = eq.Version
+                it[customerId] = eq.CustomerID
 
             }
         }

@@ -1,11 +1,11 @@
-package com.example.feature.customers
+package com.example.feature.customers.usecase
 
 import com.example.core.DateUtils
 import com.example.core.RequestContext
 import com.example.feature.customers.dto.CreateCustomerRequest
+import com.example.feature.customers.repository.CustomersRepository
 import com.example.models.api.Customers
 import java.util.UUID
-
 
 class CreateCustomerUseCase(
     private val repository: CustomersRepository
@@ -41,8 +41,8 @@ class CreateCustomerUseCase(
             Description = input.description?.trim(),
             CustomerStatus = true,
             DateCreated = storageDate,
-            LastModified=storageDate,
-            Version="",
+            LastModified = storageDate,
+            Version = "",
             RemoteID = null
         )
 

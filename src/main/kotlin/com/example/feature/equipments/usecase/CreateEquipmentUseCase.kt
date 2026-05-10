@@ -1,16 +1,15 @@
-package com.example.feature.equipments
+package com.example.feature.equipments.usecase
 
 import com.example.core.DateUtils
 import com.example.core.RequestContext
-import com.example.feature.customers.CustomersRepository
-import com.example.feature.customers.dto.CreateCustomerRequest
+import com.example.feature.equipments.repository.EquipmentRepository
 import com.example.feature.equipments.dto.CreateEquipmentResponse
 import com.example.models.api.Equipments
 import java.util.UUID
 
 class CreateEquipmentUseCase (private val repository: EquipmentRepository
 ) {
-    fun execute( ctx : RequestContext ,input: CreateEquipmentResponse): Equipments{
+    fun execute(ctx : RequestContext, input: CreateEquipmentResponse): Equipments {
         val storageDate = DateUtils.nowStorage()
 
         val equipments= Equipments(

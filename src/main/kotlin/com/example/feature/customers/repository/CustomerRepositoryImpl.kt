@@ -1,15 +1,13 @@
-package com.example.feature.customers
+package com.example.feature.customers.repository
 
 import com.example.core.DatabaseProvider
-import com.example.core.DateUtils
-import com.example.feature.customers.dto.CustomersDto
 import com.example.core.RequestContext
+import com.example.feature.customers.dto.CustomersDto
 import com.example.models.api.Customers
-import org.jetbrains.exposed.sql.transactions.transaction
 import com.example.models.databaseModels.customerTable
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
-import java.util.Date
+import org.jetbrains.exposed.sql.transactions.transaction
 
 class CustomerRepositoryImpl(
     private val dbProvider: DatabaseProvider
@@ -69,4 +67,3 @@ class CustomerRepositoryImpl(
         }
     }
 }
-

@@ -3,6 +3,8 @@ package com.example.feature.customers
 
 import com.example.core.RequestContext
 import com.example.feature.customers.dto.CreateCustomerRequest
+import com.example.feature.customers.usecase.CreateCustomerUseCase
+import com.example.feature.customers.usecase.GetCustomersUseCase
 
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
@@ -17,7 +19,8 @@ import io.ktor.server.request.receive
 
 
 fun Route.customersRoute(getCustomersUseCase: GetCustomersUseCase,
-                         createCustomerUseCase: CreateCustomerUseCase ) {
+                         createCustomerUseCase: CreateCustomerUseCase
+) {
 
     authenticate("auth-jwt") {
 

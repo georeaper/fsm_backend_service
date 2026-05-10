@@ -1,12 +1,12 @@
 package com.example.core
 
-import com.example.feature.customers.CreateCustomerUseCase
-import com.example.feature.customers.CustomerRepositoryImpl
-import com.example.feature.customers.GetCustomersUseCase
-import com.example.feature.equipments.CreateEquipmentUseCase
-import com.example.feature.equipments.EquipmentRepository
-import com.example.feature.equipments.EquipmentRepositoryImpl
-import com.example.feature.equipments.GetEquipmentUseCase
+import com.example.feature.customers.usecase.CreateCustomerUseCase
+import com.example.feature.customers.repository.CustomerRepositoryImpl
+import com.example.feature.customers.usecase.GetCustomersUseCase
+import com.example.feature.equipments.usecase.CreateEquipmentUseCase
+import com.example.feature.equipments.repository.EquipmentRepository
+import com.example.feature.equipments.repository.EquipmentRepositoryImpl
+import com.example.feature.equipments.usecase.GetEquipmentUseCase
 
 class AppContainer {
     private val dbProvider by lazy { DatabaseProvider() }

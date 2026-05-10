@@ -1,7 +1,8 @@
-package com.example.feature.equipments
+package com.example.feature.equipments.usecase
 
 import com.example.core.DateUtils
 import com.example.core.RequestContext
+import com.example.feature.equipments.repository.EquipmentRepository
 import com.example.feature.equipments.dto.EquipmentsResponse
 
 class GetEquipmentUseCase (private val repository: EquipmentRepository){
