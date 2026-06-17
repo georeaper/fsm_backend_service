@@ -2,6 +2,7 @@ package com.example
 
 
 import com.example.core.AppContainer
+import com.example.feature.contracts.contractsRoute
 import com.example.feature.customers.customersRoute
 import com.example.infrastructure.DatabaseFactory
 import com.example.models.authenticationModels.CompanyTable
@@ -10,6 +11,13 @@ import com.example.routes.authRoutes
 import com.example.routes.customersRoute
 import com.example.routes.dbCreation
 import com.example.feature.equipments.equipmentsRoute
+import com.example.feature.fieldreport.fieldReportRoute
+import com.example.feature.maintenance.maintenanceRoute
+import com.example.feature.settings.settingsRoute
+import com.example.feature.tasks.tasksRoute
+import com.example.feature.ticket.ticketsRoute
+import com.example.feature.tools.toolsRoute
+import com.example.feature.user.usersRoute
 import com.example.routes.protectedRoutes
 import com.example.routes.seedCompanyARoute
 import com.example.routes.syncRoutes
@@ -108,6 +116,14 @@ fun Application.module() {
                 container.createCustomerUseCase)
             equipmentsRoute(container.getEquipmentUseCase ,
                 container.createEquipmentUseCase)
+            fieldReportRoute(container.getFieldReportUseCase,container.createFieldReportUseCase)
+            maintenanceRoute(container.getMaintenanceUseCase,container.createMaintenanceUseCase)
+            settingsRoute(container.getSettingsUseCase,container.createSettingsUseCase)
+            tasksRoute(container.getTaskUseCase,container.createTaskUseCase)
+            ticketsRoute(container.getTicketUseCase,container.createTicketUseCase)
+            toolsRoute(container.getToolUseCase,container.createToolUseCase)
+            usersRoute(container.getUserUseCase,container.createUserUseCase)
+            contractsRoute(container.getContractUseCase,container.createContractUseCase)
             seedCompanyARoute()
             authRoutes()
             dbCreation()

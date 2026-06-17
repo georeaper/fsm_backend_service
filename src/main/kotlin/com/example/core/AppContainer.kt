@@ -12,6 +12,7 @@ import com.example.feature.equipments.usecase.GetEquipmentUseCase
 import com.example.feature.contracts.usecase.CreateContractUseCase
 import com.example.feature.contracts.repository.ContractRepository
 import com.example.feature.contracts.repository.ContractRepositoryImpl
+import com.example.feature.contracts.usecase.GetContractUseCase
 
 import com.example.feature.maintenance.usecase.CreateMaintenanceUseCase
 import com.example.feature.maintenance.repository.MaintenanceRepository
@@ -30,6 +31,7 @@ import com.example.feature.fieldreport.repository.FieldReportRepositoryImpl
 import com.example.feature.fieldreport.repository.FieldReportRepository
 import com.example.feature.fieldreport.usecase.CreateFieldReportUseCase 
 import com.example.feature.fieldreport.usecase.GetFieldReportUseCase
+import com.example.feature.maintenance.usecase.GetMaintenanceUseCase
 
 import com.example.feature.ticket.repository.TicketRepositoryImpl
 import com.example.feature.ticket.repository.TicketRepository
@@ -45,7 +47,7 @@ import com.example.feature.tasks.repository.TaskRepositoryImpl
 import com.example.feature.tasks.repository.TaskRepository 
 import com.example.feature.tasks.usecase.CreateTaskUseCase
 import com.example.feature.tasks.usecase.GetTaskUseCase
-
+import com.example.feature.tools.usecase.GetToolUseCase
 
 
 class AppContainer {
@@ -82,7 +84,6 @@ class AppContainer {
     private val taskRepository by lazy{
         TaskRepositoryImpl(dbProvider) 
     }
-    
 
 
     // use cases
@@ -99,4 +100,53 @@ class AppContainer {
     val getEquipmentUseCase by lazy{
         GetEquipmentUseCase(equipmentRepository)
     }
+    val createContractUseCase by lazy{
+        CreateContractUseCase(contractRepository)
+    }
+    val getContractUseCase by lazy{
+        GetContractUseCase(contractRepository)
+    }
+    val getMaintenanceUseCase by lazy{
+        GetMaintenanceUseCase(maintenanceRepository)
+    }
+    val createMaintenanceUseCase by lazy{
+        CreateMaintenanceUseCase(maintenanceRepository)
+    }
+    val getToolUseCase by lazy{
+        GetToolUseCase(toolRepository)
+    }
+    val createToolUseCase by lazy{
+        CreateToolUseCase(toolRepository)
+    }
+    val getUserUseCase by lazy{
+        GetUserUseCase(userRepository)
+    }
+    val createUserUseCase by lazy{
+        CreateUserUseCase(userRepository)
+    }
+    val getFieldReportUseCase by lazy{
+        GetFieldReportUseCase(fieldReportRepository)
+    }
+    val createFieldReportUseCase by lazy{
+        CreateFieldReportUseCase(fieldReportRepository)
+    }
+    val getTicketUseCase by lazy{
+        GetTicketUseCase(ticketRepository)
+    }
+    val createTicketUseCase by lazy{
+        CreateTicketUseCase(ticketRepository)
+    }
+    val getSettingsUseCase by lazy{
+        GetSettingsUseCase(settingRepository)
+    }
+    val createSettingsUseCase by lazy{
+        CreateSettingsUseCase(settingRepository)
+    }
+    val getTaskUseCase by lazy{
+        GetTaskUseCase(taskRepository)
+    }
+    val createTaskUseCase by lazy{
+        CreateTaskUseCase(taskRepository)
+    }
+
 }
