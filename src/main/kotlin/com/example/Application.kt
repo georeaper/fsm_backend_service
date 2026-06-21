@@ -4,6 +4,7 @@ package com.example
 import com.example.core.AppContainer
 import com.example.feature.contracts.contractsRoute
 import com.example.feature.customers.customersRoute
+import com.example.feature.onboarding.routes.onboardingRoutes
 import com.example.infrastructure.DatabaseFactory
 import com.example.models.authenticationModels.CompanyTable
 import com.example.models.authenticationModels.UserTable
@@ -126,6 +127,7 @@ fun Application.module() {
             contractsRoute(container.getContractUseCase,container.createContractUseCase)
             seedCompanyARoute()
             authRoutes()
+            onboardingRoutes()
             dbCreation()
             authenticate("auth-jwt") {  // ✅ Wrap protectedRoutes inside authenticate
                 protectedRoutes()

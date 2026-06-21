@@ -1,8 +1,12 @@
-$loginResponse = curl.exe -s -X POST http://localhost:8080/auth/login `
+$aa="A"
+$body = @{
+    companyName = "TestCompany$aa"
+    companyEmail = "test@company$aa.com"
+    adminUsername = "admin_user$aa"
+    adminEmail = "admin@company$aa.com"
+    adminPassword = "SecurePassword123!"
+} | ConvertTo-Json
+
+curl.exe -X POST http://localhost:8080/onboarding/register `
   -H "Content-Type: application/json" `
-  -d '{"username":"george_mk","password":"Giorgos13"}'
-
-$token = ($loginResponse | ConvertFrom-Json).token
-
-curl.exe http://localhost:8080/customers `
-  -H "Authorization: Bearer $token"
+  -d $body
