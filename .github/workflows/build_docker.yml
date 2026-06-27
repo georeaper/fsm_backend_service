@@ -1,13 +1,13 @@
-name: Docker Build
+name: Docker Build & Push
 
 on:
-  workflow_dispatch:   # 👈 αυτό σου δίνει κουμπί στο UI
+  workflow_dispatch:
   push:
     branches:
       - dev
 
 jobs:
-  build-docker:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,5 +17,15 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image
-        run: docker build -t my-app:latest .
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
