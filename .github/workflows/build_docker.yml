@@ -2,6 +2,9 @@ name: Docker Build
 
 on:
   workflow_dispatch:   # 👈 αυτό σου δίνει κουμπί στο UI
+  push:
+    branches:
+      - dev
 
 jobs:
   build-docker:
