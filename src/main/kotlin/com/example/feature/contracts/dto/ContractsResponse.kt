@@ -18,5 +18,6 @@ data class ContractsResponse(
     val LastModified: String?,
     val DateCreated: String?,
     val Version: String?,
-    val CustomerID: String?
+    val CustomerID: String?,
+    val CustomerName: String?
 )

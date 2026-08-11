@@ -71,6 +71,20 @@ object JwtConfig {
         val validTokens = loadTokens().filter { it.expiresAt > System.currentTimeMillis() }
         tokenFile.writeText(Json.encodeToString(validTokens))
     }
+
+    fun generateAccessToken(
+        username: String,
+        databaseName: String,
+
+    ): String {
+        return JWT.create()
+            .withIssuer(issuer)
+            .withAudience(audience)
+            .withClaim("username", username)
+            .withClaim("databaseName", databaseName)
+            .withExpiresAt(Date(System.currentTimeMillis() + expirationTime))
+            .sign(algorithm)
+    }
 }
 
 

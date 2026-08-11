@@ -26,6 +26,7 @@ import com.example.models.databaseModels.inventoryTable
 import com.example.models.databaseModels.maintenancesTable
 import com.example.models.databaseModels.manufacturerTable
 import com.example.models.databaseModels.modelAssetTable
+import com.example.models.databaseModels.notificationsTable
 import com.example.models.databaseModels.settingsTable
 import com.example.models.databaseModels.tasksTable
 import com.example.models.databaseModels.ticketHistoryTable
@@ -128,7 +129,8 @@ class OnboardingRepositoryImpl : OnBoardingRepository {
                         settingsTable,
                         tasksTable,
                         ticketTable,
-                        toolsTable
+                        toolsTable,
+                        notificationsTable
                     )
 
                     // create admin user in tenant DB
@@ -145,4 +147,6 @@ class OnboardingRepositoryImpl : OnBoardingRepository {
             }
 
     }
+
+
 }

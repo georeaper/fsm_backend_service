@@ -7,6 +7,7 @@ import com.example.feature.contracts.dto.ContractsResponse
 import com.example.models.api.Contracts
 import com.example.models.databaseModels.contractsTable
 import com.example.models.databaseModels.customerTable
+import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -40,7 +41,14 @@ class ContractRepositoryImpl ( private val dbProvider: DatabaseProvider ): Contr
     override fun findAll(ctx: RequestContext): List<ContractsResponse> {
         val db = dbProvider.getDatabase(ctx.dbName)
         return transaction(db) {
-            val joinQuery = contractsTable.leftJoin(customerTable)
+//            val joinQuery = contractsTable.leftJoin(customerTable)
+            val joinQuery = contractsTable.join(
+                customerTable,
+                JoinType.LEFT,
+                additionalConstraint = {
+                    contractsTable.customerId eq customerTable.customerId
+                }
+            )
             val map = joinQuery.selectAll().map {
                 ContractsResponse(
                     ContractID = it[contractsTable.contractId],
@@ -57,7 +65,8 @@ class ContractRepositoryImpl ( private val dbProvider: DatabaseProvider ): Contr
                     LastModified = it[contractsTable.lastModified],
                     DateCreated = it[contractsTable.dateCreated],
                     Version = it[contractsTable.version],
-                    CustomerID = it[contractsTable.customerId]
+                    CustomerID = it[contractsTable.customerId],
+                    CustomerName = it[customerTable.name]
                 )
             }
             map

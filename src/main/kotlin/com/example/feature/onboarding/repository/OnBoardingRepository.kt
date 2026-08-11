@@ -8,4 +8,6 @@ interface OnBoardingRepository {
      * Creates company and tenant database/schema. Returns the inserted company id in master DB.
      */
     fun createTenantDB(data: RegisterTenantDto): Int
+
+
 }

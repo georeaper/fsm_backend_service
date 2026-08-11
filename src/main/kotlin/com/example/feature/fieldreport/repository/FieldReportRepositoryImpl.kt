@@ -10,6 +10,7 @@ import com.example.models.databaseModels.customerTable
 import com.example.models.databaseModels.contractsTable
 import com.example.models.databaseModels.userTable
 import com.example.models.databaseModels.ticketTable
+import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -47,11 +48,41 @@ class FieldReportRepositoryImpl(private val dbProvider: DatabaseProvider) : Fiel
     override fun findAll(ctx: RequestContext): List<FieldReportsResponse> {
         val db = dbProvider.getDatabase(ctx.dbName)
         return transaction(db) {
+//            val joinQuery = fieldReportsTable
+//                .leftJoin(customerTable)
+//                .leftJoin(contractsTable )
+//                .leftJoin(userTable)
+//                .leftJoin(ticketTable)
+
             val joinQuery = fieldReportsTable
-                .leftJoin(customerTable)
-                .leftJoin(contractsTable )
-                .leftJoin(userTable)
-                .leftJoin(ticketTable)
+                .join(
+                    customerTable,
+                    JoinType.LEFT,
+                    additionalConstraint = {
+                        fieldReportsTable.customerID eq customerTable.customerId
+                    }
+                )
+                .join(
+                    contractsTable,
+                    JoinType.LEFT,
+                    additionalConstraint = {
+                        fieldReportsTable.contractID eq contractsTable.contractId
+                    }
+                )
+                .join(
+                    userTable,
+                    JoinType.LEFT,
+                    additionalConstraint = {
+                        fieldReportsTable.userID eq userTable.userId
+                    }
+                )
+                .join(
+                    ticketTable,
+                    JoinType.LEFT,
+                    additionalConstraint = {
+                        fieldReportsTable.caseID eq ticketTable.ticketId
+                    }
+                )
             val map = joinQuery.selectAll().map {
                 FieldReportsResponse(
                     FieldReportID = it[fieldReportsTable.fieldReportId],

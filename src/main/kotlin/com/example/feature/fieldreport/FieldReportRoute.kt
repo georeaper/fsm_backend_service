@@ -30,6 +30,7 @@ fun Route.fieldReportRoute(
                 username = principal.getClaim("username", String::class)
             )
             val result=getFieldReportUseCase.execute(ctx)
+            println("Field Report Result: $result")
             call.respond(result)
         }
         post("/fieldreports"){

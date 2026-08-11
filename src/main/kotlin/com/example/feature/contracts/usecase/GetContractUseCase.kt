@@ -24,7 +24,8 @@ class GetContractUseCase (private val repository: ContractRepository){
                 LastModified = DateUtils.storageToUi(it.LastModified),
                 DateCreated = DateUtils.storageToUi(it.DateCreated),
                 Version = it.Version,
-                CustomerID = it.CustomerID
+                CustomerID = it.CustomerID,
+                CustomerName = it.CustomerName
             )
         }
     }

@@ -14,4 +14,5 @@ data class CreateContractResponse(
     val ContractStatus: Boolean?,
     val ContactName: String?,
     val CustomerID: String?
+//    val CustomerName :String?
 )
