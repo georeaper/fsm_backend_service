@@ -9,8 +9,12 @@ object DateUtils {
     private const val UI_FORMAT = "dd/MM/yyyy"
 
     private val storageFormatter by lazy { SimpleDateFormat(STORAGE_FORMAT, Locale.US) }
-    private val uiFormatter by lazy { SimpleDateFormat(UI_FORMAT, Locale.getDefault()) }
-
+    //private val uiFormatter by lazy { SimpleDateFormat(UI_FORMAT, Locale.getDefault()) }
+    private val uiFormatter by lazy {
+        SimpleDateFormat(UI_FORMAT, Locale.US).apply {
+            isLenient = false
+        }
+    }
     // ---------------- UI -> STORAGE ----------------
     fun uiToStorage(input: String): String? {
         return try {

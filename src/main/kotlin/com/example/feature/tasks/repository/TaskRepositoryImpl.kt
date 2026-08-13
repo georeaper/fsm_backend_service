@@ -8,6 +8,7 @@ import com.example.models.api.Tasks
 import com.example.models.databaseModels.tasksTable
 import com.example.models.databaseModels.ticketTable
 import com.example.models.databaseModels.userTable
+import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -38,9 +39,22 @@ class TaskRepositoryImpl(private val dbProvider: DatabaseProvider) : TaskReposit
     override fun findAll(ctx: RequestContext): List<TasksResponse> {
         val db = dbProvider.getDatabase(ctx.dbName)
         return transaction(db) {
+//            val joinQuery = tasksTable
+//                .leftJoin(ticketTable)
+//                .leftJoin(userTable)
             val joinQuery = tasksTable
-                .leftJoin(ticketTable)
-                .leftJoin(userTable)
+                .join(
+                    otherTable = ticketTable,
+                    joinType = JoinType.LEFT,
+                    onColumn = tasksTable.ticketId,
+                    otherColumn = ticketTable.ticketId
+                )
+                .join(
+                    otherTable = userTable,
+                    joinType = JoinType.LEFT,
+                    onColumn = tasksTable.userId,
+                    otherColumn = userTable.userId
+                )
             val map = joinQuery.selectAll().map {
                 TasksResponse(
                     TaskID = it[tasksTable.taskId],

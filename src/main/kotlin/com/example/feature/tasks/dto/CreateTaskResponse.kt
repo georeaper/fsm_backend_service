@@ -10,7 +10,7 @@ data class CreateTaskResponse(
     val Priority: String?,
     val DateStart: String?,
     val DateDue: String?,
-    val DateCompleted: String?,
+    val DateCompleted: String? = null,
     val TicketID: String?,
     val UserID: String?
 )
