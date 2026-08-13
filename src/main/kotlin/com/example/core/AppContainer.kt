@@ -9,6 +9,21 @@ import com.example.feature.equipments.repository.EquipmentRepository
 import com.example.feature.equipments.repository.EquipmentRepositoryImpl
 import com.example.feature.equipments.usecase.GetEquipmentUseCase
 
+import com.example.feature.inventory.usecase.CreateInventoryUseCase
+import com.example.feature.inventory.repository.InventoryRepository
+import com.example.feature.inventory.repository.InventoryRepositoryImpl
+import com.example.feature.inventory.usecase.GetInventoryUseCase
+
+import com.example.feature.model.usecase.CreateModelUseCase
+import com.example.feature.model.repository.ModelRepository
+import com.example.feature.model.repository.ModelRepositoryImpl
+import com.example.feature.model.usecase.GetModelUseCase
+
+import com.example.feature.manufacturer.usecase.CreateManufacturerUseCase
+import com.example.feature.manufacturer.repository.ManufacturerRepository
+import com.example.feature.manufacturer.repository.ManufacturerRepositoryImpl
+import com.example.feature.manufacturer.usecase.GetManufacturerUseCase
+
 import com.example.feature.contracts.usecase.CreateContractUseCase
 import com.example.feature.contracts.repository.ContractRepository
 import com.example.feature.contracts.repository.ContractRepositoryImpl
@@ -60,6 +75,15 @@ class AppContainer {
     private val equipmentRepository by lazy{
         EquipmentRepositoryImpl(dbProvider)
     }
+    private val inventoryRepository by lazy{
+        InventoryRepositoryImpl(dbProvider)
+    }
+    private val modelRepository by lazy{
+        ModelRepositoryImpl(dbProvider)
+    }
+    private val manufacturerRepository by lazy{
+        ManufacturerRepositoryImpl(dbProvider)
+    }
     private val contractRepository by lazy{
         ContractRepositoryImpl(dbProvider) 
     }
@@ -99,6 +123,24 @@ class AppContainer {
     }
     val getEquipmentUseCase by lazy{
         GetEquipmentUseCase(equipmentRepository)
+    }
+    val createInventoryUseCase by lazy{
+        CreateInventoryUseCase(inventoryRepository)
+    }
+    val getInventoryUseCase by lazy{
+        GetInventoryUseCase(inventoryRepository)
+    }
+    val createModelUseCase by lazy{
+        CreateModelUseCase(modelRepository)
+    }
+    val getModelUseCase by lazy{
+        GetModelUseCase(modelRepository)
+    }
+    val createManufacturerUseCase by lazy{
+        CreateManufacturerUseCase(manufacturerRepository)
+    }
+    val getManufacturerUseCase by lazy{
+        GetManufacturerUseCase(manufacturerRepository)
     }
     val createContractUseCase by lazy{
         CreateContractUseCase(contractRepository)

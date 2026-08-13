@@ -12,6 +12,9 @@ import com.example.routes.authRoutes
 import com.example.routes.customersRoute
 import com.example.routes.dbCreation
 import com.example.feature.equipments.equipmentsRoute
+import com.example.feature.inventory.inventoryRoute
+import com.example.feature.model.modelRoute
+import com.example.feature.manufacturer.manufacturerRoute
 import com.example.feature.fieldreport.fieldReportRoute
 import com.example.feature.maintenance.maintenanceRoute
 import com.example.feature.settings.settingsRoute
@@ -117,6 +120,12 @@ fun Application.module() {
                 container.createCustomerUseCase)
             equipmentsRoute(container.getEquipmentUseCase ,
                 container.createEquipmentUseCase)
+            inventoryRoute(container.getInventoryUseCase ,
+                container.createInventoryUseCase)
+            modelRoute(container.getModelUseCase ,
+                container.createModelUseCase)
+            manufacturerRoute(container.getManufacturerUseCase ,
+                container.createManufacturerUseCase)
             fieldReportRoute(container.getFieldReportUseCase,container.createFieldReportUseCase)
             maintenanceRoute(container.getMaintenanceUseCase,container.createMaintenanceUseCase)
             settingsRoute(container.getSettingsUseCase,container.createSettingsUseCase)
