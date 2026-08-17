@@ -9,4 +9,5 @@ interface SettingsRepository {
     fun save(ctx: RequestContext, data: Settings): Settings
     fun findAll(ctx: RequestContext): List<SettingsResponse>
     fun edit(ctx: RequestContext, data: EditSettingsResponse): EditSettingsResponse
+    fun getById(ctx: RequestContext, settingsId: String): List<SettingsResponse>
 }

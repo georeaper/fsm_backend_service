@@ -128,7 +128,15 @@ fun Application.module() {
                 container.createManufacturerUseCase)
             fieldReportRoute(container.getFieldReportUseCase,container.createFieldReportUseCase)
             maintenanceRoute(container.getMaintenanceUseCase,container.createMaintenanceUseCase)
-            settingsRoute(container.getSettingsUseCase,container.createSettingsUseCase)
+            settingsRoute(
+                container.getSettingsUseCase,
+                container.createSettingsUseCase,
+                container.getTechnicalCasePriorityUseCase,
+                container.createTechnicalCasePriorityUseCase,
+                container.getWorkOrderTypeUseCase,
+                container.createWorkOrderTypeUseCase,
+                container.getContractTypeUseCase,
+                container.createContractTypeUseCase)
             tasksRoute(container.getTaskUseCase,container.createTaskUseCase)
             ticketsRoute(container.getTicketUseCase,container.createTicketUseCase)
             toolsRoute(container.getToolUseCase,container.createToolUseCase)

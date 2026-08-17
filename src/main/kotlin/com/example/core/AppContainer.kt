@@ -55,8 +55,14 @@ import com.example.feature.ticket.usecase.GetTicketUseCase
 
 import com.example.feature.settings.repository.SettingsRepositoryImpl 
 import com.example.feature.settings.repository.SettingsRepository
-import com.example.feature.settings.usecase.CreateSettingsUseCase 
+import com.example.feature.settings.usecase.CreateContractTypeUseCase
+import com.example.feature.settings.usecase.CreateSettingsUseCase
+import com.example.feature.settings.usecase.CreateTechnicalCasePriorityUseCase
+import com.example.feature.settings.usecase.CreateWorkOrderTypeUseCase
+import com.example.feature.settings.usecase.GetContractTypeUseCase
 import com.example.feature.settings.usecase.GetSettingsUseCase
+import com.example.feature.settings.usecase.GetTechnicalCasePriorityUseCase
+import com.example.feature.settings.usecase.GetWorkOrderTypeUseCase
 
 import com.example.feature.tasks.repository.TaskRepositoryImpl 
 import com.example.feature.tasks.repository.TaskRepository 
@@ -108,6 +114,7 @@ class AppContainer {
     private val taskRepository by lazy{
         TaskRepositoryImpl(dbProvider) 
     }
+
 
 
     // use cases
@@ -189,6 +196,24 @@ class AppContainer {
     }
     val createTaskUseCase by lazy{
         CreateTaskUseCase(taskRepository)
+    }
+    val getTechnicalCasePriorityUseCase by lazy{
+        GetTechnicalCasePriorityUseCase(settingRepository)
+    }
+    val createTechnicalCasePriorityUseCase by lazy{
+        CreateTechnicalCasePriorityUseCase(settingRepository)
+    }
+    val getContractTypeUseCase by lazy{
+        GetContractTypeUseCase(settingRepository)
+    }
+    val getWorkOrderTypeUseCase by lazy{
+        GetWorkOrderTypeUseCase(settingRepository)
+    }
+    val createContractTypeUseCase by lazy{
+        CreateContractTypeUseCase(settingRepository)
+    }
+    val createWorkOrderTypeUseCase by lazy{
+        CreateWorkOrderTypeUseCase(settingRepository)
     }
 
 }

@@ -6,7 +6,9 @@ import com.example.feature.settings.dto.EditSettingsResponse
 import com.example.feature.settings.dto.SettingsResponse
 import com.example.models.api.Settings
 import com.example.models.databaseModels.settingsTable
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
@@ -66,5 +68,31 @@ class SettingsRepositoryImpl(private val dbProvider: DatabaseProvider) : Setting
             }
         }
         return data
+    }
+
+    override fun getById(
+        ctx: RequestContext,
+        settingsId: String
+    ): List<SettingsResponse> {
+        val db = dbProvider.getDatabase(ctx.dbName)
+
+        return transaction(db) {
+            val query= settingsTable.select { settingsTable.settingsKey eq settingsId }
+            println("getById : $query")
+            val map = query.map {
+                SettingsResponse(
+                    SettingsID = it[settingsTable.settingsId],
+                    RemoteID = it[settingsTable.remoteId],
+                    SettingsKey = it[settingsTable.settingsKey],
+                    SettingsValue = it[settingsTable.settingsValue],
+                    SettingsStyle = it[settingsTable.settingsStyle],
+                    SettingsDescription = it[settingsTable.settingsDescription],
+                    LastModified = it[settingsTable.lastModified],
+                    DateCreated = it[settingsTable.dateCreated],
+                    Version = it[settingsTable.version]
+                )
+            }
+            map
+        }
     }
 }
