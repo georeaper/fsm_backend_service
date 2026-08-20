@@ -14,5 +14,6 @@ object notificationsTable : Table(name="notifications") {
     val isRead = bool("IsRead").default(false)
     val readAt=varchar("ReadAt", length = 50).nullable()
     val dateCreated = varchar("DateCreated", length = 50).nullable()
+    val isDeleted = bool("IsDeleted").default(false)
     override val primaryKey = PrimaryKey(notificationId)
 }

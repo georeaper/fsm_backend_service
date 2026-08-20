@@ -4,6 +4,7 @@ import com.example.core.DateUtils
 import com.example.core.RequestContext
 import com.example.feature.maintenance.repository.MaintenanceRepository
 import com.example.feature.maintenance.dto.MaintenancesResponse
+import com.example.feature.maintenance.dto.MaintenanceDetailsResponse
 
 class GetMaintenanceUseCase (private val repository: MaintenanceRepository){
     fun execute(ctx: RequestContext) :List<MaintenancesResponse>{
@@ -19,5 +20,12 @@ class GetMaintenanceUseCase (private val repository: MaintenanceRepository){
                 Version = it.Version
             )
         }
+    }
+
+    fun executeById(
+        ctx: RequestContext,
+        maintenanceId: String
+    ): MaintenanceDetailsResponse? {
+        return repository.findByIdWithCheckForms(ctx, maintenanceId)
     }
 }

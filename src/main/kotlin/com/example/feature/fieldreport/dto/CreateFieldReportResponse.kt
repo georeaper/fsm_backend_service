@@ -16,5 +16,6 @@ data class CreateFieldReportResponse(
     val CustomerID: String?,
     val ContractID: String?,
     val UserID: String?,
-    val CaseID: String?
+    val CaseID: String?,
+    val isDeleted: Boolean? = false
 )

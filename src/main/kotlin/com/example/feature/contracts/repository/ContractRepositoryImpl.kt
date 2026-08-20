@@ -9,9 +9,10 @@ import com.example.models.databaseModels.contractsTable
 import com.example.models.databaseModels.customerTable
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.sql.and
 
 class ContractRepositoryImpl ( private val dbProvider: DatabaseProvider ): ContractRepository {
     override fun save(ctx: RequestContext, data: Contracts): Contracts {
@@ -49,7 +50,7 @@ class ContractRepositoryImpl ( private val dbProvider: DatabaseProvider ): Contr
                     contractsTable.customerId eq customerTable.customerId
                 }
             )
-            val map = joinQuery.selectAll().map {
+            val map = joinQuery.select { contractsTable.isDeleted eq false }.map {
                 ContractsResponse(
                     ContractID = it[contractsTable.contractId],
                     RemoteID = it[contractsTable.remoteId],
@@ -76,7 +77,9 @@ class ContractRepositoryImpl ( private val dbProvider: DatabaseProvider ): Contr
     override fun edit(ctx: RequestContext, data: EditContractResponse): EditContractResponse {
         val db = dbProvider.getDatabase(ctx.dbName)
         transaction(db) {
-            contractsTable.update({ contractsTable.contractId eq data.ContractID }) {
+            contractsTable.update({
+                (contractsTable.contractId eq data.ContractID) and (contractsTable.isDeleted eq false)
+            }) {
                 it[contractId] = data.ContractID
                 it[remoteId] = null
                 it[title] = data.Title
@@ -95,5 +98,14 @@ class ContractRepositoryImpl ( private val dbProvider: DatabaseProvider ): Contr
             }
         }
         return data
+    }
+
+    override fun delete(ctx: RequestContext, id: String): Boolean {
+        val db = dbProvider.getDatabase(ctx.dbName)
+        return transaction(db) {
+            contractsTable.update({
+                (contractsTable.contractId eq id) and (contractsTable.isDeleted eq false)
+            }) { it[isDeleted] = true } > 0
+        }
     }
 }

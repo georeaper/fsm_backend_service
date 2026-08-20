@@ -8,7 +8,9 @@ import com.example.models.api.Equipments
 import com.example.models.databaseModels.customerTable
 import com.example.models.databaseModels.equipmentTable
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
@@ -50,7 +52,9 @@ private val dbProvider: DatabaseProvider
         val db = dbProvider.getDatabase(ctx.dbName)
         return transaction(db) {
             val joinQuery = equipmentTable.leftJoin(customerTable)
-            val map = joinQuery.selectAll().map {
+            val map = joinQuery
+                .select { equipmentTable.isDeleted eq false }
+                .map {
                 EquipmentsResponse(
                     EquipmentID = it[equipmentTable.equipmentId],
                     RemoteID = it[equipmentTable.remoteId],
@@ -126,6 +130,46 @@ private val dbProvider: DatabaseProvider
             }
         }
         return eq
+    }
+
+    override fun update(ctx: RequestContext, data: Equipments): Boolean {
+        val db = dbProvider.getDatabase(ctx.dbName)
+
+        return transaction(db) {
+            equipmentTable.update({
+                (equipmentTable.equipmentId eq data.EquipmentID) and
+                    (equipmentTable.isDeleted eq false)
+            }) {
+                it[remoteId] = data.RemoteID
+                it[name] = data.Name
+                it[serialNumber] = data.SerialNumber
+                it[model] = data.Model
+                it[manufacturer] = data.Manufacturer
+                it[notes] = data.Notes
+                it[description] = data.Description
+                it[equipmentVersion] = data.EquipmentVersion
+                it[equipmentCategory] = data.EquipmentCategory
+                it[warranty] = data.Warranty
+                it[equipmentStatus] = data.EquipmentStatus
+                it[installationDate] = data.InstallationDate
+                it[lastModified] = data.LastModified
+                it[version] = data.Version
+                it[customerId] = data.CustomerID
+            } > 0
+        }
+    }
+
+    override fun delete(ctx: RequestContext, id: String): Boolean {
+        val db = dbProvider.getDatabase(ctx.dbName)
+
+        return transaction(db) {
+            equipmentTable.update({
+                (equipmentTable.equipmentId eq id) and
+                    (equipmentTable.isDeleted eq false)
+            }) {
+                it[isDeleted] = true
+            } > 0
+        }
     }
 
 }

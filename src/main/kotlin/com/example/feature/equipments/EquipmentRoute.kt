@@ -3,7 +3,9 @@ package com.example.feature.equipments
 import com.example.core.RequestContext
 import com.example.feature.equipments.dto.CreateEquipmentResponse
 import com.example.feature.equipments.usecase.CreateEquipmentUseCase
+import com.example.feature.equipments.usecase.DeleteEquipmentUseCase
 import com.example.feature.equipments.usecase.GetEquipmentUseCase
+import com.example.feature.equipments.usecase.UpdateEquipmentUseCase
 import io.ktor.server.auth.authenticate
 import io.ktor.server.routing.Route
 import io.ktor.server.auth.*
@@ -15,7 +17,9 @@ import io.ktor.server.request.receive
 
 fun Route.equipmentsRoute(
     getEquipmentUseCase: GetEquipmentUseCase,
-    createEquipmentUseCase: CreateEquipmentUseCase
+    createEquipmentUseCase: CreateEquipmentUseCase,
+    updateEquipmentUseCase: UpdateEquipmentUseCase,
+    deleteEquipmentUseCase: DeleteEquipmentUseCase
 ){
     authenticate("auth-jwt") {
         get("/equipments"){
@@ -46,6 +50,53 @@ fun Route.equipmentsRoute(
             val request=call.receive<CreateEquipmentResponse>()
             val result=createEquipmentUseCase.execute(ctx,request)
             call.respond(HttpStatusCode.Created, result)
+        }
+
+        put("/equipments/{id}") {
+            val principal = call.principal<JWTPrincipal>()
+                ?: return@put call.respond(HttpStatusCode.Unauthorized)
+
+            val dbName = principal.getClaim("databaseName", String::class)
+                ?: return@put call.respond(HttpStatusCode.Unauthorized)
+
+            val id = call.parameters["id"]
+                ?: return@put call.respond(HttpStatusCode.BadRequest)
+
+            val ctx = RequestContext(
+                username = principal.getClaim("username", String::class),
+                dbName = dbName
+            )
+            val request = call.receive<CreateEquipmentResponse>()
+            val result = updateEquipmentUseCase.execute(ctx, id, request)
+
+            if (result == null) {
+                call.respond(HttpStatusCode.NotFound)
+            } else {
+                call.respond(HttpStatusCode.OK, result)
+            }
+        }
+
+        delete("/equipments/{id}") {
+            val principal = call.principal<JWTPrincipal>()
+                ?: return@delete call.respond(HttpStatusCode.Unauthorized)
+
+            val dbName = principal.getClaim("databaseName", String::class)
+                ?: return@delete call.respond(HttpStatusCode.Unauthorized)
+
+            val id = call.parameters["id"]
+                ?: return@delete call.respond(HttpStatusCode.BadRequest)
+
+            val ctx = RequestContext(
+                username = principal.getClaim("username", String::class),
+                dbName = dbName
+            )
+            val deleted = deleteEquipmentUseCase.execute(ctx, id)
+
+            if (deleted) {
+                call.respond(HttpStatusCode.NoContent)
+            } else {
+                call.respond(HttpStatusCode.NotFound)
+            }
         }
     }
 }

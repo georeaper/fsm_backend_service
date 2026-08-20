@@ -5,7 +5,10 @@ import com.example.core.RequestContext
 import com.example.feature.manufacturer.dto.EditManufacturerResponse
 import com.example.feature.manufacturer.dto.ManufacturerResponse
 import com.example.models.api.Manufacturer
+import com.example.models.databaseModels.CategoriesTable
 import com.example.models.databaseModels.manufacturerTable
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -82,6 +85,14 @@ private val dbProvider: DatabaseProvider
             }
         }
         return manufacturer
+    }
+
+    override fun delete(ctx: RequestContext, id: String): Boolean {
+        val db = dbProvider.getDatabase(ctx.dbName)
+        return transaction(db) {
+            val deleted = manufacturerTable.deleteWhere { manufacturerTable.manufacturerId eq id }
+            deleted > 0
+        }
     }
 
 }

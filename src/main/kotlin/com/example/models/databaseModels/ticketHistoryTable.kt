@@ -23,6 +23,7 @@ object ticketHistoryTable : Table("ticket_history") {
     val lastModified = varchar("LastModified", 50).nullable()
     val dateCreated = varchar("DateCreated", 50).nullable()
     val version = varchar("Version", 50).nullable()
+    val isDeleted = bool("IsDeleted").default(false)
 
     val userId = varchar("UserId",36).references(userTable.userId).nullable()
     val customerId = varchar("CustomerId",36).references(customerTable.customerId).nullable()

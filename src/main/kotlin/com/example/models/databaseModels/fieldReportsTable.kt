@@ -23,6 +23,7 @@ object fieldReportsTable : Table("fieldreports") {
     val lastModified = varchar("LastModified", 255).nullable()
     val dateCreated = varchar("DateCreated", 255).nullable()
     val version = varchar("Version", 255).nullable()
+    val isDeleted = bool("IsDeleted").default(false)
     val customerID = varchar("CustomerId", 36).references(customerTable.customerId).nullable()   //.references(customerTable.customerId)
     val contractID = varchar("ContractId", 36).references(contractsTable.contractId).nullable()
     val userID = varchar("UserId", 36).references(userTable.userId).nullable()

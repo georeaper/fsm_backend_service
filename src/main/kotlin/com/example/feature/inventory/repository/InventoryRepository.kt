@@ -9,4 +9,5 @@ interface InventoryRepository {
     fun save(ctx: RequestContext, data: Inventory): Inventory
     fun findAll(ctx: RequestContext): List<InventoryResponse>
     fun edit(ctx: RequestContext, data: EditInventoryResponse): EditInventoryResponse
+    fun delete(ctx: RequestContext, id: String): Boolean
 }

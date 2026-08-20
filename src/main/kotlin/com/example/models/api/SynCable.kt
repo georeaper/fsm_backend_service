@@ -42,6 +42,18 @@ var LastModified: String?=null, var DateCreated: String?=null,
 var Version: String?=null ):SynCable
 
 @Serializable
+@SerialName("Categories")
+data class Categories(
+    var CategoryID: String ,
+    var RemoteID: Int?=null,
+    var Name: String?=null,
+    var Description: String?=null,
+    var LastModified: String?=null,
+    var DateCreated: String?=null,
+    var Version: String?=null
+):SynCable
+
+@Serializable
 @SerialName("CheckForms")
 data class CheckForms(
     var CheckFormID: String ,

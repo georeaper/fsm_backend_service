@@ -9,4 +9,5 @@ interface TaskRepository {
     fun save(ctx: RequestContext, data: Tasks): Tasks
     fun findAll(ctx: RequestContext): List<TasksResponse>
     fun edit(ctx: RequestContext, data: EditTaskResponse): EditTaskResponse
+    fun delete(ctx: RequestContext, id: String): Boolean
 }

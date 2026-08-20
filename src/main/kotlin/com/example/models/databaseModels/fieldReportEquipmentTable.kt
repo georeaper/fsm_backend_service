@@ -12,6 +12,7 @@ object fieldReportEquipmentTable : Table("fieldreport_equipment") {
     val lastModified = varchar("LastModified", 255).nullable()
     val dateCreated = varchar("DateCreated", 255).nullable()
     val version = varchar("Version", 255).nullable()
+    val isDeleted = bool("IsDeleted").default(false)
     val fieldReportID = varchar("FieldReportId", 36).references(fieldReportsTable.fieldReportId).nullable()
     val equipmentID = varchar("EquipmentId", 36).references(equipmentTable.equipmentId).nullable()
     val maintenanceID = varchar("MaintenanceId", 36).references(maintenancesTable.maintenanceId).nullable()

@@ -5,5 +5,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class CreateMaintenanceResponse(
     val Name: String?,
-    val Description: String?
+    val Description: String?,
+    val isDeleted: Boolean? = false
 )

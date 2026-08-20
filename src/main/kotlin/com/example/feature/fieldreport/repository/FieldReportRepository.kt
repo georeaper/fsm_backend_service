@@ -9,4 +9,5 @@ interface FieldReportRepository {
     fun save(ctx: RequestContext, data: FieldReports): FieldReports
     fun findAll(ctx: RequestContext): List<FieldReportsResponse>
     fun edit(ctx: RequestContext, data: EditFieldReportResponse): EditFieldReportResponse
+    fun delete(ctx: RequestContext, id: String): Boolean
 }

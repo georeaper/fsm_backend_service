@@ -9,4 +9,5 @@ interface ToolRepository {
     fun save(ctx: RequestContext, data: Tools): Tools
     fun findAll(ctx: RequestContext): List<ToolsResponse>
     fun edit(ctx: RequestContext, data: EditToolResponse): EditToolResponse
+    fun delete(ctx: RequestContext, id: String): Boolean
 }

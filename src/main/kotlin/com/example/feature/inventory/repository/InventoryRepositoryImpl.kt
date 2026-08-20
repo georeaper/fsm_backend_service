@@ -7,9 +7,10 @@ import com.example.feature.inventory.dto.InventoryResponse
 import com.example.models.api.Inventory
 import com.example.models.databaseModels.inventoryTable
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.sql.and
 
 class InventoryRepositoryImpl (
 private val dbProvider: DatabaseProvider
@@ -41,7 +42,7 @@ private val dbProvider: DatabaseProvider
     override fun findAll(ctx: RequestContext): List<InventoryResponse> {
         val db = dbProvider.getDatabase(ctx.dbName)
         return transaction(db) {
-            inventoryTable.selectAll().map {
+            inventoryTable.select { inventoryTable.isDeleted eq false }.map {
                 InventoryResponse(
                     InventoryID = it[inventoryTable.inventoryId],
                     RemoteID = it[inventoryTable.remoteID],
@@ -78,7 +79,9 @@ private val dbProvider: DatabaseProvider
 
         )
         transaction(db) {
-            inventoryTable.update({ inventoryTable.inventoryId eq inventory.InventoryID }) {
+            inventoryTable.update({
+                (inventoryTable.inventoryId eq inventory.InventoryID) and (inventoryTable.isDeleted eq false)
+            }) {
 
                 it[inventoryId] = inventory.InventoryID
                 it[remoteID] = inventory.RemoteID
@@ -94,6 +97,15 @@ private val dbProvider: DatabaseProvider
             }
         }
         return inventory
+    }
+
+    override fun delete(ctx: RequestContext, id: String): Boolean {
+        val db = dbProvider.getDatabase(ctx.dbName)
+        return transaction(db) {
+            inventoryTable.update({
+                (inventoryTable.inventoryId eq id) and (inventoryTable.isDeleted eq false)
+            }) { it[isDeleted] = true } > 0
+        }
     }
 
 }

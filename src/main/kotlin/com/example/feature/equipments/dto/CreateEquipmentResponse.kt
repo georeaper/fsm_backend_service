@@ -40,5 +40,6 @@ data class CreateEquipmentResponse(
     val LastModified: String? = null,
     val DateCreated: String? = null,
     val Version: String = "1",
-    val CustomerID: String
+    val CustomerID: String,
+    val isDeleted: Boolean? = false
 )

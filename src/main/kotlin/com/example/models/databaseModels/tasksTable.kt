@@ -17,6 +17,7 @@ object tasksTable : Table("tasks") {
     val dateCompleted = varchar("DateCompleted", 50).nullable()
     val lastModified = varchar("LastModified", 50).nullable()
     val dateCreated = varchar("DateCreated", 50).nullable()
+    val isDeleted = bool("IsDeleted").default(false)
     val ticketId = varchar("TicketId",36).references(ticketTable.ticketId).nullable()
     val userId = varchar("UserId",36).references(userTable.userId).nullable()
     override val primaryKey =PrimaryKey(taskId)

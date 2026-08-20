@@ -14,5 +14,6 @@ data class CreateTicketResponse(
     val DateEnd: String?,
     val UserID: String?,
     val CustomerID: String?,
-    val EquipmentID: String?
+    val EquipmentID: String?,
+    val isDeleted: Boolean? = false
 )

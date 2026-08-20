@@ -20,6 +20,7 @@ object contractsTable : Table("contracts") {
     val lastModified = varchar("LastModified", 50).nullable()
     val dateCreated = varchar("DateCreated", 50).nullable()
     val version = varchar("Version", 20).nullable()
+    val isDeleted = bool("IsDeleted").default(false)
     val customerId = varchar("CustomerId", 36).references(customerTable.customerId).nullable()
     override val primaryKey = PrimaryKey(contractId)
 }

@@ -10,9 +10,10 @@ import com.example.models.databaseModels.customerTable
 import com.example.models.databaseModels.equipmentTable
 import com.example.models.databaseModels.userTable
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.sql.and
 
 class TicketRepositoryImpl(private val dbProvider: DatabaseProvider) : TicketRepository {
     override fun save(ctx: RequestContext, data: Tickets): Tickets {
@@ -47,7 +48,7 @@ class TicketRepositoryImpl(private val dbProvider: DatabaseProvider) : TicketRep
                 .leftJoin(customerTable)
                 .leftJoin(equipmentTable)
                 .leftJoin(userTable)
-            val map = joinQuery.selectAll().map {
+            val map = joinQuery.select { ticketTable.isDeleted eq false }.map {
                 TicketsResponse(
                     TicketID = it[ticketTable.ticketId],
                     RemoteID = it[ticketTable.remoteId],
@@ -74,7 +75,9 @@ class TicketRepositoryImpl(private val dbProvider: DatabaseProvider) : TicketRep
     override fun edit(ctx: RequestContext, data: EditTicketResponse): EditTicketResponse {
         val db = dbProvider.getDatabase(ctx.dbName)
         transaction(db) {
-            ticketTable.update({ ticketTable.ticketId eq data.TicketID }) {
+            ticketTable.update({
+                (ticketTable.ticketId eq data.TicketID) and (ticketTable.isDeleted eq false)
+            }) {
                 it[ticketId] = data.TicketID
                 it[remoteId] = null
                 
@@ -95,5 +98,14 @@ class TicketRepositoryImpl(private val dbProvider: DatabaseProvider) : TicketRep
             }
         }
         return data
+    }
+
+    override fun delete(ctx: RequestContext, id: String): Boolean {
+        val db = dbProvider.getDatabase(ctx.dbName)
+        return transaction(db) {
+            ticketTable.update({
+                (ticketTable.ticketId eq id) and (ticketTable.isDeleted eq false)
+            }) { it[isDeleted] = true } > 0
+        }
     }
 }

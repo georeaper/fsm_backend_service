@@ -5,8 +5,10 @@ import com.example.core.RequestContext
 import com.example.feature.settings.dto.EditSettingsResponse
 import com.example.feature.settings.dto.SettingsResponse
 import com.example.models.api.Settings
+import com.example.models.databaseModels.CategoriesTable
 import com.example.models.databaseModels.settingsTable
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
@@ -93,6 +95,14 @@ class SettingsRepositoryImpl(private val dbProvider: DatabaseProvider) : Setting
                 )
             }
             map
+        }
+    }
+
+    override fun delete(ctx: RequestContext, id: String): Boolean {
+        val db = dbProvider.getDatabase(ctx.dbName)
+        return transaction(db) {
+            val deleted = settingsTable.deleteWhere { settingsTable.settingsId eq id }
+            deleted > 0
         }
     }
 }

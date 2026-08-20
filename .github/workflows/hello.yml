@@ -2,9 +2,10 @@ name: First Workflow
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - dev
+  # Temporarily disabled automatic build on dev push
+  # push:
+  #   branches:
+  #     - dev
 
 jobs:
   say-hello:

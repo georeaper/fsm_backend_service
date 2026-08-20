@@ -10,6 +10,10 @@ import com.example.feature.settings.usecase.GetContractTypeUseCase
 import com.example.feature.settings.usecase.GetSettingsUseCase
 import com.example.feature.settings.usecase.GetTechnicalCasePriorityUseCase
 import com.example.feature.settings.usecase.GetWorkOrderTypeUseCase
+import com.example.feature.categories.usecase.GetCategoryUseCase
+import com.example.feature.categories.usecase.CreateCategoryUseCase
+import com.example.feature.categories.dto.CreateCategoryResponse
+import com.example.feature.settings.usecase.DeleteSettingsUseCase
 import io.ktor.server.auth.authenticate
 import io.ktor.server.routing.Route
 import io.ktor.server.auth.*
@@ -38,7 +42,10 @@ fun Route.settingsRoute(
     getWorkOrderTypeUseCase: GetWorkOrderTypeUseCase,
     createWorkOrderTypeUseCase: CreateWorkOrderTypeUseCase,
     getContractTypeUseCase: GetContractTypeUseCase,
-    createContractTypeUseCase: CreateContractTypeUseCase
+    createContractTypeUseCase: CreateContractTypeUseCase,
+    deleteSettingsUseCase: DeleteSettingsUseCase,
+    getCategoryUseCase: GetCategoryUseCase,
+    createCategoryUseCase: CreateCategoryUseCase
 ){
 
     authenticate("auth-jwt") {
@@ -164,5 +171,21 @@ fun Route.settingsRoute(
             val result=createContractTypeUseCase.execute(ctx,request)
             call.respond(HttpStatusCode.Created, result)
         }
+    delete("/settings/delete/{id}"){
+            val principal = call.principal<JWTPrincipal>()
+                ?: return@delete call.respond(HttpStatusCode.Unauthorized)
+
+            val dbName = principal.getClaim("databaseName", String::class)
+                ?: return@delete call.respond(HttpStatusCode.Unauthorized)
+
+            val ctx = RequestContext(
+                username = principal.getClaim("username", String::class),
+                dbName = dbName
+            )
+            val id = call.parameters["id"] ?: return@delete call.respond(HttpStatusCode.BadRequest)
+            val deleted = deleteSettingsUseCase.execute(ctx, id)
+            if (deleted) call.respond(HttpStatusCode.NoContent) else call.respond(HttpStatusCode.NotFound)
+        }
     }
 }
+

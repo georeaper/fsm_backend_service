@@ -15,5 +15,6 @@ data class CreateCustomerRequest(
     val description :String? ,
     val status :Boolean? ,
     val lastModified :String? ,
-    val dateCreated :String?
+    val dateCreated :String?,
+    val isDeleted: Boolean? = false
 )

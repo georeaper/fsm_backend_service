@@ -12,6 +12,7 @@ object manufacturerTable : Table("manufacturer") {
     val lastModified = varchar("LastModified", 255).nullable()
     val dateCreated = varchar("DateCreated", 255).nullable()
     val version = varchar("Version", 255).nullable()
+    val isDeleted = bool("IsDeleted").default(false)
 
     override val primaryKey = PrimaryKey(manufacturerId)
 }

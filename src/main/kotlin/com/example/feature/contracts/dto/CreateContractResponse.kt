@@ -13,6 +13,7 @@ data class CreateContractResponse(
     val ContractType: String?,
     val ContractStatus: Boolean?,
     val ContactName: String?,
-    val CustomerID: String?
+    val CustomerID: String?,
+    val isDeleted: Boolean? = false
 //    val CustomerName :String?
 )

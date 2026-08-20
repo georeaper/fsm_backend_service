@@ -44,7 +44,8 @@ fun Route.dbCreation(){
                         settingsTable,
                         tasksTable,
                         ticketTable,
-                        toolsTable
+                        toolsTable,
+                        CategoriesTable
                     )
                 }
 

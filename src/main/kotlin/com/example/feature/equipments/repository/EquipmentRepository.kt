@@ -9,4 +9,6 @@ interface EquipmentRepository {
     fun save(ctx: RequestContext, data: Equipments): Equipments
     fun findAll(ctx: RequestContext): List<EquipmentsResponse>
     fun edit(ctx: RequestContext, data: EditEquipmentResponse): EditEquipmentResponse
+    fun update(ctx: RequestContext, data: Equipments): Boolean
+    fun delete(ctx: RequestContext, id: String): Boolean
 }

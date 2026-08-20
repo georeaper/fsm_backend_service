@@ -10,9 +10,10 @@ import com.example.models.databaseModels.ticketTable
 import com.example.models.databaseModels.userTable
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.sql.and
 
 class TaskRepositoryImpl(private val dbProvider: DatabaseProvider) : TaskRepository {
     override fun save(ctx: RequestContext, data: Tasks): Tasks {
@@ -55,7 +56,7 @@ class TaskRepositoryImpl(private val dbProvider: DatabaseProvider) : TaskReposit
                     onColumn = tasksTable.userId,
                     otherColumn = userTable.userId
                 )
-            val map = joinQuery.selectAll().map {
+            val map = joinQuery.select { tasksTable.isDeleted eq false }.map {
                 TasksResponse(
                     TaskID = it[tasksTable.taskId],
                     Title = it[tasksTable.title],
@@ -78,7 +79,9 @@ class TaskRepositoryImpl(private val dbProvider: DatabaseProvider) : TaskReposit
     override fun edit(ctx: RequestContext, data: EditTaskResponse): EditTaskResponse {
         val db = dbProvider.getDatabase(ctx.dbName)
         transaction(db) {
-            tasksTable.update({ tasksTable.taskId eq data.TaskID }) {
+            tasksTable.update({
+                (tasksTable.taskId eq data.TaskID) and (tasksTable.isDeleted eq false)
+            }) {
                 it[taskId] = data.TaskID
                 it[title] = data.Title
                 it[description] = data.Description
@@ -94,5 +97,14 @@ class TaskRepositoryImpl(private val dbProvider: DatabaseProvider) : TaskReposit
             }
         }
         return data
+    }
+
+    override fun delete(ctx: RequestContext, id: String): Boolean {
+        val db = dbProvider.getDatabase(ctx.dbName)
+        return transaction(db) {
+            tasksTable.update({
+                (tasksTable.taskId eq id) and (tasksTable.isDeleted eq false)
+            }) { it[isDeleted] = true } > 0
+        }
     }
 }

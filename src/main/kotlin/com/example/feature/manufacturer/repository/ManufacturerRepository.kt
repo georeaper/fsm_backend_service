@@ -9,4 +9,5 @@ interface ManufacturerRepository {
     fun save(ctx: RequestContext, data: Manufacturer): Manufacturer
     fun findAll(ctx: RequestContext): List<ManufacturerResponse>
     fun edit(ctx: RequestContext, data: EditManufacturerResponse): EditManufacturerResponse
+    fun delete(ctx: RequestContext, id: String): Boolean
 }

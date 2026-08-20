@@ -9,5 +9,6 @@ data class CreateToolResponse(
     val Model: String?,
     val Manufacturer: String?,
     val SerialNumber: String?,
-    val CalibrationDate: String?
+    val CalibrationDate: String?,
+    val isDeleted: Boolean? = false
 )

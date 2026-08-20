@@ -6,6 +6,9 @@ import com.example.feature.model.dto.EditModelResponse
 import com.example.feature.model.dto.ModelResponse
 import com.example.models.api.ModelAsset
 import com.example.models.databaseModels.modelAssetTable
+import com.example.models.databaseModels.settingsTable
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -82,6 +85,14 @@ private val dbProvider: DatabaseProvider
             }
         }
         return model
+    }
+
+    override fun delete(ctx: RequestContext, id: String): Boolean {
+        val db = dbProvider.getDatabase(ctx.dbName)
+        return transaction(db) {
+            val deleted = modelAssetTable.deleteWhere { modelAssetTable.modelId eq id }
+            deleted > 0
+        }
     }
 
 }

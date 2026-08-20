@@ -9,4 +9,5 @@ interface ContractRepository {
     fun save(ctx: RequestContext, data: Contracts): Contracts
     fun findAll(ctx: RequestContext): List<ContractsResponse>
     fun edit(ctx: RequestContext, data: EditContractResponse): EditContractResponse
+    fun delete(ctx: RequestContext, id: String): Boolean
 }

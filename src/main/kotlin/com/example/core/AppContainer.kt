@@ -3,11 +3,15 @@ package com.example.core
 import com.example.feature.customers.usecase.CreateCustomerUseCase
 import com.example.feature.customers.repository.CustomerRepositoryImpl
 import com.example.feature.customers.usecase.GetCustomersUseCase
+import com.example.feature.customers.usecase.UpdateCustomerUseCase
+import com.example.feature.customers.usecase.DeleteCustomerUseCase
 
 import com.example.feature.equipments.usecase.CreateEquipmentUseCase
 import com.example.feature.equipments.repository.EquipmentRepository
 import com.example.feature.equipments.repository.EquipmentRepositoryImpl
 import com.example.feature.equipments.usecase.GetEquipmentUseCase
+import com.example.feature.equipments.usecase.UpdateEquipmentUseCase
+import com.example.feature.equipments.usecase.DeleteEquipmentUseCase
 
 import com.example.feature.inventory.usecase.CreateInventoryUseCase
 import com.example.feature.inventory.repository.InventoryRepository
@@ -64,11 +68,34 @@ import com.example.feature.settings.usecase.GetSettingsUseCase
 import com.example.feature.settings.usecase.GetTechnicalCasePriorityUseCase
 import com.example.feature.settings.usecase.GetWorkOrderTypeUseCase
 
+import com.example.feature.categories.repository.CategoryRepositoryImpl
+import com.example.feature.categories.repository.CategoryRepository
+import com.example.feature.categories.usecase.CreateCategoryUseCase
+import com.example.feature.categories.usecase.GetCategoryUseCase
+import com.example.feature.categories.usecase.DeleteCategoryUseCase
+import com.example.feature.manufacturer.usecase.DeleteManufacturerUseCase
+import com.example.feature.model.usecase.DeleteModelUseCase
+import com.example.feature.settings.usecase.DeleteSettingsUseCase
+
 import com.example.feature.tasks.repository.TaskRepositoryImpl 
 import com.example.feature.tasks.repository.TaskRepository 
 import com.example.feature.tasks.usecase.CreateTaskUseCase
 import com.example.feature.tasks.usecase.GetTaskUseCase
 import com.example.feature.tools.usecase.GetToolUseCase
+import com.example.feature.contracts.usecase.UpdateContractUseCase
+import com.example.feature.contracts.usecase.DeleteContractUseCase
+import com.example.feature.inventory.usecase.UpdateInventoryUseCase
+import com.example.feature.inventory.usecase.DeleteInventoryUseCase
+import com.example.feature.maintenance.usecase.UpdateMaintenanceUseCase
+import com.example.feature.maintenance.usecase.DeleteMaintenanceUseCase
+import com.example.feature.tasks.usecase.UpdateTaskUseCase
+import com.example.feature.tasks.usecase.DeleteTaskUseCase
+import com.example.feature.ticket.usecase.UpdateTicketUseCase
+import com.example.feature.ticket.usecase.DeleteTicketUseCase
+import com.example.feature.tools.usecase.UpdateToolUseCase
+import com.example.feature.tools.usecase.DeleteToolUseCase
+import com.example.feature.fieldreport.usecase.UpdateFieldReportUseCase
+import com.example.feature.fieldreport.usecase.DeleteFieldReportUseCase
 
 
 class AppContainer {
@@ -114,6 +141,9 @@ class AppContainer {
     private val taskRepository by lazy{
         TaskRepositoryImpl(dbProvider) 
     }
+    private val categoryRepository by lazy{
+        CategoryRepositoryImpl(dbProvider)
+    }
 
 
 
@@ -125,11 +155,23 @@ class AppContainer {
     val createCustomerUseCase by lazy {
         CreateCustomerUseCase(customerRepository)
     }
+    val updateCustomerUseCase by lazy {
+        UpdateCustomerUseCase(customerRepository)
+    }
+    val deleteCustomerUseCase by lazy {
+        DeleteCustomerUseCase(customerRepository)
+    }
     val createEquipmentUseCase by lazy{
         CreateEquipmentUseCase(equipmentRepository)
     }
     val getEquipmentUseCase by lazy{
         GetEquipmentUseCase(equipmentRepository)
+    }
+    val updateEquipmentUseCase by lazy {
+        UpdateEquipmentUseCase(equipmentRepository)
+    }
+    val deleteEquipmentUseCase by lazy {
+        DeleteEquipmentUseCase(equipmentRepository)
     }
     val createInventoryUseCase by lazy{
         CreateInventoryUseCase(inventoryRepository)
@@ -215,5 +257,36 @@ class AppContainer {
     val createWorkOrderTypeUseCase by lazy{
         CreateWorkOrderTypeUseCase(settingRepository)
     }
-
+    val getCategoryUseCase by lazy{
+        GetCategoryUseCase(categoryRepository)
+    }
+    val createCategoryUseCase by lazy{
+        CreateCategoryUseCase(categoryRepository)
+    }
+    val deleteCategoryUseCase by lazy{
+        DeleteCategoryUseCase(categoryRepository)
+    }
+    val deleteSettingsUseCase by lazy{
+        DeleteSettingsUseCase(settingRepository)
+    }
+    val deleteModelUseCase by lazy{
+        DeleteModelUseCase(modelRepository)
+    }
+    val deleteManufacturerUseCase by lazy {
+        DeleteManufacturerUseCase(manufacturerRepository)
+    }
+    val updateContractUseCase by lazy { UpdateContractUseCase(contractRepository) }
+    val deleteContractUseCase by lazy { DeleteContractUseCase(contractRepository) }
+    val updateInventoryUseCase by lazy { UpdateInventoryUseCase(inventoryRepository) }
+    val deleteInventoryUseCase by lazy { DeleteInventoryUseCase(inventoryRepository) }
+    val updateMaintenanceUseCase by lazy { UpdateMaintenanceUseCase(maintenanceRepository) }
+    val deleteMaintenanceUseCase by lazy { DeleteMaintenanceUseCase(maintenanceRepository) }
+    val updateTaskUseCase by lazy { UpdateTaskUseCase(taskRepository) }
+    val deleteTaskUseCase by lazy { DeleteTaskUseCase(taskRepository) }
+    val updateTicketUseCase by lazy { UpdateTicketUseCase(ticketRepository) }
+    val deleteTicketUseCase by lazy { DeleteTicketUseCase(ticketRepository) }
+    val updateToolUseCase by lazy { UpdateToolUseCase(toolRepository) }
+    val deleteToolUseCase by lazy { DeleteToolUseCase(toolRepository) }
+    val updateFieldReportUseCase by lazy { UpdateFieldReportUseCase(fieldReportRepository) }
+    val deleteFieldReportUseCase by lazy { DeleteFieldReportUseCase(fieldReportRepository) }
 }

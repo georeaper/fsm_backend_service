@@ -10,4 +10,5 @@ interface SettingsRepository {
     fun findAll(ctx: RequestContext): List<SettingsResponse>
     fun edit(ctx: RequestContext, data: EditSettingsResponse): EditSettingsResponse
     fun getById(ctx: RequestContext, settingsId: String): List<SettingsResponse>
+    fun delete(ctx: RequestContext, id: String): Boolean
 }

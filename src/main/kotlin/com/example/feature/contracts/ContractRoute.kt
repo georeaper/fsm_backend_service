@@ -2,6 +2,9 @@ package com.example.feature.contracts
 
 import com.example.core.RequestContext
 import com.example.feature.contracts.dto.CreateContractResponse
+import com.example.feature.contracts.dto.EditContractResponse
+import com.example.feature.contracts.usecase.UpdateContractUseCase
+import com.example.feature.contracts.usecase.DeleteContractUseCase
 import com.example.feature.contracts.usecase.CreateContractUseCase
 import com.example.feature.contracts.usecase.GetContractUseCase
 import io.ktor.server.auth.authenticate
@@ -15,7 +18,9 @@ import io.ktor.server.request.receive
 
 fun Route.contractsRoute(
     getContractUseCase: GetContractUseCase,
-    createContractUseCase: CreateContractUseCase
+    createContractUseCase: CreateContractUseCase,
+    updateContractUseCase: UpdateContractUseCase,
+    deleteContractUseCase: DeleteContractUseCase
 ){
     authenticate("auth-jwt") {
         get("/contracts"){
@@ -46,6 +51,32 @@ fun Route.contractsRoute(
             val request=call.receive<CreateContractResponse>()
             val result=createContractUseCase.execute(ctx,request)
             call.respond(HttpStatusCode.Created, result)
+        }
+        put("/contracts/{id}") {
+            val principal = call.principal<JWTPrincipal>()
+                ?: return@put call.respond(HttpStatusCode.Unauthorized)
+            val dbName = principal.getClaim("databaseName", String::class)
+                ?: return@put call.respond(HttpStatusCode.Unauthorized)
+            val id = call.parameters["id"]
+                ?: return@put call.respond(HttpStatusCode.BadRequest)
+            val ctx = RequestContext(dbName, principal.getClaim("username", String::class))
+            val request = call.receive<EditContractResponse>().copy(ContractID = id)
+            call.respond(HttpStatusCode.OK, updateContractUseCase.execute(ctx, request))
+        }
+
+        delete("/contracts/{id}") {
+            val principal = call.principal<JWTPrincipal>()
+                ?: return@delete call.respond(HttpStatusCode.Unauthorized)
+            val dbName = principal.getClaim("databaseName", String::class)
+                ?: return@delete call.respond(HttpStatusCode.Unauthorized)
+            val id = call.parameters["id"]
+                ?: return@delete call.respond(HttpStatusCode.BadRequest)
+            val ctx = RequestContext(dbName, principal.getClaim("username", String::class))
+            if (deleteContractUseCase.execute(ctx, id)) {
+                call.respond(HttpStatusCode.NoContent)
+            } else {
+                call.respond(HttpStatusCode.NotFound)
+            }
         }
     }
 }

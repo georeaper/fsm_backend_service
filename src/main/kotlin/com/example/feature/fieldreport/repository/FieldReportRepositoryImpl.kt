@@ -12,9 +12,10 @@ import com.example.models.databaseModels.userTable
 import com.example.models.databaseModels.ticketTable
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.sql.and
 
 class FieldReportRepositoryImpl(private val dbProvider: DatabaseProvider) : FieldReportRepository {
     override fun save(ctx: RequestContext, data: FieldReports): FieldReports {
@@ -83,7 +84,7 @@ class FieldReportRepositoryImpl(private val dbProvider: DatabaseProvider) : Fiel
                         fieldReportsTable.caseID eq ticketTable.ticketId
                     }
                 )
-            val map = joinQuery.selectAll().map {
+            val map = joinQuery.select { fieldReportsTable.isDeleted eq false }.map {
                 FieldReportsResponse(
                     FieldReportID = it[fieldReportsTable.fieldReportId],
                     RemoteID = it[fieldReportsTable.remoteID],
@@ -112,7 +113,9 @@ class FieldReportRepositoryImpl(private val dbProvider: DatabaseProvider) : Fiel
     override fun edit(ctx: RequestContext, data: EditFieldReportResponse): EditFieldReportResponse {
         val db = dbProvider.getDatabase(ctx.dbName)
         transaction(db) {
-            fieldReportsTable.update({ fieldReportsTable.fieldReportId eq data.FieldReportID }) {
+            fieldReportsTable.update({
+                (fieldReportsTable.fieldReportId eq data.FieldReportID) and (fieldReportsTable.isDeleted eq false)
+            }) {
                 it[fieldReportId] = data.FieldReportID
                 it[remoteID] = null
                 it[reportNumber] = data.ReportNumber
@@ -134,5 +137,14 @@ class FieldReportRepositoryImpl(private val dbProvider: DatabaseProvider) : Fiel
             }
         }
         return data
+    }
+
+    override fun delete(ctx: RequestContext, id: String): Boolean {
+        val db = dbProvider.getDatabase(ctx.dbName)
+        return transaction(db) {
+            fieldReportsTable.update({
+                (fieldReportsTable.fieldReportId eq id) and (fieldReportsTable.isDeleted eq false)
+            }) { it[isDeleted] = true } > 0
+        }
     }
 }

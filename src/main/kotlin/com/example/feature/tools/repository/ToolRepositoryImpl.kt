@@ -7,9 +7,10 @@ import com.example.feature.tools.dto.ToolsResponse
 import com.example.models.api.Tools
 import com.example.models.databaseModels.toolsTable
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.sql.and
 
 class ToolRepositoryImpl(private val dbProvider: DatabaseProvider) : ToolRepository {
     override fun save(ctx: RequestContext, data: Tools): Tools {
@@ -35,7 +36,7 @@ class ToolRepositoryImpl(private val dbProvider: DatabaseProvider) : ToolReposit
     override fun findAll(ctx: RequestContext): List<ToolsResponse> {
         val db = dbProvider.getDatabase(ctx.dbName)
         return transaction(db) {
-            val map = toolsTable.selectAll().map {
+            val map = toolsTable.select { toolsTable.isDeleted eq false }.map {
                 ToolsResponse(
                     ToolID = it[toolsTable.toolsId],
                     RemoteID = it[toolsTable.remoteId],
@@ -57,7 +58,9 @@ class ToolRepositoryImpl(private val dbProvider: DatabaseProvider) : ToolReposit
     override fun edit(ctx: RequestContext, data: EditToolResponse): EditToolResponse {
         val db = dbProvider.getDatabase(ctx.dbName)
         transaction(db) {
-            toolsTable.update({ toolsTable.toolsId eq data.ToolID }) {
+            toolsTable.update({
+                (toolsTable.toolsId eq data.ToolID) and (toolsTable.isDeleted eq false)
+            }) {
                 it[toolsId] = data.ToolID
                 it[remoteId] = null
                 it[title] = data.Title
@@ -72,5 +75,14 @@ class ToolRepositoryImpl(private val dbProvider: DatabaseProvider) : ToolReposit
             }
         }
         return data
+    }
+
+    override fun delete(ctx: RequestContext, id: String): Boolean {
+        val db = dbProvider.getDatabase(ctx.dbName)
+        return transaction(db) {
+            toolsTable.update({
+                (toolsTable.toolsId eq id) and (toolsTable.isDeleted eq false)
+            }) { it[isDeleted] = true } > 0
+        }
     }
 }

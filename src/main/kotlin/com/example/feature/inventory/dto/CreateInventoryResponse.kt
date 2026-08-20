@@ -13,5 +13,6 @@ data class CreateInventoryResponse(
     val Type: String? = null,
     val LastModified: String? = null,
     val DateCreated: String? = null,
-    val Version: String = "1"
+    val Version: String = "1",
+    val isDeleted: Boolean? = false
 )

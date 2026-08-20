@@ -12,5 +12,6 @@ data class CreateTaskResponse(
     val DateDue: String?,
     val DateCompleted: String? = null,
     val TicketID: String?,
-    val UserID: String?
+    val UserID: String?,
+    val isDeleted: Boolean? = false
 )

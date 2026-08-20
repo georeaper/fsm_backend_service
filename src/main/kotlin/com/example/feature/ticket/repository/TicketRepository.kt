@@ -9,4 +9,5 @@ interface TicketRepository {
     fun save(ctx: RequestContext, data: Tickets): Tickets
     fun findAll(ctx: RequestContext): List<TicketsResponse>
     fun edit(ctx: RequestContext, data: EditTicketResponse): EditTicketResponse
+    fun delete(ctx: RequestContext, id: String): Boolean
 }
