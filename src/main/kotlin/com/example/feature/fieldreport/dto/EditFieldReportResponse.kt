@@ -20,5 +20,6 @@ data class EditFieldReportResponse(
     val CaseID: String?,
     val LastModified: String?,
     val DateCreated: String?,
-    val Version: String?
+    val Version: String?,
+    val ClientSignature: String?
 )

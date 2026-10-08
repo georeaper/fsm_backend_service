@@ -46,8 +46,14 @@ import com.example.feature.user.repository.UserRepository
 import com.example.feature.user.usecase.CreateUserUseCase
 import com.example.feature.user.usecase.GetUserUseCase 
 
+import com.example.feature.fieldreport.repository.FieldReportBulkRepository
+import com.example.feature.fieldreport.repository.FieldReportBulkRepositoryImpl
 import com.example.feature.fieldreport.repository.FieldReportRepositoryImpl
 import com.example.feature.fieldreport.repository.FieldReportRepository
+import com.example.feature.fieldreport.repository.FieldReportEquipmentRepositoryImpl
+import com.example.feature.fieldreport.usecase.CreateFieldReportEquipmentUseCase
+import com.example.feature.fieldreport.usecase.UpdateFieldReportEquipmentUseCase
+import com.example.feature.fieldreport.usecase.DeleteFieldReportEquipmentUseCase
 import com.example.feature.fieldreport.usecase.CreateFieldReportUseCase 
 import com.example.feature.fieldreport.usecase.GetFieldReportUseCase
 import com.example.feature.maintenance.usecase.GetMaintenanceUseCase
@@ -131,7 +137,13 @@ class AppContainer {
     }
     private val fieldReportRepository by lazy{
         FieldReportRepositoryImpl(dbProvider) 
-    }   
+    }
+    val fieldReportBulkRepository by lazy {
+        FieldReportBulkRepositoryImpl(dbProvider)
+    }
+    private val fieldReportEquipmentRepository by lazy {
+        FieldReportEquipmentRepositoryImpl(dbProvider)
+    }
     private val ticketRepository by lazy{
         TicketRepositoryImpl(dbProvider) 
     }
@@ -289,4 +301,7 @@ class AppContainer {
     val deleteToolUseCase by lazy { DeleteToolUseCase(toolRepository) }
     val updateFieldReportUseCase by lazy { UpdateFieldReportUseCase(fieldReportRepository) }
     val deleteFieldReportUseCase by lazy { DeleteFieldReportUseCase(fieldReportRepository) }
+    val createFieldReportEquipmentUseCase by lazy { CreateFieldReportEquipmentUseCase(fieldReportEquipmentRepository) }
+    val updateFieldReportEquipmentUseCase by lazy { UpdateFieldReportEquipmentUseCase(fieldReportEquipmentRepository) }
+    val deleteFieldReportEquipmentUseCase by lazy { DeleteFieldReportEquipmentUseCase(fieldReportEquipmentRepository) }
 }

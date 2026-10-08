@@ -113,27 +113,36 @@ class FieldReportRepositoryImpl(private val dbProvider: DatabaseProvider) : Fiel
     override fun edit(ctx: RequestContext, data: EditFieldReportResponse): EditFieldReportResponse {
         val db = dbProvider.getDatabase(ctx.dbName)
         transaction(db) {
+            val existingReport = fieldReportsTable
+                .select {
+                    (fieldReportsTable.fieldReportId eq data.FieldReportID) and (fieldReportsTable.isDeleted eq false)
+                }
+                .singleOrNull()
+
+            if (existingReport == null) {
+                return@transaction
+            }
+
             fieldReportsTable.update({
                 (fieldReportsTable.fieldReportId eq data.FieldReportID) and (fieldReportsTable.isDeleted eq false)
-            }) {
-                it[fieldReportId] = data.FieldReportID
-                it[remoteID] = null
-                it[reportNumber] = data.ReportNumber
-                it[description] = data.Description
-                it[startDate] = data.StartDate
-                it[endDate] = data.EndDate
-                it[title] = data.Title
-                it[department] = data.Department
-                it[clientName] = data.ClientName
-                it[reportStatus] = data.ReportStatus
-                it[value] = data.Value
-                it[lastModified] = data.LastModified!!  
-                it[dateCreated] = data.DateCreated!!  
-                it[version] = data.Version!!
-                it[customerID] = data.CustomerID
-                it[contractID] = data.ContractID
-                it[userID] = data.UserID
-                it[caseID] = data.CaseID
+            }) { row ->
+                data.ReportNumber?.let { row[reportNumber] = it }
+                data.Description?.let { row[description] = it }
+                data.StartDate?.let { row[startDate] = it }
+                data.EndDate?.let { row[endDate] = it }
+                data.Title?.let { row[title] = it }
+                data.Department?.let { row[department] = it }
+                data.ClientName?.let { row[clientName] = it }
+                data.ReportStatus?.let { row[reportStatus] = it }
+                data.Value?.let { row[value] = it }
+                row[lastModified] = data.LastModified ?: existingReport[fieldReportsTable.lastModified]
+                row[dateCreated] = data.DateCreated ?: existingReport[fieldReportsTable.dateCreated]
+                row[version] = data.Version ?: existingReport[fieldReportsTable.version]
+                data.CustomerID?.let { row[customerID] = it }
+                data.ContractID?.let { row[contractID] = it }
+                data.UserID?.let { row[userID] = it }
+                data.CaseID?.let { row[caseID] = it }
+                data.ClientSignature?.let { row[clientSignature] = it.toByteArray() }
             }
         }
         return data
