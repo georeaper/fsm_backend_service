@@ -1,0 +1,113 @@
+ΕΛΕΓΧΟΣ POST /fieldreports
+==========================
+
+Το POST /fieldreports περιμένει το FieldReportCreateDto και αποθηκεύει μαζί
+equipment, checkforms, inventories και special tools.
+
+ΠΡΟΒΛΗΜΑΤΑ ΣΤΟ PAYLOAD ΤΟΥ FRONTEND
+-----------------------------------
+
+1. Τα παρακάτω πεδία δεν ανήκουν στο create DTO:
+
+   - ContractName
+   - TicketNumber
+
+   Πρέπει να αφαιρεθούν από το POST request. Είναι πεδία παρουσίασης που
+   επιστρέφονται από το backend και όχι πεδία που χρειάζεται να αποθηκεύσει.
+
+2. Το StartDate έχει λανθασμένο έτος:
+
+   "StartDate": "0026-01-21"
+
+   Πρέπει να γίνει:
+
+   "StartDate": "2026-01-21"
+
+   Το backend σήμερα αποθηκεύει τις ημερομηνίες ως απλά String και δεν
+   επικυρώνει τη μορφή ή το έτος. Επομένως μπορεί να αποθηκευτεί λάθος τιμή.
+
+3. Το ClientSignature μπορεί να σταλεί ως null όταν δεν υπάρχει υπογραφή,
+   αντί για κενό string.
+
+4. Τα reference IDs πρέπει να υπάρχουν στη βάση του συγκεκριμένου tenant.
+   Αυτό αφορά τα CustomerID, ContractID, UserID, TicketID, EquipmentID,
+   MaintenanceID και InventoryID. Διαφορετικά μπορεί να προκύψει database
+   foreign-key error.
+
+5. Μέσα στις αντίστοιχες λίστες είναι υποχρεωτικά τα EquipmentID,
+   InventoryID και ToolsID.
+
+
+ΔΙΟΡΘΩΜΕΝΟ REQUEST
+------------------
+
+{
+  "ReportNumber": "WC001",
+  "Description": "Ola kala",
+  "StartDate": "2026-01-21",
+  "EndDate": "2026-10-22",
+  "Title": "Testing complete",
+  "Department": "OAKA",
+  "ClientName": "kirios kouvopoulos",
+  "ReportStatus": "Service",
+  "ClientSignature": null,
+  "Value": 1000,
+  "CustomerID": "9f56b344-0899-45e1-ad7a-2ba47c6307bd",
+  "ContractID": "f9752dad-9b4b-46a6-99eb-c932a0699a9e",
+  "UserID": "797cef5a-de8f-4103-a27d-41154061a07d",
+  "TicketID": "60118732-331e-4628-b5a6-f015d8cc0140",
+  "Equipments": [
+    {
+      "EquipmentID": "9f90404c-1eeb-439a-85d1-e225a117a793",
+      "MaintenanceID": "91424020-972e-441d-a2d4-454b1924d05a",
+      "CompletedStatus": true,
+      "FieldReportCheckforms": [
+        {
+          "Description": "ena",
+          "ValueExpected": "",
+          "ValueMeasured": "dyo",
+          "Result": ""
+        }
+      ]
+    }
+  ],
+  "Inventories": [
+    {
+      "InventoryID": "684cd1d7-d352-4070-b242-fcf4763c51ca"
+    }
+  ],
+  "SpecialTools": [
+    {
+      "ToolsID": "b8cb96fc-e6d7-42b9-b744-f7f02b26deb9"
+    }
+  ]
+}
+
+
+ΠΡΟΤΕΙΝΟΜΕΝΗ ΛΥΣΗ
+------------------
+
+Άμεση διόρθωση στο frontend:
+
+1. Να δημιουργείται ξεχωριστό create payload και να μη στέλνεται αυτούσιο
+   ένα object που χρησιμοποιείται για εμφάνιση στη φόρμα.
+2. Να αφαιρεθούν τα ContractName και TicketNumber πριν από το POST.
+3. Να διορθωθεί ο τρόπος δημιουργίας του StartDate ώστε να παράγει πάντα
+   ISO ημερομηνία YYYY-MM-DD με τετραψήφιο έτος.
+4. Να στέλνεται ClientSignature: null όταν δεν υπάρχει υπογραφή.
+
+Προτεινόμενη θωράκιση του backend:
+
+1. Να προστεθεί validation για StartDate και EndDate με αυστηρή μορφή
+   YYYY-MM-DD και έλεγχος ότι StartDate <= EndDate.
+2. Σε λάθος payload να επιστρέφεται σαφές 400 response με το συγκεκριμένο
+   πεδίο που απέτυχε.
+3. Να δηλωθεί ρητά η πολιτική για άγνωστα JSON fields. Η ασφαλέστερη επιλογή
+   για το συγκεκριμένο API είναι να απορρίπτονται, ώστε λάθη ονοματοδοσίας
+   στο frontend να εντοπίζονται άμεσα.
+4. Προαιρετικά να ελέγχονται τα reference IDs πριν το insert και να
+   επιστρέφεται κατανοητό 400/404 αντί για γενικό database exception.
+
+Η βασική και πιο άμεση λύση είναι να διορθωθεί το frontend payload όπως στο
+παραπάνω παράδειγμα. Παράλληλα, το backend validation είναι σημαντικό επειδή
+σήμερα η τιμή "0026-01-21" μπορεί να αποθηκευτεί χωρίς να απορριφθεί.

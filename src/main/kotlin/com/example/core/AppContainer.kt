@@ -50,6 +50,7 @@ import com.example.feature.fieldreport.repository.FieldReportBulkRepository
 import com.example.feature.fieldreport.repository.FieldReportBulkRepositoryImpl
 import com.example.feature.fieldreport.repository.FieldReportRepositoryImpl
 import com.example.feature.fieldreport.repository.FieldReportRepository
+import com.example.feature.fieldreport.repository.FieldReportApiRepositoryImpl
 import com.example.feature.fieldreport.repository.FieldReportEquipmentRepositoryImpl
 import com.example.feature.fieldreport.usecase.CreateFieldReportEquipmentUseCase
 import com.example.feature.fieldreport.usecase.UpdateFieldReportEquipmentUseCase
@@ -137,6 +138,9 @@ class AppContainer {
     }
     private val fieldReportRepository by lazy{
         FieldReportRepositoryImpl(dbProvider) 
+    }
+    val fieldReportApiRepository by lazy {
+        FieldReportApiRepositoryImpl(dbProvider)
     }
     val fieldReportBulkRepository by lazy {
         FieldReportBulkRepositoryImpl(dbProvider)

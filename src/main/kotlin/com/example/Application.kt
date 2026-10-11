@@ -15,9 +15,7 @@ import com.example.feature.equipments.equipmentsRoute
 import com.example.feature.inventory.inventoryRoute
 import com.example.feature.model.modelRoute
 import com.example.feature.manufacturer.manufacturerRoute
-import com.example.feature.fieldreport.fieldReportBulkRoute
 import com.example.feature.fieldreport.fieldReportRoute
-import com.example.feature.fieldreport.fieldReportEquipmentRoute
 import com.example.feature.maintenance.maintenanceRoute
 import com.example.feature.settings.settingsRoute
 import com.example.feature.categories.categoriesRoute
@@ -140,16 +138,7 @@ fun Application.module() {
             manufacturerRoute(container.getManufacturerUseCase ,
                 container.createManufacturerUseCase,
                 container.deleteManufacturerUseCase)
-            fieldReportRoute(container.getFieldReportUseCase,
-                container.createFieldReportUseCase,
-                container.updateFieldReportUseCase,
-                container.deleteFieldReportUseCase)
-            fieldReportBulkRoute(container.fieldReportBulkRepository)
-            fieldReportEquipmentRoute(
-                container.createFieldReportEquipmentUseCase,
-                container.updateFieldReportEquipmentUseCase,
-                container.deleteFieldReportEquipmentUseCase
-            )
+            fieldReportRoute(container.fieldReportApiRepository)
             maintenanceRoute(container.getMaintenanceUseCase,
                 container.createMaintenanceUseCase,
                 container.updateMaintenanceUseCase,
