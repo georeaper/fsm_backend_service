@@ -11,10 +11,7 @@ import java.util.*
 
 object JwtConfig {
     //This is the secrets of JWT
-    //
-    //private const val secret = "super_secret_key"
-    //private const val issuer = "ktor-backend"
-    //private const val audience = "ktor-users"
+
     val dotenv = loadDotenv()
     private val secret =dotenv["JWT_SECRET"]
     private val issuer =dotenv["WT_ISSUER"]

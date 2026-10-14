@@ -9,8 +9,8 @@ import com.example.infrastructure.DatabaseFactory
 import com.example.models.authenticationModels.CompanyTable
 import com.example.models.authenticationModels.UserTable
 import com.example.routes.authRoutes
-import com.example.routes.customersRoute
-import com.example.routes.dbCreation
+//import com.example.routes.customersRoute
+//import com.example.routes.dbCreation
 import com.example.feature.equipments.equipmentsRoute
 import com.example.feature.inventory.inventoryRoute
 import com.example.feature.model.modelRoute
@@ -23,8 +23,6 @@ import com.example.feature.tasks.tasksRoute
 import com.example.feature.ticket.ticketsRoute
 import com.example.feature.tools.toolsRoute
 import com.example.feature.user.usersRoute
-import com.example.routes.protectedRoutes
-import com.example.routes.seedCompanyARoute
 import com.example.routes.syncRoutes
 import io.github.cdimascio.dotenv.dotenv
 import io.ktor.http.*
@@ -120,26 +118,33 @@ fun Application.module() {
             }
 
             // Όλα τα routes σου εδώ
-            customersRoute(container.getCustomersUseCase ,
+            customersRoute(
+                container.getCustomersUseCase ,
                 container.createCustomerUseCase,
                 container.updateCustomerUseCase,
                 container.deleteCustomerUseCase)
-            equipmentsRoute(container.getEquipmentUseCase ,
+            equipmentsRoute(
+                container.getEquipmentUseCase ,
                 container.createEquipmentUseCase,
                 container.updateEquipmentUseCase,
                 container.deleteEquipmentUseCase)
-            inventoryRoute(container.getInventoryUseCase,
+            inventoryRoute(
+                container.getInventoryUseCase,
                 container.createInventoryUseCase,
                 container.updateInventoryUseCase,
                 container.deleteInventoryUseCase)
-            modelRoute(container.getModelUseCase ,
+            modelRoute(
+                container.getModelUseCase ,
                 container.createModelUseCase,
             container.deleteModelUseCase)
-            manufacturerRoute(container.getManufacturerUseCase ,
+            manufacturerRoute(
+                container.getManufacturerUseCase ,
                 container.createManufacturerUseCase,
                 container.deleteManufacturerUseCase)
-            fieldReportRoute(container.fieldReportApiRepository)
-            maintenanceRoute(container.getMaintenanceUseCase,
+            fieldReportRoute(
+                container.fieldReportApiRepository)
+            maintenanceRoute(
+                container.getMaintenanceUseCase,
                 container.createMaintenanceUseCase,
                 container.updateMaintenanceUseCase,
                 container.deleteMaintenanceUseCase)
@@ -155,32 +160,42 @@ fun Application.module() {
                 container.deleteSettingsUseCase,
                 container.getCategoryUseCase,
                 container.createCategoryUseCase)
-            categoriesRoute(container.getCategoryUseCase,container.createCategoryUseCase,container.deleteCategoryUseCase)
-            tasksRoute(container.getTaskUseCase,
+            categoriesRoute(
+                container.getCategoryUseCase,
+                container.createCategoryUseCase,
+                container.deleteCategoryUseCase)
+            tasksRoute(
+                container.getTaskUseCase,
                 container.createTaskUseCase,
                 container.updateTaskUseCase,
                 container.deleteTaskUseCase)
-            ticketsRoute(container.getTicketUseCase,
+            ticketsRoute(
+                container.getTicketUseCase,
                 container.createTicketUseCase,
                 container.updateTicketUseCase,
                 container.deleteTicketUseCase)
-            toolsRoute(container.getToolUseCase,
+            toolsRoute(
+                container.getToolUseCase,
                 container.createToolUseCase,
                 container.updateToolUseCase,
                 container.deleteToolUseCase)
-            usersRoute(container.getUserUseCase,container.createUserUseCase)
-            contractsRoute(container.getContractUseCase,
+            usersRoute(
+                container.getUserUseCase,
+                container.createUserUseCase)
+            contractsRoute(
+                container.getContractUseCase,
                 container.createContractUseCase,
                 container.updateContractUseCase,
                 container.deleteContractUseCase)
-            categoriesRoute(container.getCategoryUseCase,container.createCategoryUseCase,container.deleteCategoryUseCase)
-            seedCompanyARoute()
+            categoriesRoute(
+                container.getCategoryUseCase,
+                container.createCategoryUseCase,
+                container.deleteCategoryUseCase)
+
             authRoutes()
             onboardingRoutes()
-            dbCreation()
-            authenticate("auth-jwt") {  // ✅ Wrap protectedRoutes inside authenticate
-                protectedRoutes()
-            }
+//            dbCreation()
+
             syncRoutes()
         }
     }

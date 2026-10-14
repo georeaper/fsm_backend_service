@@ -46,52 +46,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 
-fun Route.protectedRoutes() {
-    authenticate("auth-jwt") {
-        get("/user/data") {
-            val principal = call.principal<JWTPrincipal>()
-            val username = principal?.payload?.getClaim("username")?.asString()
-            val databaseName = principal?.payload?.getClaim("databaseName")?.asString()
-            val databaseHost = principal?.payload?.getClaim("databaseHost")?.asString()
-            val databasePort = principal?.payload?.getClaim("databasePort")?.asInt()
-            val databaseUser = principal?.payload?.getClaim("databaseUser")?.asString()
-            val databasePassword = principal?.payload?.getClaim("databasePassword")?.asString()
 
-            if (username != null && databaseName != null && databaseHost != null && databaseUser != null && databasePassword != null) {
-                try {
-                    Database.connect(
-                        url = "jdbc:postgresql://$databaseHost:$databasePort/$databaseName",
-                        driver = "org.postgresql.Driver",
-                        user = databaseUser,
-                        password = databasePassword
-                    )
-
-                    val userData = transaction {
-                        UserTable.select { UserTable.username eq username }
-                            .map {
-                                mapOf(
-                                    "username" to it[UserTable.username],
-                                    "email" to it[UserTable.email],
-                                    "role" to it[UserTable.role]
-                                )
-                            }
-                            .firstOrNull()
-                    }
-
-                    if (userData != null) {
-                        call.respond(HttpStatusCode.OK, userData)
-                    } else {
-                        call.respond(HttpStatusCode.NotFound, mapOf("error" to "User data not found"))
-                    }
-                } catch (e: Exception) {
-                    call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Database error: ${e.localizedMessage}"))
-                }
-            } else {
-                call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Invalid token"))
-            }
-        }
-    }
-}
 
 
 val logger = LoggerFactory.getLogger("SyncRoutes")
@@ -275,22 +230,7 @@ fun filterServerDataForSync(
             val filtered = serverList.filter { serverItem ->
                 val clientItem = clientMap[serverItem.CustomerID]
 
-//                val serverModified = try {
-//                    // First, parse server string (which includes timezone offset)
-//                    val serverRawFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-//                    val parsedDate = serverRawFormat.parse(serverItem.LastModified)
-//
-//                    // Then format it into your app's date string format
-//                    val appFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
-//                    val formattedDateStr = parsedDate?.let { appFormat.format(it) }
-//
-//                    // Finally, parse it back to a Date using your app's formatter
-//                    formattedDateStr?.let { appFormat.parse(it) }
-//
-//                } catch (e: Exception) {
-//                    println("Failed to parse/convert server LastModified: ${serverItem.LastModified}")
-//                    null
-//                }
+
                 val serverModified = try {
                     dateFormat.parse(serverItem.LastModified)
                 } catch (e: Exception) {
