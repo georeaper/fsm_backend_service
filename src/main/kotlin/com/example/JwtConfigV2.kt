@@ -19,6 +19,7 @@ object JwtConfigV2
     private fun requiredEnv(name: String): String =
         System.getenv(name)
             ?.takeIf { it.isNotBlank() }
+            ?: loadDotenv()[name]?.takeIf { it.isNotBlank() }
             ?: error("Missing environment variable: $name")
 
     private val secret: String by lazy {
@@ -49,27 +50,25 @@ object JwtConfigV2
     }
 
     fun generateAccessToken(
-        userId: String,
-        tenantId: String,
+        userId: Int,
+        companyId: Int,
         role: String
     ): String {
-        require(userId.isNotBlank())
-        require(tenantId.isNotBlank())
+        require(userId > 0)
+        require(companyId > 0)
         require(role.isNotBlank())
 
         val now = Instant.now()
 
         return JWT.create()
-            .withSubject(userId)
+            .withSubject(userId.toString())
             .withIssuer(issuer)
             .withAudience(audience)
-            .withClaim("tenant_id", tenantId)
+            .withClaim("tenant_id", companyId)
             .withClaim("role", role)
             .withJWTId(UUID.randomUUID().toString())
             .withIssuedAt(Date.from(now))
-            .withExpiresAt(
-                Date.from(now.plusSeconds(ACCESS_TOKEN_MINUTES * 60))
-            )
+            .withExpiresAt(Date.from(now.plusSeconds(ACCESS_TOKEN_MINUTES * 60)))
             .sign(algorithm)
     }
 

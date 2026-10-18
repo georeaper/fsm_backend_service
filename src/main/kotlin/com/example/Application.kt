@@ -5,12 +5,9 @@ import com.example.core.AppContainer
 import com.example.feature.contracts.contractsRoute
 import com.example.feature.customers.customersRoute
 import com.example.feature.onboarding.routes.onboardingRoutes
+import com.example.feature.auth.authV2Routes
 import com.example.infrastructure.DatabaseFactory
-import com.example.models.authenticationModels.CompanyTable
-import com.example.models.authenticationModels.UserTable
 import com.example.routes.authRoutes
-//import com.example.routes.customersRoute
-//import com.example.routes.dbCreation
 import com.example.feature.equipments.equipmentsRoute
 import com.example.feature.inventory.inventoryRoute
 import com.example.feature.model.modelRoute
@@ -39,14 +36,14 @@ import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.response.respond
 
 import io.ktor.server.routing.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.transactions.transaction
-import org.slf4j.LoggerFactory
 import java.io.File
 
 
@@ -85,35 +82,84 @@ fun Application.module() {
                 else null
             }
         }
+        jwt("auth-jwt-v2") {
+            realm = "fsm-api"
+            verifier(JwtConfigV2.verifier)
+            validate { credential ->
+                val userId = credential.payload.subject?.toIntOrNull()
+                val companyId = credential.payload.getClaim("tenant_id").asInt()
+                val role = credential.payload.getClaim("role").asString()
+                if (userId != null && companyId != null && !role.isNullOrBlank()) {
+                    JWTPrincipal(credential.payload)
+                } else {
+                    null
+                }
+            }
+        }
     }
     val container = AppContainer()
     val dotenv = loadDotenv()
 
-    //configureRouting()
+    DatabaseFactory.init(environment.config)
+
+    val dbInitializationJob = CoroutineScope(
+        SupervisorJob() + Dispatchers.IO
+    ).launch {
+        while (isActive) {
+            if (DatabaseFactory.ensureTables()) {
+                println("Central Database schema ready")
+                break
+            }
+
+            println("Central Database unavailable. Retrying in 5 seconds...")
+            delay(5_000)
+        }
+    }
+
+    environment.monitor.subscribe(ApplicationStopped) {
+        dbInitializationJob.cancel()
+    }
+
+
     routing {
 
-        GlobalScope.launch {
-            while (true) {
-                if (!DatabaseFactory.isConnected) {
-                    println("Trying to reconnect DB...")
-                    DatabaseFactory.init(dotenv)
-                }
-                delay(5000)
-            }
-        }
+//        GlobalScope.launch {
+//            while (true) {
+//                if (!DatabaseFactory.isConnected) {
+//                    println("Trying to reconnect DB...")
+//                    DatabaseFactory.init(dotenv)
+//                }
+//                delay(5000)
+//            }
+//        }
 
         route("/") {
             static("/") {
            resources("static")
             defaultResource("static/index.html")
         }
-            intercept(ApplicationCallPipeline.Call) {
-                if (!DatabaseFactory.isConnected) {
+//            intercept(ApplicationCallPipeline.Call) {
+//                if (!DatabaseFactory.isConnected) {
+//                    call.respond(
+//                        HttpStatusCode.ServiceUnavailable,
+//                        mapOf("error" to "Database not connected")
+//                    )
+//                    finish()
+//                }
+//            }
+            get("/health/ready") {
+                val available = DatabaseFactory.isAvailable()
+
+                if (available) {
+                    call.respond(
+                        HttpStatusCode.OK,
+                        mapOf("database" to "UP")
+                    )
+                } else {
                     call.respond(
                         HttpStatusCode.ServiceUnavailable,
-                        mapOf("error" to "Database not connected")
+                        mapOf("database" to "DOWN")
                     )
-                    finish()
                 }
             }
 
@@ -122,32 +168,39 @@ fun Application.module() {
                 container.getCustomersUseCase ,
                 container.createCustomerUseCase,
                 container.updateCustomerUseCase,
-                container.deleteCustomerUseCase)
+                container.deleteCustomerUseCase,
+                container.authenticatedRequestContextResolver)
             equipmentsRoute(
                 container.getEquipmentUseCase ,
                 container.createEquipmentUseCase,
                 container.updateEquipmentUseCase,
-                container.deleteEquipmentUseCase)
+                container.deleteEquipmentUseCase,
+                container.authenticatedRequestContextResolver)
             inventoryRoute(
                 container.getInventoryUseCase,
                 container.createInventoryUseCase,
                 container.updateInventoryUseCase,
-                container.deleteInventoryUseCase)
+                container.deleteInventoryUseCase,
+                container.authenticatedRequestContextResolver)
             modelRoute(
                 container.getModelUseCase ,
                 container.createModelUseCase,
-            container.deleteModelUseCase)
+            container.deleteModelUseCase,
+                container.authenticatedRequestContextResolver)
             manufacturerRoute(
                 container.getManufacturerUseCase ,
                 container.createManufacturerUseCase,
-                container.deleteManufacturerUseCase)
+                container.deleteManufacturerUseCase,
+                container.authenticatedRequestContextResolver)
             fieldReportRoute(
-                container.fieldReportApiRepository)
+                container.fieldReportApiRepository,
+                container.authenticatedRequestContextResolver)
             maintenanceRoute(
                 container.getMaintenanceUseCase,
                 container.createMaintenanceUseCase,
                 container.updateMaintenanceUseCase,
-                container.deleteMaintenanceUseCase)
+                container.deleteMaintenanceUseCase,
+                container.authenticatedRequestContextResolver)
             settingsRoute(
                 container.getSettingsUseCase,
                 container.createSettingsUseCase,
@@ -159,40 +212,49 @@ fun Application.module() {
                 container.createContractTypeUseCase,
                 container.deleteSettingsUseCase,
                 container.getCategoryUseCase,
-                container.createCategoryUseCase)
+                container.createCategoryUseCase,
+                container.authenticatedRequestContextResolver)
             categoriesRoute(
                 container.getCategoryUseCase,
                 container.createCategoryUseCase,
-                container.deleteCategoryUseCase)
+                container.deleteCategoryUseCase,
+                container.authenticatedRequestContextResolver)
             tasksRoute(
                 container.getTaskUseCase,
                 container.createTaskUseCase,
                 container.updateTaskUseCase,
-                container.deleteTaskUseCase)
+                container.deleteTaskUseCase,
+                container.authenticatedRequestContextResolver)
             ticketsRoute(
                 container.getTicketUseCase,
                 container.createTicketUseCase,
                 container.updateTicketUseCase,
-                container.deleteTicketUseCase)
+                container.deleteTicketUseCase,
+                container.authenticatedRequestContextResolver)
             toolsRoute(
                 container.getToolUseCase,
                 container.createToolUseCase,
                 container.updateToolUseCase,
-                container.deleteToolUseCase)
+                container.deleteToolUseCase,
+                container.authenticatedRequestContextResolver)
             usersRoute(
                 container.getUserUseCase,
-                container.createUserUseCase)
+                container.createUserUseCase,
+                container.authenticatedRequestContextResolver)
             contractsRoute(
                 container.getContractUseCase,
                 container.createContractUseCase,
                 container.updateContractUseCase,
-                container.deleteContractUseCase)
+                container.deleteContractUseCase,
+                container.authenticatedRequestContextResolver)
             categoriesRoute(
                 container.getCategoryUseCase,
                 container.createCategoryUseCase,
-                container.deleteCategoryUseCase)
+                container.deleteCategoryUseCase,
+                container.authenticatedRequestContextResolver)
 
             authRoutes()
+            authV2Routes(container.authUseCase)
             onboardingRoutes()
 //            dbCreation()
 

@@ -1,6 +1,7 @@
 package com.example.feature.fieldreport
 
-import com.example.core.RequestContext
+import com.example.feature.auth.service.AuthenticatedRequestContextResolver
+import com.example.feature.auth.service.authenticatedRequestContext
 import com.example.feature.fieldreport.dto.FieldReportEquipment
 import com.example.feature.fieldreport.usecase.CreateFieldReportEquipmentUseCase
 import com.example.feature.fieldreport.usecase.DeleteFieldReportEquipmentUseCase
@@ -19,17 +20,15 @@ import io.ktor.server.routing.put
 fun Route.fieldReportEquipmentRoute(
     createUseCase: CreateFieldReportEquipmentUseCase,
     updateUseCase: UpdateFieldReportEquipmentUseCase,
-    deleteUseCase: DeleteFieldReportEquipmentUseCase
+    deleteUseCase: DeleteFieldReportEquipmentUseCase,
+    contextResolver: AuthenticatedRequestContextResolver
 ) {
-    authenticate("auth-jwt") {
+    authenticate("auth-jwt-v2") {
         post("/fieldreports/{fieldReportId}/equipments") {
-            val principal = call.principal<JWTPrincipal>()
-                ?: return@post call.respond(HttpStatusCode.Unauthorized)
-            val dbName = principal.getClaim("databaseName", String::class)
+            val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@post call.respond(HttpStatusCode.Unauthorized)
             val fieldReportId = call.parameters["fieldReportId"]
                 ?: return@post call.respond(HttpStatusCode.BadRequest)
-            val ctx = RequestContext(dbName, principal.getClaim("username", String::class))
             val result = createUseCase.execute(ctx, fieldReportId, call.receive<FieldReportEquipment>())
 
             if (result == null) call.respond(HttpStatusCode.NotFound)
@@ -37,15 +36,12 @@ fun Route.fieldReportEquipmentRoute(
         }
 
         put("/fieldreports/{fieldReportId}/equipments/{id}") {
-            val principal = call.principal<JWTPrincipal>()
-                ?: return@put call.respond(HttpStatusCode.Unauthorized)
-            val dbName = principal.getClaim("databaseName", String::class)
+            val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@put call.respond(HttpStatusCode.Unauthorized)
             val fieldReportId = call.parameters["fieldReportId"]
                 ?: return@put call.respond(HttpStatusCode.BadRequest)
             val id = call.parameters["id"]
                 ?: return@put call.respond(HttpStatusCode.BadRequest)
-            val ctx = RequestContext(dbName, principal.getClaim("username", String::class))
             val result = updateUseCase.execute(ctx, fieldReportId, id, call.receive<FieldReportEquipment>())
 
             if (result == null) call.respond(HttpStatusCode.NotFound)
@@ -53,15 +49,12 @@ fun Route.fieldReportEquipmentRoute(
         }
 
         delete("/fieldreports/{fieldReportId}/equipments/{id}") {
-            val principal = call.principal<JWTPrincipal>()
-                ?: return@delete call.respond(HttpStatusCode.Unauthorized)
-            val dbName = principal.getClaim("databaseName", String::class)
+            val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@delete call.respond(HttpStatusCode.Unauthorized)
             val fieldReportId = call.parameters["fieldReportId"]
                 ?: return@delete call.respond(HttpStatusCode.BadRequest)
             val id = call.parameters["id"]
                 ?: return@delete call.respond(HttpStatusCode.BadRequest)
-            val ctx = RequestContext(dbName, principal.getClaim("username", String::class))
 
             if (deleteUseCase.execute(ctx, fieldReportId, id)) call.respond(HttpStatusCode.NoContent)
             else call.respond(HttpStatusCode.NotFound)

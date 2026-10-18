@@ -46,7 +46,7 @@ dependencies {
 
 
     implementation("at.favre.lib:bcrypt:0.10.2")
-    implementation("io.ktor:ktor-server-auth-jwt:2.0.0")
+    implementation("io.ktor:ktor-server-auth-jwt:3.0.1")
 
     implementation("com.google.code.gson:gson:2.8.8") // Add this line for Gson
 

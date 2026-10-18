@@ -1,6 +1,7 @@
 package com.example.feature.settings
 
-import com.example.core.RequestContext
+import com.example.feature.auth.service.AuthenticatedRequestContextResolver
+import com.example.feature.auth.service.authenticatedRequestContext
 import com.example.feature.settings.dto.CreateSettingsResponse
 import com.example.feature.settings.usecase.CreateContractTypeUseCase
 import com.example.feature.settings.usecase.CreateSettingsUseCase
@@ -45,143 +46,72 @@ fun Route.settingsRoute(
     createContractTypeUseCase: CreateContractTypeUseCase,
     deleteSettingsUseCase: DeleteSettingsUseCase,
     getCategoryUseCase: GetCategoryUseCase,
-    createCategoryUseCase: CreateCategoryUseCase
+    createCategoryUseCase: CreateCategoryUseCase,
+    contextResolver: AuthenticatedRequestContextResolver
 ){
 
-    authenticate("auth-jwt") {
+    authenticate("auth-jwt-v2") {
         get("/settings"){
-            val principal = call.principal<JWTPrincipal>()
+            val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@get call.respond(HttpStatusCode.Unauthorized)
-
-            val dbName = principal.getClaim("databaseName", String::class)
-                ?: return@get call.respond(HttpStatusCode.Unauthorized)
-
-            val ctx = RequestContext(
-                dbName = dbName,
-                username = principal.getClaim("username", String::class)
-            )
             val result=getSettingsUseCase.execute(ctx)
             call.respond(result)
         }
         post("/settings"){
-            val principal = call.principal<JWTPrincipal>()
+            val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@post call.respond(HttpStatusCode.Unauthorized)
-
-            val dbName = principal.getClaim("databaseName", String::class)
-                ?: return@post call.respond(HttpStatusCode.Unauthorized)
-
-            val ctx = RequestContext(
-                username = principal.getClaim("username", String::class),
-                dbName = dbName
-            )
             val request=call.receive<CreateSettingsResponse>()
             val result=createSettingsUseCase.execute(ctx,request)
             call.respond(HttpStatusCode.Created, result)
         }
         get("/settings/technical-case-priorities") {
-            val principal = call.principal<JWTPrincipal>()
+            val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@get call.respond(HttpStatusCode.Unauthorized)
-
-            val dbName = principal.getClaim("databaseName", String::class)
-                ?: return@get call.respond(HttpStatusCode.Unauthorized)
-
-            val ctx = RequestContext(
-                dbName = dbName,
-                username = principal.getClaim("username", String::class)
-            )
 
             val result = getTechnicalCasePriorityUseCase.execute(ctx)
 
             call.respond(result)
         }
         post("/settings/technical-case-priorities"){
-            val principal = call.principal<JWTPrincipal>()
+            val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@post call.respond(HttpStatusCode.Unauthorized)
-
-            val dbName = principal.getClaim("databaseName", String::class)
-                ?: return@post call.respond(HttpStatusCode.Unauthorized)
-
-            val ctx = RequestContext(
-                username = principal.getClaim("username", String::class),
-                dbName = dbName
-            )
             val request=call.receive<CreateSettingsResponse>()
             val result=createTechnicalCasePriorityUseCase.execute(ctx,request)
             call.respond(HttpStatusCode.Created, result)
         }
         get("/settings/work-order-types") {
-            val principal = call.principal<JWTPrincipal>()
+            val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@get call.respond(HttpStatusCode.Unauthorized)
-
-            val dbName = principal.getClaim("databaseName", String::class)
-                ?: return@get call.respond(HttpStatusCode.Unauthorized)
-
-            val ctx = RequestContext(
-                dbName = dbName,
-                username = principal.getClaim("username", String::class)
-            )
 
             val result = getWorkOrderTypeUseCase.execute(ctx)
 
             call.respond(result)
         }
         post("/settings/work-order-types"){
-            val principal = call.principal<JWTPrincipal>()
+            val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@post call.respond(HttpStatusCode.Unauthorized)
-
-            val dbName = principal.getClaim("databaseName", String::class)
-                ?: return@post call.respond(HttpStatusCode.Unauthorized)
-
-            val ctx = RequestContext(
-                username = principal.getClaim("username", String::class),
-                dbName = dbName
-            )
             val request=call.receive<CreateSettingsResponse>()
             val result=createWorkOrderTypeUseCase.execute(ctx,request)
             call.respond(HttpStatusCode.Created, result)
         }
         get("/settings/contract-types") {
-            val principal = call.principal<JWTPrincipal>()
+            val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@get call.respond(HttpStatusCode.Unauthorized)
-
-            val dbName = principal.getClaim("databaseName", String::class)
-                ?: return@get call.respond(HttpStatusCode.Unauthorized)
-
-            val ctx = RequestContext(
-                dbName = dbName,
-                username = principal.getClaim("username", String::class)
-            )
 
             val result = getContractTypeUseCase.execute(ctx)
 
             call.respond(result)
         }
         post("/settings/contract-types"){
-            val principal = call.principal<JWTPrincipal>()
+            val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@post call.respond(HttpStatusCode.Unauthorized)
-
-            val dbName = principal.getClaim("databaseName", String::class)
-                ?: return@post call.respond(HttpStatusCode.Unauthorized)
-
-            val ctx = RequestContext(
-                username = principal.getClaim("username", String::class),
-                dbName = dbName
-            )
             val request=call.receive<CreateSettingsResponse>()
             val result=createContractTypeUseCase.execute(ctx,request)
             call.respond(HttpStatusCode.Created, result)
         }
     delete("/settings/delete/{id}"){
-            val principal = call.principal<JWTPrincipal>()
+            val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@delete call.respond(HttpStatusCode.Unauthorized)
-
-            val dbName = principal.getClaim("databaseName", String::class)
-                ?: return@delete call.respond(HttpStatusCode.Unauthorized)
-
-            val ctx = RequestContext(
-                username = principal.getClaim("username", String::class),
-                dbName = dbName
-            )
             val id = call.parameters["id"] ?: return@delete call.respond(HttpStatusCode.BadRequest)
             val deleted = deleteSettingsUseCase.execute(ctx, id)
             if (deleted) call.respond(HttpStatusCode.NoContent) else call.respond(HttpStatusCode.NotFound)

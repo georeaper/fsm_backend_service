@@ -1,6 +1,6 @@
 package com.example.feature.equipments
 
-import com.example.core.RequestContext
+import com.example.feature.auth.service.AuthenticatedRequestContextResolver
 import com.example.feature.equipments.dto.CreateEquipmentResponse
 import com.example.feature.equipments.usecase.CreateEquipmentUseCase
 import com.example.feature.equipments.usecase.DeleteEquipmentUseCase
@@ -19,20 +19,20 @@ fun Route.equipmentsRoute(
     getEquipmentUseCase: GetEquipmentUseCase,
     createEquipmentUseCase: CreateEquipmentUseCase,
     updateEquipmentUseCase: UpdateEquipmentUseCase,
-    deleteEquipmentUseCase: DeleteEquipmentUseCase
+    deleteEquipmentUseCase: DeleteEquipmentUseCase,
+    contextResolver: AuthenticatedRequestContextResolver
 ){
-    authenticate("auth-jwt") {
+    authenticate("auth-jwt-v2") {
         get("/equipments"){
             val principal = call.principal<JWTPrincipal>()
                 ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
-            val dbName = principal.getClaim("databaseName", String::class)
+            val authenticated = contextResolver.resolve(principal)
                 ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
-            val ctx = RequestContext(
-                dbName = dbName,
-                username = principal.getClaim("username", String::class)
-            )
+            if (authenticated.role != OWNER_ROLE) return@get call.respond(HttpStatusCode.Forbidden)
+
+            val ctx = authenticated.toRequestContext()
             val result=getEquipmentUseCase.execute(ctx)
             call.respond(result)
         }
@@ -40,13 +40,12 @@ fun Route.equipmentsRoute(
             val principal = call.principal<JWTPrincipal>()
                 ?: return@post call.respond(HttpStatusCode.Unauthorized)
 
-            val dbName = principal.getClaim("databaseName", String::class)
+            val authenticated = contextResolver.resolve(principal)
                 ?: return@post call.respond(HttpStatusCode.Unauthorized)
 
-            val ctx = RequestContext(
-                username = principal.getClaim("username", String::class),
-                dbName = dbName
-            )
+            if (authenticated.role != OWNER_ROLE) return@post call.respond(HttpStatusCode.Forbidden)
+
+            val ctx = authenticated.toRequestContext()
             val request=call.receive<CreateEquipmentResponse>()
             val result=createEquipmentUseCase.execute(ctx,request)
             call.respond(HttpStatusCode.Created, result)
@@ -56,16 +55,15 @@ fun Route.equipmentsRoute(
             val principal = call.principal<JWTPrincipal>()
                 ?: return@put call.respond(HttpStatusCode.Unauthorized)
 
-            val dbName = principal.getClaim("databaseName", String::class)
+            val authenticated = contextResolver.resolve(principal)
                 ?: return@put call.respond(HttpStatusCode.Unauthorized)
+
+            if (authenticated.role != OWNER_ROLE) return@put call.respond(HttpStatusCode.Forbidden)
 
             val id = call.parameters["id"]
                 ?: return@put call.respond(HttpStatusCode.BadRequest)
 
-            val ctx = RequestContext(
-                username = principal.getClaim("username", String::class),
-                dbName = dbName
-            )
+            val ctx = authenticated.toRequestContext()
             val request = call.receive<CreateEquipmentResponse>()
             val result = updateEquipmentUseCase.execute(ctx, id, request)
 
@@ -80,16 +78,15 @@ fun Route.equipmentsRoute(
             val principal = call.principal<JWTPrincipal>()
                 ?: return@delete call.respond(HttpStatusCode.Unauthorized)
 
-            val dbName = principal.getClaim("databaseName", String::class)
+            val authenticated = contextResolver.resolve(principal)
                 ?: return@delete call.respond(HttpStatusCode.Unauthorized)
+
+            if (authenticated.role != OWNER_ROLE) return@delete call.respond(HttpStatusCode.Forbidden)
 
             val id = call.parameters["id"]
                 ?: return@delete call.respond(HttpStatusCode.BadRequest)
 
-            val ctx = RequestContext(
-                username = principal.getClaim("username", String::class),
-                dbName = dbName
-            )
+            val ctx = authenticated.toRequestContext()
             val deleted = deleteEquipmentUseCase.execute(ctx, id)
 
             if (deleted) {
@@ -100,3 +97,5 @@ fun Route.equipmentsRoute(
         }
     }
 }
+
+private const val OWNER_ROLE = "owner"

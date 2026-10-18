@@ -1,6 +1,7 @@
 package com.example.feature.fieldreport
 
-import com.example.core.RequestContext
+import com.example.feature.auth.service.AuthenticatedRequestContextResolver
+import com.example.feature.auth.service.authenticatedRequestContext
 import com.example.feature.fieldreport.dto.FieldReportBulkRequest
 import com.example.feature.fieldreport.dto.PostFieldReportResponse
 import com.example.feature.fieldreport.repository.FieldReportBulkRepository
@@ -15,20 +16,13 @@ import io.ktor.server.routing.post
 import kotlinx.serialization.json.Json
 
 fun Route.fieldReportBulkRoute(
-    bulkRepository: FieldReportBulkRepository
+    bulkRepository: FieldReportBulkRepository,
+    contextResolver: AuthenticatedRequestContextResolver
 ) {
-    authenticate("auth-jwt") {
+    authenticate("auth-jwt-v2") {
         post("/fieldreports/bulk") {
-            val principal = call.principal<JWTPrincipal>()
+            val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@post call.respond(HttpStatusCode.Unauthorized)
-
-            val dbName = principal.getClaim("databaseName", String::class)
-                ?: return@post call.respond(HttpStatusCode.Unauthorized)
-
-            val ctx = RequestContext(
-                dbName = dbName,
-                username = principal.getClaim("username", String::class)
-            )
 
             val raw = call.receiveText()
             val json = Json {

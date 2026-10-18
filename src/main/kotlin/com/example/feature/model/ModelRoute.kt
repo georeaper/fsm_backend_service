@@ -1,6 +1,7 @@
 package com.example.feature.model
 
-import com.example.core.RequestContext
+import com.example.feature.auth.service.AuthenticatedRequestContextResolver
+import com.example.feature.auth.service.authenticatedRequestContext
 import com.example.feature.model.dto.CreateModelResponse
 import com.example.feature.model.usecase.CreateModelUseCase
 import com.example.feature.model.usecase.DeleteModelUseCase
@@ -17,49 +18,26 @@ import io.ktor.server.request.receive
 fun Route.modelRoute(
     getModelUseCase: GetModelUseCase,
     createModelUseCase: CreateModelUseCase,
-    deleteModelUseCase: DeleteModelUseCase
+    deleteModelUseCase: DeleteModelUseCase,
+    contextResolver: AuthenticatedRequestContextResolver
 ){
-    authenticate("auth-jwt") {
+    authenticate("auth-jwt-v2") {
         get("/model"){
-            val principal = call.principal<JWTPrincipal>()
+            val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@get call.respond(HttpStatusCode.Unauthorized)
-
-            val dbName = principal.getClaim("databaseName", String::class)
-                ?: return@get call.respond(HttpStatusCode.Unauthorized)
-
-            val ctx = RequestContext(
-                dbName = dbName,
-                username = principal.getClaim("username", String::class)
-            )
             val result=getModelUseCase.execute(ctx)
             call.respond(result)
         }
         post("/model"){
-            val principal = call.principal<JWTPrincipal>()
+            val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@post call.respond(HttpStatusCode.Unauthorized)
-
-            val dbName = principal.getClaim("databaseName", String::class)
-                ?: return@post call.respond(HttpStatusCode.Unauthorized)
-
-            val ctx = RequestContext(
-                username = principal.getClaim("username", String::class),
-                dbName = dbName
-            )
             val request=call.receive<CreateModelResponse>()
             val result=createModelUseCase.execute(ctx,request)
             call.respond(HttpStatusCode.Created, result)
         }
         delete("/model/{id}"){
-            val principal = call.principal<JWTPrincipal>()
+            val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@delete call.respond(HttpStatusCode.Unauthorized)
-
-            val dbName = principal.getClaim("databaseName", String::class)
-                ?: return@delete call.respond(HttpStatusCode.Unauthorized)
-
-            val ctx = RequestContext(
-                username = principal.getClaim("username", String::class),
-                dbName = dbName
-            )
             val id = call.parameters["id"] ?: return@delete call.respond(HttpStatusCode.BadRequest)
             val deleted = deleteModelUseCase.execute(ctx, id)
             if (deleted) call.respond(HttpStatusCode.NoContent) else call.respond(HttpStatusCode.NotFound)

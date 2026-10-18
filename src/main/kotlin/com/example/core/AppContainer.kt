@@ -103,6 +103,10 @@ import com.example.feature.tools.usecase.UpdateToolUseCase
 import com.example.feature.tools.usecase.DeleteToolUseCase
 import com.example.feature.fieldreport.usecase.UpdateFieldReportUseCase
 import com.example.feature.fieldreport.usecase.DeleteFieldReportUseCase
+import com.example.feature.auth.repository.AuthRepositoryImpl
+import com.example.feature.auth.repository.AuthContextRepositoryImpl
+import com.example.feature.auth.service.AuthenticatedRequestContextResolver
+import com.example.feature.auth.usecase.AuthUseCase
 
 
 class AppContainer {
@@ -160,10 +164,22 @@ class AppContainer {
     private val categoryRepository by lazy{
         CategoryRepositoryImpl(dbProvider)
     }
+    private val authRepository by lazy {
+        AuthRepositoryImpl()
+    }
+    private val authContextRepository by lazy {
+        AuthContextRepositoryImpl()
+    }
 
 
 
     // use cases
+    val authUseCase by lazy {
+        AuthUseCase(authRepository)
+    }
+    val authenticatedRequestContextResolver by lazy {
+        AuthenticatedRequestContextResolver(authContextRepository)
+    }
     val getCustomersUseCase by lazy {
         GetCustomersUseCase(customerRepository)
     }

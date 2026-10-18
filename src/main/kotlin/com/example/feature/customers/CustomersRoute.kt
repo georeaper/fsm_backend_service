@@ -1,12 +1,12 @@
 package com.example.feature.customers
 
 
-import com.example.core.RequestContext
 import com.example.feature.customers.dto.CreateCustomerRequest
 import com.example.feature.customers.usecase.CreateCustomerUseCase
 import com.example.feature.customers.usecase.DeleteCustomerUseCase
 import com.example.feature.customers.usecase.GetCustomersUseCase
 import com.example.feature.customers.usecase.UpdateCustomerUseCase
+import com.example.feature.auth.service.AuthenticatedRequestContextResolver
 
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
@@ -23,22 +23,24 @@ import io.ktor.server.request.receive
 fun Route.customersRoute(getCustomersUseCase: GetCustomersUseCase,
                          createCustomerUseCase: CreateCustomerUseCase,
                          updateCustomerUseCase: UpdateCustomerUseCase,
-                         deleteCustomerUseCase: DeleteCustomerUseCase
+                         deleteCustomerUseCase: DeleteCustomerUseCase,
+                         contextResolver: AuthenticatedRequestContextResolver
 ) {
 
-    authenticate("auth-jwt") {
+    authenticate("auth-jwt-v2") {
 
         get("/customers"){
             val principal = call.principal<JWTPrincipal>()
                 ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
-            val dbName = principal.getClaim("databaseName", String::class)
+            val authenticated = contextResolver.resolve(principal)
                 ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
-            val ctx = RequestContext(
-                dbName = dbName,
-                username = principal.getClaim("username", String::class)
-            )
+            if (authenticated.role != OWNER_ROLE) {
+                return@get call.respond(HttpStatusCode.Forbidden)
+            }
+
+            val ctx = authenticated.toRequestContext()
             val result = getCustomersUseCase.execute(ctx)
             call.respond(result)
 
@@ -47,13 +49,14 @@ fun Route.customersRoute(getCustomersUseCase: GetCustomersUseCase,
             val principal = call.principal<JWTPrincipal>()
                 ?: return@post call.respond(HttpStatusCode.Unauthorized)
 
-            val dbName = principal.getClaim("databaseName", String::class)
+            val authenticated = contextResolver.resolve(principal)
                 ?: return@post call.respond(HttpStatusCode.Unauthorized)
 
-            val ctx = RequestContext(
-                username = principal.getClaim("username", String::class),
-                dbName = dbName
-            )
+            if (authenticated.role != OWNER_ROLE) {
+                return@post call.respond(HttpStatusCode.Forbidden)
+            }
+
+            val ctx = authenticated.toRequestContext()
 
             val request = call.receive<CreateCustomerRequest>()
 
@@ -66,16 +69,17 @@ fun Route.customersRoute(getCustomersUseCase: GetCustomersUseCase,
             val principal = call.principal<JWTPrincipal>()
                 ?: return@put call.respond(HttpStatusCode.Unauthorized)
 
-            val dbName = principal.getClaim("databaseName", String::class)
+            val authenticated = contextResolver.resolve(principal)
                 ?: return@put call.respond(HttpStatusCode.Unauthorized)
+
+            if (authenticated.role != OWNER_ROLE) {
+                return@put call.respond(HttpStatusCode.Forbidden)
+            }
 
             val id = call.parameters["id"]
                 ?: return@put call.respond(HttpStatusCode.BadRequest)
 
-            val ctx = RequestContext(
-                username = principal.getClaim("username", String::class),
-                dbName = dbName
-            )
+            val ctx = authenticated.toRequestContext()
             val request = call.receive<CreateCustomerRequest>()
             val result = updateCustomerUseCase.execute(ctx, id, request)
 
@@ -90,16 +94,17 @@ fun Route.customersRoute(getCustomersUseCase: GetCustomersUseCase,
             val principal = call.principal<JWTPrincipal>()
                 ?: return@delete call.respond(HttpStatusCode.Unauthorized)
 
-            val dbName = principal.getClaim("databaseName", String::class)
+            val authenticated = contextResolver.resolve(principal)
                 ?: return@delete call.respond(HttpStatusCode.Unauthorized)
+
+            if (authenticated.role != OWNER_ROLE) {
+                return@delete call.respond(HttpStatusCode.Forbidden)
+            }
 
             val id = call.parameters["id"]
                 ?: return@delete call.respond(HttpStatusCode.BadRequest)
 
-            val ctx = RequestContext(
-                username = principal.getClaim("username", String::class),
-                dbName = dbName
-            )
+            val ctx = authenticated.toRequestContext()
             val deleted = deleteCustomerUseCase.execute(ctx, id)
 
             if (deleted) {
@@ -110,5 +115,7 @@ fun Route.customersRoute(getCustomersUseCase: GetCustomersUseCase,
         }
     }
 }
+
+private const val OWNER_ROLE = "owner"
 
 

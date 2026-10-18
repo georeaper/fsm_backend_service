@@ -1,6 +1,6 @@
 package com.example.feature.categories
 
-import com.example.core.RequestContext
+import com.example.feature.auth.service.AuthenticatedRequestContextResolver
 import com.example.feature.categories.dto.CreateCategoryResponse
 import com.example.feature.categories.usecase.CreateCategoryUseCase
 import com.example.feature.categories.usecase.GetCategoryUseCase
@@ -17,20 +17,22 @@ import io.ktor.server.request.receive
 fun Route.categoriesRoute(
     getCategoryUseCase: GetCategoryUseCase,
     createCategoryUseCase: CreateCategoryUseCase,
-    deleteCategoryUseCase: DeleteCategoryUseCase
+    deleteCategoryUseCase: DeleteCategoryUseCase,
+    contextResolver: AuthenticatedRequestContextResolver
 ){
-    authenticate("auth-jwt") {
+    authenticate("auth-jwt-v2") {
         get("/settings/equipment-categories"){
             val principal = call.principal<JWTPrincipal>()
                 ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
-            val dbName = principal.getClaim("databaseName", String::class)
+            val authenticated = contextResolver.resolve(principal)
                 ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
-            val ctx = RequestContext(
-                dbName = dbName,
-                username = principal.getClaim("username", String::class)
-            )
+            if (authenticated.role != OWNER_ROLE) {
+                return@get call.respond(HttpStatusCode.Forbidden)
+            }
+
+            val ctx = authenticated.toRequestContext()
             val result=getCategoryUseCase.execute(ctx)
             call.respond(result)
         }
@@ -38,13 +40,14 @@ fun Route.categoriesRoute(
             val principal = call.principal<JWTPrincipal>()
                 ?: return@post call.respond(HttpStatusCode.Unauthorized)
 
-            val dbName = principal.getClaim("databaseName", String::class)
+            val authenticated = contextResolver.resolve(principal)
                 ?: return@post call.respond(HttpStatusCode.Unauthorized)
 
-            val ctx = RequestContext(
-                username = principal.getClaim("username", String::class),
-                dbName = dbName
-            )
+            if (authenticated.role != OWNER_ROLE) {
+                return@post call.respond(HttpStatusCode.Forbidden)
+            }
+
+            val ctx = authenticated.toRequestContext()
             val request=call.receive<CreateCategoryResponse>()
             val result=createCategoryUseCase.execute(ctx,request)
             call.respond(HttpStatusCode.Created, result)
@@ -53,16 +56,19 @@ fun Route.categoriesRoute(
             val principal = call.principal<JWTPrincipal>()
                 ?: return@delete call.respond(HttpStatusCode.Unauthorized)
 
-            val dbName = principal.getClaim("databaseName", String::class)
+            val authenticated = contextResolver.resolve(principal)
                 ?: return@delete call.respond(HttpStatusCode.Unauthorized)
 
-            val ctx = RequestContext(
-                username = principal.getClaim("username", String::class),
-                dbName = dbName
-            )
+            if (authenticated.role != OWNER_ROLE) {
+                return@delete call.respond(HttpStatusCode.Forbidden)
+            }
+
+            val ctx = authenticated.toRequestContext()
             val id = call.parameters["id"] ?: return@delete call.respond(HttpStatusCode.BadRequest)
             val deleted = deleteCategoryUseCase.execute(ctx, id)
             if (deleted) call.respond(HttpStatusCode.NoContent) else call.respond(HttpStatusCode.NotFound)
         }
     }
 }
+
+private const val OWNER_ROLE = "owner"

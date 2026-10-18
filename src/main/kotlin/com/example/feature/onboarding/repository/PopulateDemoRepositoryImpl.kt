@@ -64,21 +64,21 @@ class PopulateDemoRepositoryImpl: PopulateDemoRepository {
                     val now = Instant.now().toString()
 
                     // Users
-                    val userIds = (1..3).map { i ->
-                        val id = UUID.randomUUID().toString()
-                        userTable.insert {
-                            it[userTable.userId] = id
-                            it[userTable.name] = "Demo User $i"
-                            it[userTable.email] = "user${i}@example.com"
-                            it[userTable.phone] = "+100000000${i}"
-                            it[userTable.reportPrefix] = "RPT$i"
-                            it[userTable.technicalCasePrefix] = "TC$i"
-                            it[userTable.lastModified] = now
-                            it[userTable.dateCreated] = now
-                            it[userTable.version] = "1"
-                        }
-                        id
-                    }
+//                    val userIds = (1..3).map { i ->
+//                        val id = UUID.randomUUID().toString()
+//                        userTable.insert {
+//                            it[userTable.userId] = id
+//                            it[userTable.name] = "Demo User $i"
+//                            it[userTable.email] = "user${i}@example.com"
+//                            it[userTable.phone] = "+100000000${i}"
+//                            it[userTable.reportPrefix] = "RPT$i"
+//                            it[userTable.technicalCasePrefix] = "TC$i"
+//                            it[userTable.lastModified] = now
+//                            it[userTable.dateCreated] = now
+//                            it[userTable.version] = "1"
+//                        }
+//                        id
+//                    }
 
                     // Customers
                     val customerIds = (1..3).map { i ->
@@ -199,7 +199,7 @@ class PopulateDemoRepositoryImpl: PopulateDemoRepository {
                             it[ticketTable.lastModified] = now
                             it[ticketTable.dateCreated] = now
                             it[ticketTable.version] = "1"
-                            it[ticketTable.userId] = userIds[(i - 1) % userIds.size]
+                            it[ticketTable.userId] = null
                             it[ticketTable.customerId] = customerIds[(i - 1) % customerIds.size]
                             it[ticketTable.equipmentId] = equipmentIds[(i - 1) % equipmentIds.size]
                         }
@@ -219,7 +219,7 @@ class PopulateDemoRepositoryImpl: PopulateDemoRepository {
                             it[tasksTable.dateCreated] = now
                             it[tasksTable.lastModified] = now
                             it[tasksTable.ticketId] = ticketIds[(i - 1) % ticketIds.size]
-                            it[tasksTable.userId] = userIds[(i - 1) % userIds.size]
+                            it[tasksTable.userId] = null
                         }
                         id
                     }
@@ -261,11 +261,11 @@ class PopulateDemoRepositoryImpl: PopulateDemoRepository {
                             it[fieldReportsTable.version] = "1"
                             it[fieldReportsTable.customerID] = customerIds[(i - 1) % customerIds.size]
                             it[fieldReportsTable.contractID] = contractIds[(i - 1) % contractIds.size]
-                            it[fieldReportsTable.userID] = userIds[(i - 1) % userIds.size]
+                            it[fieldReportsTable.userID] = null
                             it[fieldReportsTable.caseID] = ticketIds[(i - 1) % ticketIds.size]
                         }
                     }
-                println("✅ Demo data created: users=${userIds.size}, customers=${customerIds.size}, manufacturers=${manufacturerIds.size}, models=${modelIds.size}, maintenances=${maintenanceIds.size}, equipment=${equipmentIds.size}, contracts=${contractIds.size}, tickets=${ticketIds.size}, tasks=${taskIds.size}, tools=${toolIds.size}, fieldReports=3")
+                println("✅ Demo data created: users=${null}, customers=${customerIds.size}, manufacturers=${manufacturerIds.size}, models=${modelIds.size}, maintenances=${maintenanceIds.size}, equipment=${equipmentIds.size}, contracts=${contractIds.size}, tickets=${ticketIds.size}, tasks=${taskIds.size}, tools=${toolIds.size}, fieldReports=3")
             }
         } catch (e: Exception) {
             println("Error creating tables: ${e.message}")

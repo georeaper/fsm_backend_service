@@ -1,6 +1,7 @@
 package com.example.feature.maintenance
 
-import com.example.core.RequestContext
+import com.example.feature.auth.service.AuthenticatedRequestContextResolver
+import com.example.feature.auth.service.authenticatedRequestContext
 import com.example.feature.maintenance.dto.CreateMaintenanceWithCheckFormsRequest
 import com.example.feature.maintenance.dto.UpdateMaintenanceWithCheckFormsRequest
 import com.example.feature.maintenance.usecase.UpdateMaintenanceUseCase
@@ -20,34 +21,21 @@ fun Route.maintenanceRoute(
     getMaintenanceUseCase: GetMaintenanceUseCase ,
     createMaintenanceUseCase: CreateMaintenanceUseCase,
     updateMaintenanceUseCase: UpdateMaintenanceUseCase,
-    deleteMaintenanceUseCase: DeleteMaintenanceUseCase
+    deleteMaintenanceUseCase: DeleteMaintenanceUseCase,
+    contextResolver: AuthenticatedRequestContextResolver
 ){
-    authenticate("auth-jwt") {
+    authenticate("auth-jwt-v2") {
         get("/maintenances"){
-            val principal = call.principal<JWTPrincipal>()
+            val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@get call.respond(HttpStatusCode.Unauthorized)
-
-            val dbName = principal.getClaim("databaseName", String::class)
-                ?: return@get call.respond(HttpStatusCode.Unauthorized)
-
-            val ctx = RequestContext(
-                dbName = dbName,
-                username = principal.getClaim("username", String::class)
-            )
             val result=getMaintenanceUseCase.execute(ctx)
             call.respond(result)
         }
         get("/maintenances/{maintenanceId}") {
-            val principal = call.principal<JWTPrincipal>()
-                ?: return@get call.respond(HttpStatusCode.Unauthorized)
-            val dbName = principal.getClaim("databaseName", String::class)
+            val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@get call.respond(HttpStatusCode.Unauthorized)
             val maintenanceId = call.parameters["maintenanceId"]
                 ?: return@get call.respond(HttpStatusCode.BadRequest)
-            val ctx = RequestContext(
-                dbName = dbName,
-                username = principal.getClaim("username", String::class)
-            )
             val result = getMaintenanceUseCase.executeById(ctx, maintenanceId)
 
                 ?: return@get call.respond(HttpStatusCode.NotFound)
@@ -55,28 +43,17 @@ fun Route.maintenanceRoute(
             call.respond(HttpStatusCode.OK, result)
         }
         post("/maintenances"){
-            val principal = call.principal<JWTPrincipal>()
+            val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@post call.respond(HttpStatusCode.Unauthorized)
-
-            val dbName = principal.getClaim("databaseName", String::class)
-                ?: return@post call.respond(HttpStatusCode.Unauthorized)
-
-            val ctx = RequestContext(
-                username = principal.getClaim("username", String::class),
-                dbName = dbName
-            )
             val request = call.receive<CreateMaintenanceWithCheckFormsRequest>()
             val result=createMaintenanceUseCase.execute(ctx,request)
             call.respond(HttpStatusCode.Created, result)
         }
         put("/maintenance/{id}") {
-            val principal = call.principal<JWTPrincipal>()
-                ?: return@put call.respond(HttpStatusCode.Unauthorized)
-            val dbName = principal.getClaim("databaseName", String::class)
+            val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@put call.respond(HttpStatusCode.Unauthorized)
             val id = call.parameters["id"]
                 ?: return@put call.respond(HttpStatusCode.BadRequest)
-            val ctx = RequestContext(dbName, principal.getClaim("username", String::class))
             val request = call.receive<UpdateMaintenanceWithCheckFormsRequest>()
                 .copy(MaintenanceID = id)
             val result = updateMaintenanceUseCase.execute(ctx, request)
@@ -85,13 +62,10 @@ fun Route.maintenanceRoute(
         }
 
         delete("/maintenance/{id}") {
-            val principal = call.principal<JWTPrincipal>()
-                ?: return@delete call.respond(HttpStatusCode.Unauthorized)
-            val dbName = principal.getClaim("databaseName", String::class)
+            val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@delete call.respond(HttpStatusCode.Unauthorized)
             val id = call.parameters["id"]
                 ?: return@delete call.respond(HttpStatusCode.BadRequest)
-            val ctx = RequestContext(dbName, principal.getClaim("username", String::class))
             if (deleteMaintenanceUseCase.execute(ctx, id)) {
                 call.respond(HttpStatusCode.NoContent)
             } else {
