@@ -3,19 +3,23 @@ package com.example.feature.auth.repository
 import com.example.infrastructure.DatabaseFactory
 import com.example.models.authenticationModels.CompanyTable
 import com.example.models.authenticationModels.UserTable
+import com.example.models.authenticationModels.CompanySubscriptionTable
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class AuthContextRepositoryImpl : AuthContextRepository {
     override fun findActiveUser(userId: Int, companyId: Int): AuthContextUser? =
         transaction(DatabaseFactory.centralDb) {
-            (UserTable innerJoin CompanyTable)
+            (UserTable innerJoin CompanyTable innerJoin CompanySubscriptionTable)
                 .select {
                     (UserTable.id eq userId) and
                         (UserTable.companyId eq companyId) and
                         (CompanyTable.id eq companyId) and
-                        (UserTable.status eq "active")
+                        (UserTable.status eq "active") and
+                        ((CompanySubscriptionTable.status eq "active") or
+                            (CompanySubscriptionTable.status eq "trial"))
                 }
                 .limit(1)
                 .map { row ->

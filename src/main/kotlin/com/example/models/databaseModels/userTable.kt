@@ -4,8 +4,9 @@ import org.jetbrains.exposed.sql.Table
 
 
 object userTable : Table("users") {
-    val userId = varchar("UserId",36).default(java.util.UUID.randomUUID().toString())
+    val userId = varchar("UserId",36).clientDefault { java.util.UUID.randomUUID().toString() }
     val remoteId = integer("RemoteId").nullable()
+    val authUserId = integer("AuthUserId").nullable().uniqueIndex()
     val name = varchar("Name", 255).nullable()
     val description = text("Description").nullable()
     val email = varchar("Email", 255).nullable()

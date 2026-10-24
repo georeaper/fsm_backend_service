@@ -9,8 +9,23 @@ data class LoginV2Request(
 )
 
 @Serializable
+data class MobileRefreshRequest(val refreshToken: String)
+
+@Serializable
+data class MobileLogoutRequest(val refreshToken: String)
+
+@Serializable
 data class AccessTokenResponse(
     val accessToken: String,
+    val username: String,
+    val tokenType: String = "Bearer",
+    val expiresIn: Long = 900
+)
+
+@Serializable
+data class MobileTokenResponse(
+    val accessToken: String,
+    val refreshToken: String,
     val username: String,
     val tokenType: String = "Bearer",
     val expiresIn: Long = 900

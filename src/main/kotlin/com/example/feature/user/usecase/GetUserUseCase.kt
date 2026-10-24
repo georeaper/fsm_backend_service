@@ -1,28 +1,35 @@
 package com.example.feature.user.usecase
 
-import com.example.core.DateUtils
-import com.example.core.RequestContext
+import com.example.feature.auth.service.AuthenticatedRequestContext
+import com.example.feature.user.repository.AuthUserProvisioningRepository
 import com.example.feature.user.repository.UserRepository
-import com.example.feature.user.dto.UsersResponse
+import com.example.feature.user.dto.UserResponse
 
-class GetUserUseCase (private val repository: UserRepository){
-    fun execute(ctx: RequestContext) :List<UsersResponse>{
-        val data =repository.findAll(ctx)
-        return data.map{
-            UsersResponse(
-                UserID = it.UserID,
-                RemoteID = it.RemoteID,
-                Name = it.Name,
-                Description = it.Description,
-                Email = it.Email,
-                Phone = it.Phone,
-                ReportPrefix = it.ReportPrefix,
-                TechnicalCasePrefix = it.TechnicalCasePrefix,
-                LastReportNumber = it.LastReportNumber,
-                LastTCNumber = it.LastTCNumber,
-                LastModified = DateUtils.storageToUi(it.LastModified),
-                DateCreated = DateUtils.storageToUi(it.DateCreated),
-                Version = it.Version
+class GetUserUseCase(
+    private val repository: UserRepository,
+    private val authUserRepository: AuthUserProvisioningRepository
+) {
+    fun execute(authenticated: AuthenticatedRequestContext): List<UserResponse> {
+        require(authenticated.role in setOf("owner", "admin")) { "Insufficient permissions" }
+        val tenantUsers = repository.findAll(authenticated.toRequestContext())
+        val authUsers = authUserRepository.findUsers(
+            authenticated.companyId,
+            tenantUsers.mapNotNull { it.AuthUserID }
+        )
+        return tenantUsers.map { tenant ->
+            val auth = tenant.AuthUserID?.let(authUsers::get)
+            UserResponse(
+                userId = tenant.UserID,
+                authUserId = tenant.AuthUserID,
+                username = auth?.username,
+                name = tenant.Name,
+                email = auth?.email ?: tenant.Email,
+                phone = tenant.Phone,
+                description = tenant.Description,
+                reportPrefix = tenant.ReportPrefix,
+                technicalCasePrefix = tenant.TechnicalCasePrefix,
+                role = auth?.role,
+                status = auth?.status
             )
         }
     }

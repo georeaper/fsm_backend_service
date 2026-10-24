@@ -43,7 +43,12 @@ import com.example.feature.tools.repository.ToolRepositoryImpl
 
 import com.example.feature.user.repository.UserRepositoryImpl
 import com.example.feature.user.repository.UserRepository
+import com.example.feature.user.repository.AuthUserProvisioningRepositoryImpl
 import com.example.feature.user.usecase.CreateUserUseCase
+import com.example.feature.user.usecase.ChangeUserStatusUseCase
+import com.example.feature.user.usecase.UpdateUserUseCase
+import com.example.feature.user.usecase.UpdateMyProfileUseCase
+import com.example.feature.user.usecase.ChangeMyPasswordUseCase
 import com.example.feature.user.usecase.GetUserUseCase 
 
 import com.example.feature.fieldreport.repository.FieldReportBulkRepository
@@ -107,6 +112,7 @@ import com.example.feature.auth.repository.AuthRepositoryImpl
 import com.example.feature.auth.repository.AuthContextRepositoryImpl
 import com.example.feature.auth.service.AuthenticatedRequestContextResolver
 import com.example.feature.auth.usecase.AuthUseCase
+import com.example.feature.subscription.repository.SubscriptionRepositoryImpl
 
 
 class AppContainer {
@@ -169,6 +175,12 @@ class AppContainer {
     }
     private val authContextRepository by lazy {
         AuthContextRepositoryImpl()
+    }
+    private val authUserProvisioningRepository by lazy {
+        AuthUserProvisioningRepositoryImpl()
+    }
+    val subscriptionRepository by lazy {
+        SubscriptionRepositoryImpl()
     }
 
 
@@ -242,10 +254,22 @@ class AppContainer {
         CreateToolUseCase(toolRepository)
     }
     val getUserUseCase by lazy{
-        GetUserUseCase(userRepository)
+        GetUserUseCase(userRepository, authUserProvisioningRepository)
     }
     val createUserUseCase by lazy{
-        CreateUserUseCase(userRepository)
+        CreateUserUseCase(userRepository, authUserProvisioningRepository)
+    }
+    val changeUserStatusUseCase by lazy {
+        ChangeUserStatusUseCase(userRepository, authUserProvisioningRepository)
+    }
+    val updateUserUseCase by lazy {
+        UpdateUserUseCase(userRepository, authUserProvisioningRepository)
+    }
+    val updateMyProfileUseCase by lazy {
+        UpdateMyProfileUseCase(userRepository)
+    }
+    val changeMyPasswordUseCase by lazy {
+        ChangeMyPasswordUseCase(authUserProvisioningRepository)
     }
     val getFieldReportUseCase by lazy{
         GetFieldReportUseCase(fieldReportRepository)

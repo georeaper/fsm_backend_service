@@ -6,6 +6,7 @@ import com.example.feature.contracts.contractsRoute
 import com.example.feature.customers.customersRoute
 import com.example.feature.onboarding.routes.onboardingRoutes
 import com.example.feature.auth.authV2Routes
+import com.example.feature.subscription.subscriptionRoutes
 import com.example.infrastructure.DatabaseFactory
 import com.example.routes.authRoutes
 import com.example.feature.equipments.equipmentsRoute
@@ -243,6 +244,10 @@ fun Application.module() {
             usersRoute(
                 container.getUserUseCase,
                 container.createUserUseCase,
+                container.changeUserStatusUseCase,
+                container.updateUserUseCase,
+                container.updateMyProfileUseCase,
+                container.changeMyPasswordUseCase,
                 container.authenticatedRequestContextResolver)
             contractsRoute(
                 container.getContractUseCase,
@@ -256,8 +261,14 @@ fun Application.module() {
                 container.deleteCategoryUseCase,
                 container.authenticatedRequestContextResolver)
 
-            authRoutes()
+            // Legacy /auth/login was used only by Android. It is disabled in favor of
+            // /auth/v2/mobile/login, which uses the central session and subscription flow.
+            // authRoutes()
             authV2Routes(container.authUseCase)
+            subscriptionRoutes(
+                container.subscriptionRepository,
+                container.authenticatedRequestContextResolver
+            )
             onboardingRoutes()
 //            dbCreation()
 

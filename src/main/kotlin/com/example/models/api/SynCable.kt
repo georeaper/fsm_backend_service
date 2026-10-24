@@ -26,7 +26,8 @@ data class Users(var UserID :String,
                  var LastTCNumber :Int?=null,
                  var LastModified :String?=null,
                  var DateCreated :String?=null,
-                 var Version :String?=null):SynCable
+                 var Version :String?=null,
+                 var AuthUserID :Int?=null):SynCable
 
 @Serializable
 @SerialName("Equipment")

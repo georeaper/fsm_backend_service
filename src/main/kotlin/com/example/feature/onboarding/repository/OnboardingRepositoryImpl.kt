@@ -3,6 +3,8 @@ package com.example.feature.onboarding.repository
 import com.example.feature.onboarding.dto.RegisterTenantDto
 import com.example.models.authenticationModels.CompanyTable
 import com.example.models.authenticationModels.UserTable
+import com.example.models.authenticationModels.CompanySubscriptionTable
+import com.example.models.authenticationModels.SubscriptionPlanTable
 import com.example.utils.createDatabaseIfNotExists
 import com.example.loadDotenv
 import org.jetbrains.exposed.sql.Database
@@ -50,6 +52,7 @@ class OnboardingRepositoryImpl : OnBoardingRepository {
 
         // derive DB name
         val derivedDbName = data.name.trim().lowercase().replace("\\s+".toRegex(), "_") + "_db"
+        var createdAuthUserId: Int? = null
 
         return transaction {
             // basic validation: company name / contact email / username uniqueness
@@ -77,12 +80,26 @@ class OnboardingRepositoryImpl : OnBoardingRepository {
             // hash password and insert master user
             val hashed = BCrypt.withDefaults().hashToString(12, data.adminPassword.toCharArray())
 
-            UserTable.insert {
+            createdAuthUserId = UserTable.insert {
                 it[username] = data.adminUsername
                 it[email] = data.adminEmail
                 it[password] = hashed
                 it[companyId] = insertedCompanyId
                 it[role] = "owner"
+            }[UserTable.id]
+
+            val starterPlanId = SubscriptionPlanTable
+                .select { SubscriptionPlanTable.code eq "STARTER" }
+                .limit(1)
+                .firstOrNull()
+                ?.get(SubscriptionPlanTable.id)
+                ?: throw IllegalStateException("STARTER subscription plan is missing")
+
+            CompanySubscriptionTable.insert {
+                it[companyId] = insertedCompanyId
+                it[planId] = starterPlanId
+                it[status] = "active"
+                it[additionalUserSeats] = 0
             }
 
             insertedCompanyId
@@ -136,7 +153,7 @@ class OnboardingRepositoryImpl : OnBoardingRepository {
                     // create admin user in tenant DB
                     //val hashedTenant = BCrypt.withDefaults().hashToString(12, data.adminPassword.toCharArray())
                     userTable.insert {
-
+                        it[authUserId] = requireNotNull(createdAuthUserId)
                         it[name] = data.name
                         it[email] = data.adminEmail
                         it[description]=data.adminUsername

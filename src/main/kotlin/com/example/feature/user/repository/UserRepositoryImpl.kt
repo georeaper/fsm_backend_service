@@ -8,6 +8,7 @@ import com.example.models.api.Users
 import com.example.models.databaseModels.userTable
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
@@ -18,6 +19,7 @@ class UserRepositoryImpl(private val dbProvider: DatabaseProvider) : UserReposit
             userTable.insert {
                 it[userId] = data.UserID
                 it[remoteId] = data.RemoteID
+                it[authUserId] = data.AuthUserID
                 it[name] = data.Name
                 it[description] = data.Description
                 it[email] = data.Email
@@ -42,6 +44,7 @@ class UserRepositoryImpl(private val dbProvider: DatabaseProvider) : UserReposit
                 UsersResponse(
                     UserID = it[userTable.userId],
                     RemoteID = it[userTable.remoteId],
+                    AuthUserID = it[userTable.authUserId],
                     Name = it[userTable.name],
                     Description = it[userTable.description],
                     Email = it[userTable.email],
@@ -77,5 +80,44 @@ class UserRepositoryImpl(private val dbProvider: DatabaseProvider) : UserReposit
             }
         }
         return data
+    }
+
+    override fun findAuthUserId(ctx: RequestContext, tenantUserId: String): Int? {
+        val db = dbProvider.getDatabase(ctx.dbName)
+        return transaction(db) {
+            userTable.select { userTable.userId eq tenantUserId }
+                .limit(1)
+                .firstOrNull()
+                ?.get(userTable.authUserId)
+        }
+    }
+
+    override fun findTenantUserId(ctx: RequestContext, authUserId: Int): String? {
+        val db = dbProvider.getDatabase(ctx.dbName)
+        return transaction(db) {
+            userTable.select { userTable.authUserId eq authUserId }
+                .limit(1)
+                .firstOrNull()
+                ?.get(userTable.userId)
+        }
+    }
+
+    override fun updateProfile(
+        ctx: RequestContext,
+        tenantUserId: String,
+        data: UserProfileUpdate
+    ): Boolean {
+        val db = dbProvider.getDatabase(ctx.dbName)
+        return transaction(db) {
+            userTable.update({ userTable.userId eq tenantUserId }) {
+                it[name] = data.name
+                it[description] = data.description
+                data.email?.let { value -> it[email] = value }
+                it[phone] = data.phone
+                it[reportPrefix] = data.reportPrefix
+                it[technicalCasePrefix] = data.technicalCasePrefix
+                it[lastModified] = com.example.core.DateUtils.nowStorage()
+            } > 0
+        }
     }
 }

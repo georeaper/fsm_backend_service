@@ -7,9 +7,13 @@ import com.example.models.authenticationModels.PermissionTable
 import com.example.models.authenticationModels.RolePermissionTable
 import com.example.models.authenticationModels.RoleTable
 import com.example.models.authenticationModels.UserRoleTable
+import com.example.models.authenticationModels.SubscriptionPlanTable
+import com.example.models.authenticationModels.CompanySubscriptionTable
 import io.ktor.server.config.ApplicationConfig
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 
 
@@ -104,6 +108,8 @@ object DatabaseFactory {
             transaction(centralDb) {
                 SchemaUtils.createMissingTablesAndColumns(
                     CompanyTable,
+                    SubscriptionPlanTable,
+                    CompanySubscriptionTable,
                     UserTable,
                     AuthSessionTable,
                     RoleTable,
@@ -111,6 +117,36 @@ object DatabaseFactory {
                     RolePermissionTable,
                     UserRoleTable
                 )
+
+                val starterPlanId = SubscriptionPlanTable
+                    .select { SubscriptionPlanTable.code eq STARTER_PLAN_CODE }
+                    .limit(1)
+                    .firstOrNull()
+                    ?.get(SubscriptionPlanTable.id)
+                    ?: SubscriptionPlanTable.insert {
+                        it[code] = STARTER_PLAN_CODE
+                        it[name] = "Starter"
+                        it[monthlyPriceCents] = 3_000
+                        it[includedUsers] = 3
+                        it[extraUserPriceCents] = null
+                        it[currency] = "EUR"
+                    }[SubscriptionPlanTable.id]
+
+                CompanyTable.select { CompanyTable.id greater 0 }.forEach { company ->
+                    val companyId = company[CompanyTable.id]
+                    val exists = CompanySubscriptionTable
+                        .select { CompanySubscriptionTable.companyId eq companyId }
+                        .limit(1)
+                        .any()
+                    if (!exists) {
+                        CompanySubscriptionTable.insert {
+                            it[CompanySubscriptionTable.companyId] = companyId
+                            it[planId] = starterPlanId
+                            it[status] = "active"
+                            it[additionalUserSeats] = 0
+                        }
+                    }
+                }
             }
 
             println("Central Database tables verified")
@@ -123,6 +159,8 @@ object DatabaseFactory {
             false
         }
     }
+
+    private const val STARTER_PLAN_CODE = "STARTER"
 
 
 }

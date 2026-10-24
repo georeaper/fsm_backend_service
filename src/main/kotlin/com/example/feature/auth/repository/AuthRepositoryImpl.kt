@@ -4,11 +4,13 @@ import com.example.infrastructure.DatabaseFactory
 import com.example.models.authenticationModels.AuthSessionTable
 import com.example.models.authenticationModels.CompanyTable
 import com.example.models.authenticationModels.UserTable
+import com.example.models.authenticationModels.CompanySubscriptionTable
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Duration.Companion.days
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.update
@@ -17,10 +19,12 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class AuthRepositoryImpl : AuthRepository {
     override fun findActiveUser(username: String): AuthenticatedUser? =
         transaction(DatabaseFactory.centralDb) {
-            (UserTable innerJoin CompanyTable)
+            (UserTable innerJoin CompanyTable innerJoin CompanySubscriptionTable)
                 .select {
                     (UserTable.username eq username) and
-                        (UserTable.status eq "active")
+                        (UserTable.status eq "active") and
+                        ((CompanySubscriptionTable.status eq "active") or
+                            (CompanySubscriptionTable.status eq "trial"))
                 }
                 .limit(1)
                 .map(::toAuthenticatedUser)
@@ -44,9 +48,11 @@ class AuthRepositoryImpl : AuthRepository {
         newTokenHash: String
     ): AuthenticatedUser? = transaction(DatabaseFactory.centralDb) {
         val now = nowUtc()
-        val row = (AuthSessionTable innerJoin UserTable innerJoin CompanyTable)
+        val row = (AuthSessionTable innerJoin UserTable innerJoin CompanyTable innerJoin CompanySubscriptionTable)
             .select {
-                AuthSessionTable.refreshTokenHash eq currentTokenHash
+                (AuthSessionTable.refreshTokenHash eq currentTokenHash) and
+                    ((CompanySubscriptionTable.status eq "active") or
+                        (CompanySubscriptionTable.status eq "trial"))
             }
             .forUpdate()
             .limit(1)

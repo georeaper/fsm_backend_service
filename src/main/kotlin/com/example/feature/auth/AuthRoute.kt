@@ -3,6 +3,9 @@ package com.example.feature.auth
 import com.example.feature.auth.dto.AuthErrorResponse
 import com.example.feature.auth.dto.LoginV2Request
 import com.example.feature.auth.dto.LogoutResponse
+import com.example.feature.auth.dto.MobileLogoutRequest
+import com.example.feature.auth.dto.MobileRefreshRequest
+import com.example.feature.auth.dto.MobileTokenResponse
 import com.example.feature.auth.usecase.AuthUseCase
 import com.example.infrastructure.security.LoginAttemptLimiter
 import io.ktor.http.HttpStatusCode
@@ -72,8 +75,51 @@ fun Route.authV2Routes(
             call.response.cookies.expireRefreshToken(cookieConfig)
             call.respond(HttpStatusCode.OK, LogoutResponse(success = true))
         }
+
+        route("/mobile") {
+            post("/login") {
+                val request = runCatching { call.receive<LoginV2Request>() }.getOrNull()
+                    ?: return@post call.respond(HttpStatusCode.BadRequest, AuthErrorResponse("Invalid request"))
+                val attemptKey = "${call.request.origin.remoteHost}:${request.username.trim().lowercase()}"
+                if (!loginAttemptLimiter.isAllowed(attemptKey)) {
+                    return@post call.respond(
+                        HttpStatusCode.TooManyRequests,
+                        AuthErrorResponse("Too many login attempts. Try again later")
+                    )
+                }
+                val tokens = authUseCase.login(request.username, request.password)
+                if (tokens == null) {
+                    loginAttemptLimiter.recordFailure(attemptKey)
+                    return@post call.respond(HttpStatusCode.Unauthorized, AuthErrorResponse("Invalid credentials"))
+                }
+                loginAttemptLimiter.reset(attemptKey)
+                call.respond(tokens.toMobileResponse())
+            }
+
+            post("/refresh") {
+                val request = runCatching { call.receive<MobileRefreshRequest>() }.getOrNull()
+                    ?: return@post call.respond(HttpStatusCode.BadRequest, AuthErrorResponse("Invalid request"))
+                val tokens = authUseCase.refresh(request.refreshToken)
+                    ?: return@post call.respond(HttpStatusCode.Unauthorized, AuthErrorResponse("Invalid refresh token"))
+                call.respond(tokens.toMobileResponse())
+            }
+
+            post("/logout") {
+                val request = runCatching { call.receive<MobileLogoutRequest>() }.getOrNull()
+                request?.refreshToken?.let(authUseCase::logout)
+                call.respond(HttpStatusCode.OK, LogoutResponse(success = true))
+            }
+        }
     }
 }
+
+private fun com.example.feature.auth.dto.IssuedTokenPair.toMobileResponse() = MobileTokenResponse(
+    accessToken = response.accessToken,
+    refreshToken = refreshToken,
+    username = response.username,
+    tokenType = response.tokenType,
+    expiresIn = response.expiresIn
+)
 
 private const val REFRESH_COOKIE_NAME = "fsm_refresh_token"
 private const val REFRESH_COOKIE_PATH = "/auth/v2"
