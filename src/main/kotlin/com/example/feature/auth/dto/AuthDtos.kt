@@ -9,18 +9,16 @@ data class LoginV2Request(
 )
 
 @Serializable
-data class RefreshTokenRequest(val refreshToken: String)
-
-@Serializable
-data class LogoutRequest(val refreshToken: String)
-
-@Serializable
-data class TokenPairResponse(
+data class AccessTokenResponse(
     val accessToken: String,
-    val refreshToken: String,
     val username: String,
     val tokenType: String = "Bearer",
     val expiresIn: Long = 900
+)
+
+data class IssuedTokenPair(
+    val response: AccessTokenResponse,
+    val refreshToken: String
 )
 
 @Serializable

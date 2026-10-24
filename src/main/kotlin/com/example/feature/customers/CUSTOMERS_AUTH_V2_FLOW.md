@@ -41,7 +41,8 @@ Content-Type: application/json
 }
 ```
 
-Αποθηκεύει το `accessToken` και το `refreshToken` από την απάντηση.
+Κρατά το `accessToken` μόνο στη μνήμη της εφαρμογής. Το `refreshToken` τίθεται
+αυτόματα από τον backend ως `HttpOnly` cookie και δεν είναι προσβάσιμο από JavaScript.
 
 ### 2. Κλήση Customers endpoint
 
@@ -61,15 +62,11 @@ Authorization: Bearer <accessToken>
 
 ```http
 POST /auth/v2/refresh
-Content-Type: application/json
-
-{
-  "refreshToken": "<refreshToken>"
-}
 ```
 
-Αποθηκεύει και τα δύο νέα tokens και επαναλαμβάνει το αρχικό customers request
-μία φορά. Αν αποτύχει και το refresh, καθαρίζει τη session και επιστρέφει στο
+Ο browser στέλνει αυτόματα το refresh cookie. Ο client κρατά το νέο access token
+στη μνήμη και επαναλαμβάνει το αρχικό customers request μία φορά. Αν αποτύχει
+και το refresh, καθαρίζει τη session και επιστρέφει στο
 login. Το `403` δεν ενεργοποιεί refresh: σημαίνει ότι ο χρήστης είναι
 authenticated αλλά δεν έχει το απαιτούμενο permission.
 

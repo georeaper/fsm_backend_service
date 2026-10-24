@@ -58,7 +58,10 @@ fun Application.module() {
     }
 
     install(CORS) {
-        anyHost()
+        if ((System.getenv("ENV") ?: "dev") == "dev") {
+            allowHost("localhost:5173", schemes = listOf("http"))
+            allowHost("127.0.0.1:5173", schemes = listOf("http"))
+        }
         allowHeader(HttpHeaders.ContentType)
         allowHeader(HttpHeaders.Accept)
         allowHeader(HttpHeaders.Authorization)  // <-- Add this line!

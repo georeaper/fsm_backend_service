@@ -27,12 +27,15 @@ Content-Type: application/json
 ```json
 {
   "accessToken": "...",
-  "refreshToken": "...",
   "username": "admin",
   "tokenType": "Bearer",
   "expiresIn": 900
 }
 ```
+
+Το refresh token δεν επιστρέφεται στο JSON. Αποθηκεύεται από τον browser ως
+`HttpOnly` cookie με path `/auth/v2`, διάρκεια 30 ημερών και `SameSite=Strict`.
+Στο production έχει επίσης το attribute `Secure`.
 
 Πιθανά status codes:
 
@@ -45,13 +48,7 @@ Content-Type: application/json
 
 ```http
 POST /auth/v2/refresh
-Content-Type: application/json
-```
-
-```json
-{
-  "refreshToken": "..."
-}
+Cookie: fsm_refresh_token=...
 ```
 
 Με κάθε επιτυχημένο refresh:
@@ -68,13 +65,7 @@ token και ανακαλούνται όλες οι ενεργές συνεδρ�
 
 ```http
 POST /auth/v2/logout
-Content-Type: application/json
-```
-
-```json
-{
-  "refreshToken": "..."
-}
+Cookie: fsm_refresh_token=...
 ```
 
 Το logout είναι idempotent και επιστρέφει:
