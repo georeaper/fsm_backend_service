@@ -11,6 +11,8 @@ data class TicketsResponse(
     val Description: String?,
     val Notes: String?,
     val Urgency: String?,
+    val Status: String?,
+    val Type: String?,
     val Active: Boolean?,
     val DateStart: String?,
     val DateEnd: String?,

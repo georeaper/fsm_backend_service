@@ -9,6 +9,7 @@ data class EditSettingsResponse(
     val SettingsValue: String?,
     val SettingsStyle: String?,
     val SettingsDescription: String?,
+    val SystemCategory: String? = null,
     val LastModified: String?,
     val DateCreated: String?,
     val Version: String?

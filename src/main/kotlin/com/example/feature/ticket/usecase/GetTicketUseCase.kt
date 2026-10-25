@@ -17,6 +17,8 @@ class GetTicketUseCase (private val repository: TicketRepository){
                 Description = it.Description,
                 Notes = it.Notes,
                 Urgency = it.Urgency,
+                Status = it.Status,
+                Type = it.Type,
                 Active = it.Active,
                 DateStart = DateUtils.storageToUi(it.DateStart),
                 DateEnd = DateUtils.storageToUi(it.DateEnd),

@@ -18,6 +18,9 @@ class CreateTicketUseCase (private val repository: TicketRepository){
             Description = request.Description,
             Notes = request.Notes,
             Urgency = request.Urgency,
+            Status = request.Status?.trim()?.takeIf { it.isNotEmpty() }
+                ?: if (request.Active == false) "RESOLVED" else "OPEN",
+            Type = request.Type,
             Active = request.Active,
             DateStart = DateUtils.uiToStorage(request.DateStart!!),
             DateEnd = DateUtils.uiToStorage(request.DateEnd!!),

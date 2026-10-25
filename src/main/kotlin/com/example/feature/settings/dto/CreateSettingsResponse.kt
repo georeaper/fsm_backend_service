@@ -7,5 +7,6 @@ data class CreateSettingsResponse(
     val SettingsKey: String?,
     val SettingsValue: String?,
     val SettingsStyle: String?,
-    val SettingsDescription: String?
+    val SettingsDescription: String?,
+    val SystemCategory: String? = null
 )

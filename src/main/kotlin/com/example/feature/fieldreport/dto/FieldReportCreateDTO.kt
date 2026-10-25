@@ -9,6 +9,9 @@ data class FieldReportCreateDto(
     val StartDate: String? = null,
     val EndDate: String? = null,
     val ReportStatus: String? = null,
+    val Status: String? = null,
+    val Priority: String? = null,
+    val Type: String? = null,
 
     val CustomerID: String? = null,
     val ContractID: String? = null,

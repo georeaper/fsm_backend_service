@@ -16,6 +16,7 @@ class CreateTaskUseCase (private val repository: TaskRepository){
             Description = request.Description,
             Status = request.Status,
             Priority = request.Priority,
+            Type = request.Type,
             DateStart = request.DateStart?.let(DateUtils::uiToStorage),
             DateDue = request.DateDue?.let(DateUtils::uiToStorage),
             DateCompleted = request.DateCompleted?.let(DateUtils::uiToStorage),

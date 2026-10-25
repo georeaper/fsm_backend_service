@@ -25,6 +25,7 @@ class TaskRepositoryImpl(private val dbProvider: DatabaseProvider) : TaskReposit
                 it[description] = data.Description
                 it[status] = data.Status
                 it[priority] = data.Priority
+                it[taskType] = data.Type
                 it[dateStart] = data.DateStart
                 it[dateDue] = data.DateDue
                 it[dateCompleted] = data.DateCompleted
@@ -63,6 +64,7 @@ class TaskRepositoryImpl(private val dbProvider: DatabaseProvider) : TaskReposit
                     Description = it[tasksTable.description],
                     Status = it[tasksTable.status],
                     Priority = it[tasksTable.priority],
+                    Type = it[tasksTable.taskType],
                     DateStart = it[tasksTable.dateStart],
                     DateDue = it[tasksTable.dateDue],
                     DateCompleted = it[tasksTable.dateCompleted],
@@ -87,6 +89,7 @@ class TaskRepositoryImpl(private val dbProvider: DatabaseProvider) : TaskReposit
                 it[description] = data.Description
                 it[status] = data.Status
                 it[priority] = data.Priority
+                it[taskType] = data.Type
                 it[dateStart] = data.DateStart
                 it[dateDue] = data.DateDue
                 it[dateCompleted] = data.DateCompleted

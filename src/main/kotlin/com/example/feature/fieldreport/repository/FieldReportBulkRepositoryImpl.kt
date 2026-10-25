@@ -33,7 +33,10 @@ class FieldReportBulkRepositoryImpl(
             Title = normalizeNullableString(request.Title),
             Department = normalizeNullableString(request.Department),
             ClientName = normalizeNullableString(request.ClientName),
-            ReportStatus = normalizeNullableString(request.ReportStatus),
+            ReportStatus = normalizeNullableString(request.Status ?: request.ReportStatus),
+            Status = normalizeNullableString(request.Status ?: request.ReportStatus),
+            Priority = normalizeNullableString(request.Priority),
+            Type = normalizeNullableString(request.Type),
             CustomerID = normalizeNullableString(request.CustomerID),
             ContractID = normalizeNullableString(request.ContractID),
             UserID = normalizeNullableString(request.UserID),
@@ -103,6 +106,8 @@ class FieldReportBulkRepositoryImpl(
                 row[fieldReportsTable.department] = normalizedRequest.Department
                 row[fieldReportsTable.clientName] = normalizedRequest.ClientName
                 row[fieldReportsTable.reportStatus] = normalizedRequest.ReportStatus
+                row[fieldReportsTable.priority] = normalizedRequest.Priority
+                row[fieldReportsTable.workOrderType] = normalizedRequest.Type
                 row[fieldReportsTable.value] = normalizedRequest.Value
                 row[fieldReportsTable.lastModified] = now
                 row[fieldReportsTable.dateCreated] = now

@@ -12,6 +12,7 @@ object tasksTable : Table("tasks") {
     val description = text("Description").nullable()
     val status = varchar("Status", 50).nullable()
     val priority = varchar("Priority", 50).nullable()
+    val taskType = varchar("Type", 100).nullable()
     val dateStart = varchar("DateStart", 50).nullable()
     val dateDue = varchar("DateDue", 50).nullable()
     val dateCompleted = varchar("DateCompleted", 50).nullable()

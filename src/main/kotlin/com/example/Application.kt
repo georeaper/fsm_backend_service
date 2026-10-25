@@ -21,6 +21,7 @@ import com.example.feature.tasks.tasksRoute
 import com.example.feature.ticket.ticketsRoute
 import com.example.feature.tools.toolsRoute
 import com.example.feature.user.usersRoute
+import com.example.feature.dashboard.dashboardRoute
 import com.example.routes.syncRoutes
 import io.github.cdimascio.dotenv.dotenv
 import io.ktor.http.*
@@ -214,6 +215,7 @@ fun Application.module() {
                 container.createWorkOrderTypeUseCase,
                 container.getContractTypeUseCase,
                 container.createContractTypeUseCase,
+                container.categorizedSettingsUseCase,
                 container.deleteSettingsUseCase,
                 container.getCategoryUseCase,
                 container.createCategoryUseCase,
@@ -255,6 +257,10 @@ fun Application.module() {
                 container.updateContractUseCase,
                 container.deleteContractUseCase,
                 container.authenticatedRequestContextResolver)
+            dashboardRoute(
+                container.dashboardUseCase,
+                container.authenticatedRequestContextResolver
+            )
             categoriesRoute(
                 container.getCategoryUseCase,
                 container.createCategoryUseCase,

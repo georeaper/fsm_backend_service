@@ -14,6 +14,9 @@ data class FieldReportDetailDto(
     val StartDate: String? = null,
     val EndDate: String? = null,
     val ReportStatus: String? = null,
+    val Status: String? = ReportStatus,
+    val Priority: String? = null,
+    val Type: String? = null,
 
     val CustomerID: String? = null,
     val CustomerName: String? = null,

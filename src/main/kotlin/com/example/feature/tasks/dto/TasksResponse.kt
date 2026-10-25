@@ -9,6 +9,7 @@ data class TasksResponse(
     val Description: String?,
     val Status: String?,
     val Priority: String?,
+    val Type: String? = null,
     val DateStart: String?,
     val DateDue: String?,
     val DateCompleted: String?,

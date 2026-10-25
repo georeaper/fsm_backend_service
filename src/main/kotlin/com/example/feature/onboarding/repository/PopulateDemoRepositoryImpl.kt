@@ -174,7 +174,7 @@ class PopulateDemoRepositoryImpl: PopulateDemoRepository {
                             it[contractsTable.value] = 1000.0 * i
                             it[contractsTable.notes] = "Demo contract for customer"
                             it[contractsTable.contractType] = "Standard"
-                            it[contractsTable.contractStatus] = true
+                            it[contractsTable.contractStatus] = "ACTIVE"
                             it[contractsTable.contactName] = "Contact $i"
                             it[contractsTable.lastModified] = now
                             it[contractsTable.dateCreated] = now
@@ -194,6 +194,8 @@ class PopulateDemoRepositoryImpl: PopulateDemoRepository {
                             it[ticketTable.description] = "Issue reported #$i"
                             it[ticketTable.notes] = "Follow up"
                             it[ticketTable.urgency] = if (i == 1) "High" else "Normal"
+                            it[ticketTable.status] = "OPEN"
+                            it[ticketTable.caseType] = "SERVICE"
                             it[ticketTable.active] = true
                             it[ticketTable.dateStart] = now
                             it[ticketTable.lastModified] = now
@@ -215,6 +217,7 @@ class PopulateDemoRepositoryImpl: PopulateDemoRepository {
                             it[tasksTable.description] = "Complete follow-up step $i"
                             it[tasksTable.status] = "OPEN"
                             it[tasksTable.priority] = if (i == 1) "HIGH" else "MEDIUM"
+                            it[tasksTable.taskType] = "FOLLOW_UP"
                             it[tasksTable.dateStart] = now
                             it[tasksTable.dateCreated] = now
                             it[tasksTable.lastModified] = now
@@ -255,6 +258,8 @@ class PopulateDemoRepositoryImpl: PopulateDemoRepository {
                             it[fieldReportsTable.department] = "Dept-${i}"
                             it[fieldReportsTable.clientName] = "Client ${i}"
                             it[fieldReportsTable.reportStatus] = "COMPLETED"
+                            it[fieldReportsTable.priority] = "MEDIUM"
+                            it[fieldReportsTable.workOrderType] = "MAINTENANCE"
                             it[fieldReportsTable.value] = 250.0 * i
                             it[fieldReportsTable.lastModified] = now
                             it[fieldReportsTable.dateCreated] = now

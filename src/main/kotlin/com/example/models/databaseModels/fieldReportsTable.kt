@@ -18,6 +18,8 @@ object fieldReportsTable : Table("fieldreports") {
     val department = varchar("Department", 255).nullable()
     val clientName = varchar("ClientName", 255).nullable()
     val reportStatus = varchar("ReportStatus", 255).nullable()
+    val priority = varchar("Priority", 50).nullable()
+    val workOrderType = varchar("Type", 100).nullable()
     val clientSignature = binary("ClientSignature").nullable()
     val value = double("Value").nullable()
     val lastModified = varchar("LastModified", 255).nullable()

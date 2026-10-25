@@ -17,6 +17,8 @@ object ticketHistoryTable : Table("ticket_history") {
     val description = text("Description").nullable()
     val notes = varchar("Notes", 50).nullable()
     val urgency = varchar("Urgency", 50).nullable()
+    val status = varchar("Status", 50).nullable()
+    val caseType = varchar("Type", 100).nullable()
     val active = bool("Active").nullable()
     val dateStart = varchar("DateStart", 50).nullable()
     val dateEnd = varchar("DateEnd", 50).nullable()

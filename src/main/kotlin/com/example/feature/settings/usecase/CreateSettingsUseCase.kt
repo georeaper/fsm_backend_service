@@ -17,10 +17,21 @@ class CreateSettingsUseCase (private val repository: SettingsRepository){
             SettingsValue = request.SettingsValue,
             SettingsStyle = request.SettingsStyle,
             SettingsDescription = request.SettingsDescription,
+            SystemCategory = validatedSystemCategory(request.SettingsKey, request.SystemCategory),
             LastModified = storageDate,
             DateCreated = storageDate,
             Version = "1"
         )
         return repository.save(ctx, settings)
     }
+}
+
+internal fun validatedSystemCategory(settingsKey: String?, value: String?): String? {
+    if (!settingsKey.orEmpty().endsWith("Status")) return null
+    val normalized = value?.trim()?.uppercase()
+        ?: throw IllegalArgumentException("SystemCategory is required for status settings")
+    require(normalized in setOf("OPEN", "CLOSED", "CANCELED")) {
+        "SystemCategory must be OPEN, CLOSED, or CANCELED"
+    }
+    return normalized
 }

@@ -14,6 +14,8 @@ object ticketTable : Table("ticket") {
     val description = text("Description").nullable()
     val notes = text("Notes").nullable()
     val urgency = varchar("Urgency", 50).nullable()
+    val status = varchar("Status", 50).nullable()
+    val caseType = varchar("Type", 100).nullable()
     val active = bool("Active").default(true).nullable()
     val dateStart = varchar("DateStart", 50).nullable()
     val dateEnd = varchar("DateEnd", 50).nullable()

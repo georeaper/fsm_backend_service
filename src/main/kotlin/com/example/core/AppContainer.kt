@@ -79,6 +79,7 @@ import com.example.feature.settings.usecase.GetContractTypeUseCase
 import com.example.feature.settings.usecase.GetSettingsUseCase
 import com.example.feature.settings.usecase.GetTechnicalCasePriorityUseCase
 import com.example.feature.settings.usecase.GetWorkOrderTypeUseCase
+import com.example.feature.settings.usecase.CategorizedSettingsUseCase
 
 import com.example.feature.categories.repository.CategoryRepositoryImpl
 import com.example.feature.categories.repository.CategoryRepository
@@ -113,6 +114,9 @@ import com.example.feature.auth.repository.AuthContextRepositoryImpl
 import com.example.feature.auth.service.AuthenticatedRequestContextResolver
 import com.example.feature.auth.usecase.AuthUseCase
 import com.example.feature.subscription.repository.SubscriptionRepositoryImpl
+import com.example.feature.dashboard.repository.DashboardRepositoryImpl
+import com.example.feature.dashboard.usecase.DashboardUseCase
+import java.time.Clock
 
 
 class AppContainer {
@@ -182,6 +186,9 @@ class AppContainer {
     val subscriptionRepository by lazy {
         SubscriptionRepositoryImpl()
     }
+    private val dashboardRepository by lazy {
+        DashboardRepositoryImpl(dbProvider)
+    }
 
 
 
@@ -191,6 +198,9 @@ class AppContainer {
     }
     val authenticatedRequestContextResolver by lazy {
         AuthenticatedRequestContextResolver(authContextRepository)
+    }
+    val dashboardUseCase by lazy {
+        DashboardUseCase(dashboardRepository, Clock.systemUTC())
     }
     val getCustomersUseCase by lazy {
         GetCustomersUseCase(customerRepository)
@@ -312,6 +322,9 @@ class AppContainer {
     }
     val createWorkOrderTypeUseCase by lazy{
         CreateWorkOrderTypeUseCase(settingRepository)
+    }
+    val categorizedSettingsUseCase by lazy {
+        CategorizedSettingsUseCase(settingRepository)
     }
     val getCategoryUseCase by lazy{
         GetCategoryUseCase(categoryRepository)

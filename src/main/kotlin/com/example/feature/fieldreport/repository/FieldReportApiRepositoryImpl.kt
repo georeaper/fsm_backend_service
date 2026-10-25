@@ -25,6 +25,7 @@ class FieldReportApiRepositoryImpl(
                 ReportNumber = row[fieldReportsTable.reportNumber], Title = row[fieldReportsTable.title],
                 Description = row[fieldReportsTable.description], StartDate = row[fieldReportsTable.startDate],
                 EndDate = row[fieldReportsTable.endDate], ReportStatus = row[fieldReportsTable.reportStatus],
+                Status = row[fieldReportsTable.reportStatus], Priority = row[fieldReportsTable.priority], Type = row[fieldReportsTable.workOrderType],
                 CustomerID = customerId, CustomerName = customerId?.let { customerName(it) },
                 ContractID = contractId, ContractName = contractId?.let { contractName(it) },
                 CaseID = caseId, TicketNumber = caseId?.let { ticketNumber(it) },
@@ -45,7 +46,7 @@ class FieldReportApiRepositoryImpl(
             fieldReportsTable.insert { row ->
                 row[fieldReportId] = id; row[reportNumber] = request.ReportNumber; row[title] = request.Title
                 row[description] = request.Description; row[startDate] = request.StartDate; row[endDate] = request.EndDate
-                row[reportStatus] = request.ReportStatus; row[customerID] = request.CustomerID
+                row[reportStatus] = request.Status ?: request.ReportStatus; row[priority] = request.Priority; row[workOrderType] = request.Type; row[customerID] = request.CustomerID
                 row[contractID] = request.ContractID; row[userID] = request.UserID; row[caseID] = request.TicketID
                 row[clientName] = request.ClientName; row[clientSignature] = request.ClientSignature?.toByteArray()
                 row[department] = request.Department; row[value] = request.Value
@@ -62,7 +63,9 @@ class FieldReportApiRepositoryImpl(
             val changed = fieldReportsTable.update({ (fieldReportsTable.fieldReportId eq id) and (fieldReportsTable.isDeleted eq false) }) { row ->
                 request.ReportNumber?.let { row[reportNumber] = it }; request.Title?.let { row[title] = it }
                 request.Description?.let { row[description] = it }; request.StartDate?.let { row[startDate] = it }
-                request.EndDate?.let { row[endDate] = it }; request.ReportStatus?.let { row[reportStatus] = it }
+                request.EndDate?.let { row[endDate] = it }; (request.Status ?: request.ReportStatus)?.let { row[reportStatus] = it }
+                request.Priority?.let { row[priority] = it }
+                request.Type?.let { row[workOrderType] = it }
                 request.CustomerID?.let { row[customerID] = it }; request.ContractID?.let { row[contractID] = it }
                 (request.TicketID ?: request.CaseID)?.let { row[caseID] = it }; request.UserID?.let { row[userID] = it }
                 request.ClientName?.let { row[clientName] = it }; request.ClientSignature?.let { row[clientSignature] = it.toByteArray() }
@@ -203,6 +206,9 @@ class FieldReportApiRepositoryImpl(
             StartDate = report[fieldReportsTable.startDate],
             EndDate = report[fieldReportsTable.endDate],
             ReportStatus = report[fieldReportsTable.reportStatus],
+            Status = report[fieldReportsTable.reportStatus],
+            Priority = report[fieldReportsTable.priority],
+            Type = report[fieldReportsTable.workOrderType],
             CustomerID = customerId,
             CustomerName = customerId?.let { customerName(it) },
             ContractID = contractId,

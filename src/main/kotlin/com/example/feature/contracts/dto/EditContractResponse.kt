@@ -12,7 +12,7 @@ data class EditContractResponse(
     val Notes: String?,
     val Description: String?,
     val ContractType: String?,
-    val ContractStatus: Boolean?,
+    val ContractStatus: String?,
     val ContactName: String?,
     val CustomerID: String?,
     val LastModified: String?,

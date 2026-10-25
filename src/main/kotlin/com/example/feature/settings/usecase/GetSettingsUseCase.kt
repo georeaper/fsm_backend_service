@@ -16,6 +16,7 @@ class GetSettingsUseCase (private val repository: SettingsRepository){
                 SettingsValue = it.SettingsValue,
                 SettingsStyle = it.SettingsStyle,
                 SettingsDescription = it.SettingsDescription,
+                SystemCategory = it.SystemCategory,
                 LastModified = DateUtils.storageToUi(it.LastModified),
                 DateCreated = DateUtils.storageToUi(it.DateCreated),
                 Version = it.Version

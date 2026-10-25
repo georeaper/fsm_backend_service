@@ -11,6 +11,7 @@ import com.example.feature.settings.usecase.GetContractTypeUseCase
 import com.example.feature.settings.usecase.GetSettingsUseCase
 import com.example.feature.settings.usecase.GetTechnicalCasePriorityUseCase
 import com.example.feature.settings.usecase.GetWorkOrderTypeUseCase
+import com.example.feature.settings.usecase.CategorizedSettingsUseCase
 import com.example.feature.categories.usecase.GetCategoryUseCase
 import com.example.feature.categories.usecase.CreateCategoryUseCase
 import com.example.feature.categories.dto.CreateCategoryResponse
@@ -44,6 +45,7 @@ fun Route.settingsRoute(
     createWorkOrderTypeUseCase: CreateWorkOrderTypeUseCase,
     getContractTypeUseCase: GetContractTypeUseCase,
     createContractTypeUseCase: CreateContractTypeUseCase,
+    categorizedSettingsUseCase: CategorizedSettingsUseCase,
     deleteSettingsUseCase: DeleteSettingsUseCase,
     getCategoryUseCase: GetCategoryUseCase,
     createCategoryUseCase: CreateCategoryUseCase,
@@ -108,6 +110,33 @@ fun Route.settingsRoute(
             val request=call.receive<CreateSettingsResponse>()
             val result=createContractTypeUseCase.execute(ctx,request)
             call.respond(HttpStatusCode.Created, result)
+        }
+        val customCategories = mapOf(
+            "technical-case-statuses" to "TechnicalCaseStatus",
+            "technical-case-types" to "TechnicalCaseType",
+            "work-order-statuses" to "WorkOrderStatus",
+            "work-order-priorities" to "WorkOrderPriority",
+            "contract-statuses" to "ContractStatus",
+            "task-statuses" to "TaskStatus",
+            "task-priorities" to "TaskPriority",
+            "task-types" to "TaskType"
+        )
+        customCategories.forEach { (path, key) ->
+            get("/settings/$path") {
+                val ctx = call.authenticatedRequestContext(contextResolver)
+                    ?: return@get call.respond(HttpStatusCode.Unauthorized)
+                call.respond(categorizedSettingsUseCase.get(ctx, key))
+            }
+            post("/settings/$path") {
+                val ctx = call.authenticatedRequestContext(contextResolver)
+                    ?: return@post call.respond(HttpStatusCode.Unauthorized)
+                val request = call.receive<CreateSettingsResponse>()
+                try {
+                    call.respond(HttpStatusCode.Created, categorizedSettingsUseCase.create(ctx, key, request))
+                } catch (error: IllegalArgumentException) {
+                    call.respond(HttpStatusCode.BadRequest, mapOf("code" to "INVALID_SETTING", "message" to (error.message ?: "Invalid setting")))
+                }
+            }
         }
     delete("/settings/delete/{id}"){
             val ctx = call.authenticatedRequestContext(contextResolver)

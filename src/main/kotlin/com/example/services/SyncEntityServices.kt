@@ -227,6 +227,9 @@ val entityHandlers: Map<String, suspend (Connection, String) -> List<SynCable>> 
                 it[fieldReportsTable.department],
                 it[fieldReportsTable.clientName],
                 it[fieldReportsTable.reportStatus],
+                it[fieldReportsTable.reportStatus],
+                it[fieldReportsTable.priority],
+                it[fieldReportsTable.workOrderType],
                 it[fieldReportsTable.clientSignature],
                 it[fieldReportsTable.value],
                 it[fieldReportsTable.lastModified],
@@ -336,7 +339,7 @@ val entityHandlers: Map<String, suspend (Connection, String) -> List<SynCable>> 
 
         val table = settingsTable
 
-        fetchAsList(db ,table.selectAll()){
+        fetchAsList(db, table.select { table.isDeleted eq false }) {
             Settings(
                 it[table.settingsId],
                 it[table.remoteId],
@@ -344,6 +347,7 @@ val entityHandlers: Map<String, suspend (Connection, String) -> List<SynCable>> 
                 it[table.settingsValue],
                 it[table.settingsStyle],
                 it[table.settingsDescription],
+                it[table.systemCategory],
                 it[table.lastModified],
                 it[table.dateCreated],
                 it[table.version]
@@ -364,6 +368,7 @@ val entityHandlers: Map<String, suspend (Connection, String) -> List<SynCable>> 
                 it[table.description],
                 it[table.status],
                 it[table.priority],
+                it[table.taskType],
                 it[table.dateStart],
                 it[table.dateDue],
                 it[table.dateCompleted],
@@ -389,6 +394,8 @@ val entityHandlers: Map<String, suspend (Connection, String) -> List<SynCable>> 
                 it[table.description],
                 it[table.notes],
                 it[table.urgency],
+                it[table.status],
+                it[table.caseType],
                 it[table.active],
                 it[table.dateStart],
                 it[table.dateEnd],
@@ -416,6 +423,8 @@ val entityHandlers: Map<String, suspend (Connection, String) -> List<SynCable>> 
                 it[table.description],
                 it[table.notes],
                 it[table.urgency],
+                it[table.status],
+                it[table.caseType],
                 it[table.active],
                 it[table.dateStart],
                 it[table.dateEnd],

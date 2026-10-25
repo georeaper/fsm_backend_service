@@ -27,6 +27,8 @@ class TicketRepositoryImpl(private val dbProvider: DatabaseProvider) : TicketRep
                 it[description] = data.Description
                 it[notes] = data.Notes
                 it[urgency] = data.Urgency
+                data.Status?.let { value -> it[status] = value }
+                data.Type?.let { value -> it[caseType] = value }
                 it[active] = data.Active
                 it[dateStart] = data.DateStart
                 it[dateEnd] = data.DateEnd
@@ -57,6 +59,8 @@ class TicketRepositoryImpl(private val dbProvider: DatabaseProvider) : TicketRep
                     Description = it[ticketTable.description],
                     Notes = it[ticketTable.notes],
                     Urgency = it[ticketTable.urgency],
+                    Status = it[ticketTable.status],
+                    Type = it[ticketTable.caseType],
                     Active = it[ticketTable.active],
                     DateStart = it[ticketTable.dateStart],
                     DateEnd = it[ticketTable.dateEnd],
@@ -86,6 +90,8 @@ class TicketRepositoryImpl(private val dbProvider: DatabaseProvider) : TicketRep
                 it[description] = data.Description
                 it[notes] = data.Notes
                 it[urgency] = data.Urgency
+                data.Status?.let { value -> it[status] = value }
+                data.Type?.let { value -> it[caseType] = value }
                 it[active] = data.Active
                 it[dateStart] = data.DateStart
                 it[dateEnd] = data.DateEnd

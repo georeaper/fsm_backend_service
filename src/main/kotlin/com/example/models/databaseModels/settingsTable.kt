@@ -12,6 +12,7 @@ object settingsTable : Table("settings") {
     val settingsValue = varchar("SettingsValue", 255).nullable()
     val settingsStyle = varchar("SettingsStyle", 255).nullable()
     val settingsDescription = text("SettingsDescription").nullable()
+    val systemCategory = varchar("SystemCategory", 20).nullable()
     val lastModified = varchar("LastModified", 255).nullable()
     val dateCreated = varchar("DateCreated", 255).nullable()
     val version = varchar("Version", 255).nullable()

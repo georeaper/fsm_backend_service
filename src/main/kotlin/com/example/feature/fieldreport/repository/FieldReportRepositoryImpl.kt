@@ -31,7 +31,9 @@ class FieldReportRepositoryImpl(private val dbProvider: DatabaseProvider) : Fiel
                 it[title] = data.Title
                 it[department] = data.Department
                 it[clientName] = data.ClientName
-                it[reportStatus] = data.ReportStatus
+                it[reportStatus] = data.Status ?: data.ReportStatus
+                it[priority] = data.Priority
+                it[workOrderType] = data.Type
                 it[clientSignature] = data.ClientSignature
                 it[value] = data.Value
                 it[lastModified] = data.LastModified
@@ -96,6 +98,9 @@ class FieldReportRepositoryImpl(private val dbProvider: DatabaseProvider) : Fiel
                     Department = it[fieldReportsTable.department],
                     ClientName = it[fieldReportsTable.clientName],
                     ReportStatus = it[fieldReportsTable.reportStatus],
+                    Status = it[fieldReportsTable.reportStatus],
+                    Priority = it[fieldReportsTable.priority],
+                    Type = it[fieldReportsTable.workOrderType],
                     Value = it[fieldReportsTable.value],
                     LastModified = it[fieldReportsTable.lastModified],
                     DateCreated = it[fieldReportsTable.dateCreated],
@@ -133,7 +138,9 @@ class FieldReportRepositoryImpl(private val dbProvider: DatabaseProvider) : Fiel
                 data.Title?.let { row[title] = it }
                 data.Department?.let { row[department] = it }
                 data.ClientName?.let { row[clientName] = it }
-                data.ReportStatus?.let { row[reportStatus] = it }
+                (data.Status ?: data.ReportStatus)?.let { row[reportStatus] = it }
+                data.Priority?.let { row[priority] = it }
+                data.Type?.let { row[workOrderType] = it }
                 data.Value?.let { row[value] = it }
                 row[lastModified] = data.LastModified ?: existingReport[fieldReportsTable.lastModified]
                 row[dateCreated] = data.DateCreated ?: existingReport[fieldReportsTable.dateCreated]

@@ -506,7 +506,9 @@ fun upsertFieldReportsData(clientData: List<FieldReports>) {
                 it[title] = data.Title
                 it[department] = data.Department
                 it[clientName] = data.ClientName
-                it[reportStatus] = data.ReportStatus
+                it[reportStatus] = data.Status ?: data.ReportStatus
+                it[priority] = data.Priority
+                it[workOrderType] = data.Type
                 it[clientSignature] = data.ClientSignature
                 it[value] = data.Value
 
@@ -531,7 +533,9 @@ fun upsertFieldReportsData(clientData: List<FieldReports>) {
                 it[title] = data.Title
                 it[department] = data.Department
                 it[clientName] = data.ClientName
-                it[reportStatus] = data.ReportStatus
+                (data.Status ?: data.ReportStatus)?.let { value -> it[reportStatus] = value }
+                data.Priority?.let { value -> it[priority] = value }
+                data.Type?.let { value -> it[workOrderType] = value }
                 it[clientSignature] = data.ClientSignature
                 it[value] = data.Value
 
@@ -766,6 +770,7 @@ fun upsertSettingsData(clientData: List<Settings>) {
                 it[settingsValue] = data.SettingsValue
                 it[settingsStyle] = data.SettingsStyle
                 it[settingsDescription] = data.SettingsDescription
+                it[systemCategory] = data.SystemCategory
 
                 it[lastModified] = data.LastModified
                 it[dateCreated] = data.DateCreated
@@ -780,6 +785,7 @@ fun upsertSettingsData(clientData: List<Settings>) {
                 it[settingsValue] = data.SettingsValue
                 it[settingsStyle] = data.SettingsStyle
                 it[settingsDescription] = data.SettingsDescription
+                it[systemCategory] = data.SystemCategory
 
                 it[lastModified] = data.LastModified
                 it[dateCreated] = data.DateCreated
@@ -808,6 +814,7 @@ fun upsertTasksData(clientData: List<Tasks>) {
                 it[description] = data.Description
                 it[status] = data.Status
                 it[priority] = data.Priority
+                it[taskType] = data.Type
                 it[dateStart] = data.DateStart
                 it[dateDue] = data.DateDue
                 it[dateCompleted] = data.DateCompleted
@@ -828,6 +835,7 @@ fun upsertTasksData(clientData: List<Tasks>) {
                 it[description] = data.Description
                 it[status] = data.Status
                 it[priority] = data.Priority
+                it[taskType] = data.Type
                 it[dateStart] = data.DateStart
                 it[dateDue] = data.DateDue
                 it[dateCompleted] = data.DateCompleted
@@ -863,6 +871,8 @@ fun upsertTicketHistoryData(clientData: List<TicketHistory>) {
                 it[description] = data.Description
                 it[notes] = data.Notes
                 it[urgency] = data.Urgency
+                it[status] = data.Status ?: if (data.Active == false) "RESOLVED" else "OPEN"
+                it[caseType] = data.Type
                 it[dateStart] = data.DateStart
                 it[dateEnd] = data.DateEnd
                 it[active] = data.Active
@@ -885,6 +895,8 @@ fun upsertTicketHistoryData(clientData: List<TicketHistory>) {
                 it[description] = data.Description
                 it[notes] = data.Notes
                 it[urgency] = data.Urgency
+                data.Status?.let { value -> it[status] = value }
+                data.Type?.let { value -> it[caseType] = value }
                 it[dateStart] = data.DateStart
                 it[dateEnd] = data.DateEnd
                 it[active] = data.Active
@@ -921,6 +933,8 @@ fun upsertTicketsData(clientData: List<Tickets>) {
                 it[description] = data.Description
                 it[notes] = data.Notes
                 it[urgency] = data.Urgency
+                it[status] = data.Status ?: if (data.Active == false) "RESOLVED" else "OPEN"
+                it[caseType] = data.Type
                 it[dateStart] = data.DateStart
                 it[dateEnd] = data.DateEnd
                 it[active] = data.Active
@@ -943,6 +957,8 @@ fun upsertTicketsData(clientData: List<Tickets>) {
                 it[description] = data.Description
                 it[notes] = data.Notes
                 it[urgency] = data.Urgency
+                data.Status?.let { value -> it[status] = value }
+                data.Type?.let { value -> it[caseType] = value }
                 it[dateStart] = data.DateStart
                 it[dateEnd] = data.DateEnd
                 it[active] = data.Active

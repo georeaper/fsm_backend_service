@@ -15,7 +15,7 @@ object contractsTable : Table("contracts") {
     val notes = text("Notes").nullable()
     val description = text("Description").nullable()
     val contractType = varchar("ContractType", 100).nullable()
-    val contractStatus = bool("ContractStatus").nullable()
+    val contractStatus = varchar("ContractStatus", 50).nullable()
     val contactName = varchar("ContactName", 255).nullable()
     val lastModified = varchar("LastModified", 50).nullable()
     val dateCreated = varchar("DateCreated", 50).nullable()

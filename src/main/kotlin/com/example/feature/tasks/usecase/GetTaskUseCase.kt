@@ -15,6 +15,7 @@ class GetTaskUseCase (private val repository: TaskRepository){
                 Description = it.Description,
                 Status = it.Status,
                 Priority = it.Priority,
+                Type = it.Type,
                 DateStart = DateUtils.storageToUi(it.DateStart),
                 DateDue = DateUtils.storageToUi(it.DateDue),
                 DateCompleted = DateUtils.storageToUi(it.DateCompleted),

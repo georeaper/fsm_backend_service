@@ -10,6 +10,8 @@ data class EditTicketResponse(
     val Description: String?,
     val Notes: String?,
     val Urgency: String?,
+    val Status: String? = null,
+    val Type: String? = null,
     val Active: Boolean?,
     val DateStart: String?,
     val DateEnd: String?,

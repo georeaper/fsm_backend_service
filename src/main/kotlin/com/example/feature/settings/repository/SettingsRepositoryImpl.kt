@@ -5,13 +5,11 @@ import com.example.core.RequestContext
 import com.example.feature.settings.dto.EditSettingsResponse
 import com.example.feature.settings.dto.SettingsResponse
 import com.example.models.api.Settings
-import com.example.models.databaseModels.CategoriesTable
 import com.example.models.databaseModels.settingsTable
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
@@ -26,6 +24,7 @@ class SettingsRepositoryImpl(private val dbProvider: DatabaseProvider) : Setting
                 it[settingsValue] = data.SettingsValue
                 it[settingsStyle] = data.SettingsStyle
                 it[settingsDescription] = data.SettingsDescription
+                it[systemCategory] = data.SystemCategory
                 it[lastModified] = data.LastModified
                 it[dateCreated] = data.DateCreated
                 it[version] = data.Version
@@ -37,7 +36,7 @@ class SettingsRepositoryImpl(private val dbProvider: DatabaseProvider) : Setting
     override fun findAll(ctx: RequestContext): List<SettingsResponse> {
         val db = dbProvider.getDatabase(ctx.dbName)
         return transaction(db) {
-            val map = settingsTable.selectAll().map {
+            val map = settingsTable.select { settingsTable.isDeleted eq false }.map {
                 SettingsResponse(
                     SettingsID = it[settingsTable.settingsId],
                     RemoteID = it[settingsTable.remoteId],
@@ -45,6 +44,7 @@ class SettingsRepositoryImpl(private val dbProvider: DatabaseProvider) : Setting
                     SettingsValue = it[settingsTable.settingsValue],
                     SettingsStyle = it[settingsTable.settingsStyle],
                     SettingsDescription = it[settingsTable.settingsDescription],
+                    SystemCategory = it[settingsTable.systemCategory],
                     LastModified = it[settingsTable.lastModified],
                     DateCreated = it[settingsTable.dateCreated],
                     Version = it[settingsTable.version]
@@ -57,13 +57,17 @@ class SettingsRepositoryImpl(private val dbProvider: DatabaseProvider) : Setting
     override fun edit(ctx: RequestContext, data: EditSettingsResponse): EditSettingsResponse {
         val db = dbProvider.getDatabase(ctx.dbName)
         transaction(db) {
-            settingsTable.update({ settingsTable.settingsId eq data.SettingsID }) {
+            settingsTable.update({
+                (settingsTable.settingsId eq data.SettingsID) and
+                    (settingsTable.isDeleted eq false)
+            }) {
                 it[settingsId] = data.SettingsID
                 it[remoteId] = null
                 it[settingsKey] = data.SettingsKey
                 it[settingsValue] = data.SettingsValue
                 it[settingsStyle] = data.SettingsStyle
                 it[settingsDescription] = data.SettingsDescription
+                it[systemCategory] = data.SystemCategory
                 it[lastModified] = data.LastModified!!
                 it[dateCreated] = data.DateCreated!!
                 it[version] = data.Version!!
@@ -79,7 +83,10 @@ class SettingsRepositoryImpl(private val dbProvider: DatabaseProvider) : Setting
         val db = dbProvider.getDatabase(ctx.dbName)
 
         return transaction(db) {
-            val query= settingsTable.select { settingsTable.settingsKey eq settingsId }
+            val query = settingsTable.select {
+                (settingsTable.settingsKey eq settingsId) and
+                    (settingsTable.isDeleted eq false)
+            }
             println("getById : $query")
             val map = query.map {
                 SettingsResponse(
@@ -89,6 +96,7 @@ class SettingsRepositoryImpl(private val dbProvider: DatabaseProvider) : Setting
                     SettingsValue = it[settingsTable.settingsValue],
                     SettingsStyle = it[settingsTable.settingsStyle],
                     SettingsDescription = it[settingsTable.settingsDescription],
+                    SystemCategory = it[settingsTable.systemCategory],
                     LastModified = it[settingsTable.lastModified],
                     DateCreated = it[settingsTable.dateCreated],
                     Version = it[settingsTable.version]
@@ -101,8 +109,12 @@ class SettingsRepositoryImpl(private val dbProvider: DatabaseProvider) : Setting
     override fun delete(ctx: RequestContext, id: String): Boolean {
         val db = dbProvider.getDatabase(ctx.dbName)
         return transaction(db) {
-            val deleted = settingsTable.deleteWhere { settingsTable.settingsId eq id }
-            deleted > 0
+            settingsTable.update({
+                (settingsTable.settingsId eq id) and
+                    (settingsTable.isDeleted eq false)
+            }) {
+                it[isDeleted] = true
+            } > 0
         }
     }
 }

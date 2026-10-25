@@ -151,6 +151,8 @@ Service tickets/Work orders management.
 | Description | TEXT | Yes | - | Detailed description |
 | Notes | TEXT | Yes | - | Internal notes |
 | Urgency | VARCHAR(50) | Yes | - | Priority level |
+| Status | VARCHAR(50) | Yes | - | Technical-case workflow status |
+| Type | VARCHAR(100) | Yes | - | Technical-case type |
 | Active | BOOLEAN | Yes | true | Active/Closed status |
 | DateStart | VARCHAR(50) | Yes | - | Start date |
 | DateEnd | VARCHAR(50) | Yes | - | End/Completion date |
@@ -165,6 +167,11 @@ Service tickets/Work orders management.
 **Relationships:**
 - References: userTable, customerTable, equipmentTable
 - Referenced by: tasksTable, fieldReportsTable, ticketHistoryTable
+
+`Status` is the workflow source of truth for new clients. `Active` remains for compatibility
+with older sync clients. When `Status` is absent, the backend derives `OPEN`/`RESOLVED`
+from `Active`. `Type` is intentionally free-form until tenant-configurable technical-case
+types are introduced.
 
 ---
 
@@ -206,6 +213,7 @@ Task management linked to tickets.
 | Description | TEXT | Yes | - | Task description |
 | Status | VARCHAR(50) | Yes | - | Task status (pending, in-progress, complete, etc.) |
 | Priority | VARCHAR(50) | Yes | - | Priority level |
+| Type | VARCHAR(100) | Yes | - | Task type selected from TaskType settings |
 | DateStart | VARCHAR(50) | Yes | - | Start date |
 | DateDue | VARCHAR(50) | Yes | - | Due date |
 | DateCompleted | VARCHAR(50) | Yes | - | Completion date |
@@ -236,7 +244,7 @@ Service contracts management.
 | Notes | TEXT | Yes | - | Additional notes |
 | Description | TEXT | Yes | - | Contract description |
 | ContractType | VARCHAR(100) | Yes | - | Type of contract |
-| ContractStatus | BOOLEAN | Yes | - | Active/Inactive status |
+| ContractStatus | VARCHAR(50) | Yes | - | Contract workflow status |
 | ContactName | VARCHAR(255) | Yes | - | Contact person name |
 | LastModified | VARCHAR(50) | Yes | - | Last modification timestamp |
 | DateCreated | VARCHAR(50) | Yes | - | Creation timestamp |
@@ -288,6 +296,8 @@ Field service reports/Work reports.
 | Department | VARCHAR(255) | Yes | - | Department name |
 | ClientName | VARCHAR(255) | Yes | - | Client name |
 | ReportStatus | VARCHAR(255) | Yes | - | Report status |
+| Priority | VARCHAR(50) | Yes | - | Work-order priority |
+| Type | VARCHAR(100) | Yes | - | Work-order type selected from WorkOrderType settings |
 | ClientSignature | BINARY | Yes | - | Client signature |
 | Value | DOUBLE | Yes | - | Service value |
 | LastModified | VARCHAR(255) | Yes | - | Last modification timestamp |
@@ -534,6 +544,7 @@ Application settings and configuration.
 | SettingsValue | VARCHAR(255) | Yes | - | Setting value |
 | SettingsStyle | VARCHAR(255) | Yes | - | UI style/presentation |
 | SettingsDescription | TEXT | Yes | - | Setting description |
+| SystemCategory | VARCHAR(20) | Yes | - | Canonical status category: OPEN, CLOSED, or CANCELED |
 | LastModified | VARCHAR(255) | Yes | - | Last modification timestamp |
 | DateCreated | VARCHAR(255) | Yes | - | Creation timestamp |
 | Version | VARCHAR(255) | Yes | - | Version number |
