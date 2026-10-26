@@ -57,6 +57,11 @@ import com.example.feature.fieldreport.repository.FieldReportRepositoryImpl
 import com.example.feature.fieldreport.repository.FieldReportRepository
 import com.example.feature.fieldreport.repository.FieldReportApiRepositoryImpl
 import com.example.feature.fieldreport.repository.FieldReportEquipmentRepositoryImpl
+import com.example.feature.pdf.repository.PdfTemplateRepositoryImpl
+import com.example.feature.pdf.service.HtmlTemplateService
+import com.example.feature.pdf.service.OpenHtmlPdfRendererService
+import com.example.feature.pdf.service.SafeImageService
+import com.example.feature.pdf.usecase.GenerateFieldReportPdfUseCase
 import com.example.feature.fieldreport.usecase.CreateFieldReportEquipmentUseCase
 import com.example.feature.fieldreport.usecase.UpdateFieldReportEquipmentUseCase
 import com.example.feature.fieldreport.usecase.DeleteFieldReportEquipmentUseCase
@@ -117,6 +122,11 @@ import com.example.feature.subscription.repository.SubscriptionRepositoryImpl
 import com.example.feature.dashboard.repository.DashboardRepositoryImpl
 import com.example.feature.dashboard.usecase.DashboardUseCase
 import java.time.Clock
+import com.example.feature.notification.repository.NotificationRepositoryImpl
+import com.example.feature.notification.repository.NotificationTenantDirectoryImpl
+import com.example.feature.notification.scheduler.NotificationScheduler
+import com.example.feature.notification.usecase.NotificationCoordinator
+import com.example.feature.notification.usecase.NotificationUseCases
 
 
 class AppContainer {
@@ -159,6 +169,12 @@ class AppContainer {
     val fieldReportBulkRepository by lazy {
         FieldReportBulkRepositoryImpl(dbProvider)
     }
+    private val safePdfImageService by lazy { SafeImageService() }
+    private val htmlTemplateService by lazy { HtmlTemplateService() }
+    private val pdfTemplateRepository by lazy { PdfTemplateRepositoryImpl(dbProvider, fieldReportApiRepository, safePdfImageService, htmlTemplateService) }
+    val generateFieldReportPdfUseCase by lazy {
+        GenerateFieldReportPdfUseCase(pdfTemplateRepository, htmlTemplateService, OpenHtmlPdfRendererService())
+    }
     private val fieldReportEquipmentRepository by lazy {
         FieldReportEquipmentRepositoryImpl(dbProvider)
     }
@@ -189,6 +205,8 @@ class AppContainer {
     private val dashboardRepository by lazy {
         DashboardRepositoryImpl(dbProvider)
     }
+    private val notificationRepository by lazy { NotificationRepositoryImpl(dbProvider) }
+    private val notificationTenantDirectory by lazy { NotificationTenantDirectoryImpl() }
 
 
 
@@ -202,6 +220,9 @@ class AppContainer {
     val dashboardUseCase by lazy {
         DashboardUseCase(dashboardRepository, Clock.systemUTC())
     }
+    val notificationUseCases by lazy { NotificationUseCases(notificationRepository) }
+    val notificationCoordinator by lazy { NotificationCoordinator(notificationRepository) }
+    val notificationScheduler by lazy { NotificationScheduler(notificationRepository, notificationTenantDirectory) }
     val getCustomersUseCase by lazy {
         GetCustomersUseCase(customerRepository)
     }

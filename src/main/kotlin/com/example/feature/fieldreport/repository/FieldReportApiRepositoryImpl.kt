@@ -2,6 +2,7 @@ package com.example.feature.fieldreport.repository
 
 import com.example.core.DatabaseProvider
 import com.example.core.DateUtils
+import com.example.core.DocumentNumberGenerator
 import com.example.core.RequestContext
 import com.example.feature.fieldreport.dto.*
 import com.example.models.databaseModels.*
@@ -24,7 +25,8 @@ class FieldReportApiRepositoryImpl(
                 FieldReportID = row[fieldReportsTable.fieldReportId],
                 ReportNumber = row[fieldReportsTable.reportNumber], Title = row[fieldReportsTable.title],
                 Description = row[fieldReportsTable.description], StartDate = row[fieldReportsTable.startDate],
-                EndDate = row[fieldReportsTable.endDate], ReportStatus = row[fieldReportsTable.reportStatus],
+                EndDate = row[fieldReportsTable.endDate], ScheduledStart = row[fieldReportsTable.scheduledStart],
+                ScheduledEnd = row[fieldReportsTable.scheduledEnd], ReportStatus = row[fieldReportsTable.reportStatus],
                 Status = row[fieldReportsTable.reportStatus], Priority = row[fieldReportsTable.priority], Type = row[fieldReportsTable.workOrderType],
                 CustomerID = customerId, CustomerName = customerId?.let { customerName(it) },
                 ContractID = contractId, ContractName = contractId?.let { contractName(it) },
@@ -43,9 +45,11 @@ class FieldReportApiRepositoryImpl(
         transaction(dbProvider.getDatabase(ctx.dbName)) {
             val id = UUID.randomUUID().toString()
             val now = DateUtils.nowStorage()
+            val generatedReportNumber = DocumentNumberGenerator.nextWorkOrderNumber(ctx)
             fieldReportsTable.insert { row ->
-                row[fieldReportId] = id; row[reportNumber] = request.ReportNumber; row[title] = request.Title
+                row[fieldReportId] = id; row[reportNumber] = generatedReportNumber; row[title] = request.Title
                 row[description] = request.Description; row[startDate] = request.StartDate; row[endDate] = request.EndDate
+                row[scheduledStart] = request.ScheduledStart; row[scheduledEnd] = request.ScheduledEnd
                 row[reportStatus] = request.Status ?: request.ReportStatus; row[priority] = request.Priority; row[workOrderType] = request.Type; row[customerID] = request.CustomerID
                 row[contractID] = request.ContractID; row[userID] = request.UserID; row[caseID] = request.TicketID
                 row[clientName] = request.ClientName; row[clientSignature] = request.ClientSignature?.toByteArray()
@@ -61,9 +65,10 @@ class FieldReportApiRepositoryImpl(
     override fun update(ctx: RequestContext, id: String, request: FieldReportUpdateDto): FieldReportDetailDto? =
         transaction(dbProvider.getDatabase(ctx.dbName)) {
             val changed = fieldReportsTable.update({ (fieldReportsTable.fieldReportId eq id) and (fieldReportsTable.isDeleted eq false) }) { row ->
-                request.ReportNumber?.let { row[reportNumber] = it }; request.Title?.let { row[title] = it }
+                request.Title?.let { row[title] = it }
                 request.Description?.let { row[description] = it }; request.StartDate?.let { row[startDate] = it }
                 request.EndDate?.let { row[endDate] = it }; (request.Status ?: request.ReportStatus)?.let { row[reportStatus] = it }
+                request.ScheduledStart?.let { row[scheduledStart] = it }; request.ScheduledEnd?.let { row[scheduledEnd] = it }
                 request.Priority?.let { row[priority] = it }
                 request.Type?.let { row[workOrderType] = it }
                 request.CustomerID?.let { row[customerID] = it }; request.ContractID?.let { row[contractID] = it }
@@ -158,6 +163,7 @@ class FieldReportApiRepositoryImpl(
                 EquipmentID = sourceEquipmentId,
                 EquipmentName = sourceEquipment?.get(equipmentTable.name),
                 EquipmentModel = sourceEquipment?.get(equipmentTable.model),
+                Manufacturer = sourceEquipment?.get(equipmentTable.manufacturer),
                 SerialNumber = sourceEquipment?.get(equipmentTable.serialNumber),
                 MaintenanceID = sourceMaintenanceId,
                 MaintenanceName = sourceMaintenance?.get(maintenancesTable.name),
@@ -174,7 +180,11 @@ class FieldReportApiRepositoryImpl(
                     inventoryTable.select { (inventoryTable.inventoryId eq sourceId) and (inventoryTable.isDeleted eq false) }
                         .singleOrNull()?.get(inventoryTable.title)
                 }
-                FieldReportInventoryDetailDto(inventory[fieldReportInventoryTable.fieldReportInventoryId], inventoryId, inventoryName)
+                val quantity = inventoryId?.let { sourceId ->
+                    inventoryTable.select { (inventoryTable.inventoryId eq sourceId) and (inventoryTable.isDeleted eq false) }
+                        .singleOrNull()?.get(inventoryTable.quantity)
+                }
+                FieldReportInventoryDetailDto(inventory[fieldReportInventoryTable.fieldReportInventoryId], inventoryId, inventoryName, quantity)
             }
         val tools = fieldReportToolsTable.select { (fieldReportToolsTable.fieldReportId eq id) and (fieldReportToolsTable.isDeleted eq false) }
             .map { tool ->
@@ -205,6 +215,8 @@ class FieldReportApiRepositoryImpl(
             Description = report[fieldReportsTable.description],
             StartDate = report[fieldReportsTable.startDate],
             EndDate = report[fieldReportsTable.endDate],
+            ScheduledStart = report[fieldReportsTable.scheduledStart],
+            ScheduledEnd = report[fieldReportsTable.scheduledEnd],
             ReportStatus = report[fieldReportsTable.reportStatus],
             Status = report[fieldReportsTable.reportStatus],
             Priority = report[fieldReportsTable.priority],

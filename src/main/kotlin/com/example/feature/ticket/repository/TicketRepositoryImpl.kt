@@ -1,6 +1,7 @@
 package com.example.feature.ticket.repository
 
 import com.example.core.DatabaseProvider
+import com.example.core.DocumentNumberGenerator
 import com.example.core.RequestContext
 import com.example.feature.ticket.dto.EditTicketResponse
 import com.example.feature.ticket.dto.TicketsResponse
@@ -18,12 +19,14 @@ import org.jetbrains.exposed.sql.and
 class TicketRepositoryImpl(private val dbProvider: DatabaseProvider) : TicketRepository {
     override fun save(ctx: RequestContext, data: Tickets): Tickets {
         val db = dbProvider.getDatabase(ctx.dbName)
+        var generatedTicketNumber: String? = null
         transaction(db) {
+            generatedTicketNumber = DocumentNumberGenerator.nextTechnicalCaseNumber(ctx)
             ticketTable.insert {
                 it[ticketId] = data.TicketID
                 it[remoteId] = data.RemoteID
                 it[title] = data.Title
-                it[ticketNumber] = data.TicketNumber
+                it[ticketNumber] = generatedTicketNumber
                 it[description] = data.Description
                 it[notes] = data.Notes
                 it[urgency] = data.Urgency
@@ -40,7 +43,7 @@ class TicketRepositoryImpl(private val dbProvider: DatabaseProvider) : TicketRep
                 it[equipmentId] = data.EquipmentID
             }
         }
-        return data
+        return data.copy(TicketNumber = generatedTicketNumber)
     }
 
     override fun findAll(ctx: RequestContext): List<TicketsResponse> {
@@ -86,7 +89,6 @@ class TicketRepositoryImpl(private val dbProvider: DatabaseProvider) : TicketRep
                 it[remoteId] = null
                 
                 it[title] = data.Title
-                it[ticketNumber] = data.TicketNumber
                 it[description] = data.Description
                 it[notes] = data.Notes
                 it[urgency] = data.Urgency

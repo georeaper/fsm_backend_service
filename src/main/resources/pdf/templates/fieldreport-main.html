@@ -1,0 +1,14 @@
+<h1>Field Report {{ report.reportNumber }}</h1>
+<table class="info-table">
+  <tbody>
+    <tr><td><span class="label">Title</span><br/><span class="value">{{ report.title }}</span></td><td><span class="label">Status</span><br/><span class="value">{{ report.status }}</span></td><td><span class="label">Priority</span><br/><span class="value">{{ report.priority }}</span></td><td><span class="label">Type</span><br/><span class="value">{{ report.type }}</span></td></tr>
+    <tr><td><span class="label">Customer</span><br/><span class="value">{{ report.customerName }}</span></td><td><span class="label">Client</span><br/><span class="value">{{ report.clientName }}</span></td><td><span class="label">Technician</span><br/><span class="value">{{ report.technicianName }}</span></td><td><span class="label">Department</span><br/><span class="value">{{ report.department }}</span></td></tr>
+    <tr><td><span class="label">Start</span><br/><span class="value">{{ report.startDate }}</span></td><td><span class="label">End</span><br/><span class="value">{{ report.endDate }}</span></td><td><span class="label">Contract</span><br/><span class="value">{{ report.contractName }}</span></td><td><span class="label">Technical case</span><br/><span class="value">{{ report.ticketNumber }}</span></td></tr>
+  </tbody>
+</table>
+<h2>Description</h2><div class="description">{{ report.description }}</div>
+<h2>Tools</h2>
+<table><thead><tr><th>Name</th><th>Manufacturer</th><th>Model</th><th>Serial number</th><th>Calibration date</th></tr></thead><tbody>
+{% for tool in tools %}<tr><td>{{ tool.name }}</td><td>{{ tool.manufacturer }}</td><td>{{ tool.model }}</td><td>{{ tool.serialNumber }}</td><td>{{ tool.calibrationDate }}</td></tr>{% else %}<tr><td colspan="5">No tools recorded</td></tr>{% endfor %}
+</tbody></table>
+<h2>Client signature</h2><div class="signature-box">{% if report.signatureDataUri %}<img class="signature" src="{{ report.signatureDataUri }}" alt="Client signature"/>{% endif %}</div>

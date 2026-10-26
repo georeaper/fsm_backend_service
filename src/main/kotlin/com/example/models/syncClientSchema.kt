@@ -1,6 +1,9 @@
 package com.example.models
 
 import com.example.models.databaseModels.*
+import com.example.feature.notification.repository.NotificationJobsTable
+import com.example.feature.notification.repository.NotificationRulesTable
+import com.example.feature.notification.repository.UserDeviceTokensTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -28,7 +31,11 @@ fun syncClientSchema() {
             settingsTable,
             tasksTable,
             ticketTable,
-            toolsTable
+            toolsTable,
+            notificationsTable,
+            NotificationRulesTable,
+            NotificationJobsTable,
+            UserDeviceTokensTable
         )
     }
 }

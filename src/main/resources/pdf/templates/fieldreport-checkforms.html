@@ -1,0 +1,11 @@
+<h1>Equipment CheckForms</h1>
+{% for equipment in equipments %}
+  {% if equipment.checkforms is not empty %}
+  <div class="check-group{% if equipment.checkforms | length > 8 %} large{% endif %}">
+    <h2>{{ equipment.name }} — {{ equipment.serialNumber }}</h2>
+    <table><thead><tr><th>Description</th><th>Expected</th><th>Measured</th><th>Result</th></tr></thead><tbody>
+    {% for check in equipment.checkforms %}<tr><td class="description">{{ check.description }}</td><td>{{ check.expected }}</td><td>{{ check.measured }}</td><td>{{ check.result }}</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+  {% endif %}
+{% else %}<p>No checkforms recorded</p>{% endfor %}

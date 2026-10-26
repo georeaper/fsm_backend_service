@@ -13,6 +13,8 @@ data class FieldReportDetailDto(
     val Description: String? = null,
     val StartDate: String? = null,
     val EndDate: String? = null,
+    val ScheduledStart: String? = null,
+    val ScheduledEnd: String? = null,
     val ReportStatus: String? = null,
     val Status: String? = ReportStatus,
     val Priority: String? = null,
@@ -53,6 +55,7 @@ data class FieldReportEquipmentDetailDto(
 
     val EquipmentName: String? = null,
     val EquipmentModel: String? = null,
+    val Manufacturer: String? = null,
     val SerialNumber: String? = null,
     val MaintenanceID: String?,
 
@@ -75,7 +78,8 @@ data class FieldReportCheckformDetailDto(
 data class FieldReportInventoryDetailDto(
     val FieldReportInventoryID: String,
     val InventoryID: String?,
-    val InventoryName: String? = null
+    val InventoryName: String? = null,
+    val Quantity: Long? = null
 )
 @Serializable
 data class FieldReportToolsDetailDto(

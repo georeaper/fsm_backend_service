@@ -11,6 +11,7 @@ data class AuthenticatedRequestContext(
 ) {
     fun toRequestContext(): RequestContext = RequestContext(
         dbName = dbName,
-        username = username
+        username = username,
+        authUserId = userId
     )
 }

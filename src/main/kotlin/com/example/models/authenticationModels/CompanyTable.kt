@@ -13,6 +13,7 @@ object CompanyTable : Table("companies") {
     val databasePort = integer("database_port").default(5432)
     val databaseUser = varchar("database_user", 255)
     val databasePassword = varchar("database_password", 255)
+    val timeZone = varchar("time_zone", 64).default("UTC")
     val createdAt = datetime("created_at").defaultExpression(CurrentDateTime)
     val updatedAt = datetime("updated_at").defaultExpression(CurrentDateTime)
     override val primaryKey = PrimaryKey(id)

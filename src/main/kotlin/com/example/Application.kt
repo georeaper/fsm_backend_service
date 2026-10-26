@@ -22,6 +22,8 @@ import com.example.feature.ticket.ticketsRoute
 import com.example.feature.tools.toolsRoute
 import com.example.feature.user.usersRoute
 import com.example.feature.dashboard.dashboardRoute
+import com.example.feature.notification.notificationRoutes
+import com.example.feature.pdf.routes.pdfRoutes
 import com.example.routes.syncRoutes
 import io.github.cdimascio.dotenv.dotenv
 import io.ktor.http.*
@@ -63,6 +65,7 @@ fun Application.module() {
         if ((System.getenv("ENV") ?: "dev") == "dev") {
             allowHost("localhost:5173", schemes = listOf("http"))
             allowHost("127.0.0.1:5173", schemes = listOf("http"))
+            allowHost("192.168.1.74:5173", schemes = listOf("http"))
         }
         allowHeader(HttpHeaders.ContentType)
         allowHeader(HttpHeaders.Accept)
@@ -121,8 +124,13 @@ fun Application.module() {
         }
     }
 
+    val notificationSchedulerJob = container.notificationScheduler.start(
+        CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    )
+
     environment.monitor.subscribe(ApplicationStopped) {
         dbInitializationJob.cancel()
+        notificationSchedulerJob.cancel()
     }
 
 
@@ -199,7 +207,9 @@ fun Application.module() {
                 container.authenticatedRequestContextResolver)
             fieldReportRoute(
                 container.fieldReportApiRepository,
-                container.authenticatedRequestContextResolver)
+                container.authenticatedRequestContextResolver,
+                container.notificationCoordinator)
+            pdfRoutes(container.generateFieldReportPdfUseCase, container.authenticatedRequestContextResolver)
             maintenanceRoute(
                 container.getMaintenanceUseCase,
                 container.createMaintenanceUseCase,
@@ -230,13 +240,15 @@ fun Application.module() {
                 container.createTaskUseCase,
                 container.updateTaskUseCase,
                 container.deleteTaskUseCase,
-                container.authenticatedRequestContextResolver)
+                container.authenticatedRequestContextResolver,
+                container.notificationCoordinator)
             ticketsRoute(
                 container.getTicketUseCase,
                 container.createTicketUseCase,
                 container.updateTicketUseCase,
                 container.deleteTicketUseCase,
-                container.authenticatedRequestContextResolver)
+                container.authenticatedRequestContextResolver,
+                container.notificationCoordinator)
             toolsRoute(
                 container.getToolUseCase,
                 container.createToolUseCase,
@@ -256,9 +268,14 @@ fun Application.module() {
                 container.createContractUseCase,
                 container.updateContractUseCase,
                 container.deleteContractUseCase,
-                container.authenticatedRequestContextResolver)
+                container.authenticatedRequestContextResolver,
+                container.notificationCoordinator)
             dashboardRoute(
                 container.dashboardUseCase,
+                container.authenticatedRequestContextResolver
+            )
+            notificationRoutes(
+                container.notificationUseCases,
                 container.authenticatedRequestContextResolver
             )
             categoriesRoute(

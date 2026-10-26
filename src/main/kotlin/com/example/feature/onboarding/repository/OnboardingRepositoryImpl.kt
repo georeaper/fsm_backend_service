@@ -35,6 +35,9 @@ import com.example.models.databaseModels.ticketHistoryTable
 import com.example.models.databaseModels.ticketTable
 import com.example.models.databaseModels.toolsTable
 import com.example.models.databaseModels.userTable
+import com.example.feature.notification.repository.NotificationJobsTable
+import com.example.feature.notification.repository.NotificationRulesTable
+import com.example.feature.notification.repository.UserDeviceTokensTable
 
 class OnboardingRepositoryImpl : OnBoardingRepository {
 
@@ -147,7 +150,10 @@ class OnboardingRepositoryImpl : OnBoardingRepository {
                         tasksTable,
                         ticketTable,
                         toolsTable,
-                        notificationsTable
+                        notificationsTable,
+                        NotificationRulesTable,
+                        NotificationJobsTable,
+                        UserDeviceTokensTable
                     )
 
                     // create admin user in tenant DB

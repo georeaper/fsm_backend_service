@@ -8,6 +8,8 @@ import com.example.feature.tasks.usecase.UpdateTaskUseCase
 import com.example.feature.tasks.usecase.DeleteTaskUseCase
 import com.example.feature.tasks.usecase.CreateTaskUseCase
 import com.example.feature.tasks.usecase.GetTaskUseCase
+import com.example.feature.notification.model.NotificationEntityType
+import com.example.feature.notification.usecase.NotificationCoordinator
 import io.ktor.server.auth.authenticate
 import io.ktor.server.routing.Route
 import io.ktor.server.auth.*
@@ -22,7 +24,8 @@ fun Route.tasksRoute(
     createTaskUseCase: CreateTaskUseCase,
     updateTaskUseCase: UpdateTaskUseCase,
     deleteTaskUseCase: DeleteTaskUseCase,
-    contextResolver: AuthenticatedRequestContextResolver
+    contextResolver: AuthenticatedRequestContextResolver,
+    notifications: NotificationCoordinator
 ){
     authenticate("auth-jwt-v2") {
         get("/tasks"){
@@ -32,27 +35,36 @@ fun Route.tasksRoute(
             call.respond(result)
         }
         post("/tasks"){
-            val ctx = call.authenticatedRequestContext(contextResolver)
+            val authenticated = call.principal<JWTPrincipal>()?.let(contextResolver::resolve)
                 ?: return@post call.respond(HttpStatusCode.Unauthorized)
+            val ctx = authenticated.toRequestContext()
             val request=call.receive<CreateTaskResponse>() 
             val result=createTaskUseCase.execute(ctx,request)
+            notifications.onCreated(ctx, authenticated.companyId, NotificationEntityType.TASK, result.TaskID)
             call.respond(HttpStatusCode.Created, result)
         }
         put("/tasks/{id}") {
-            val ctx = call.authenticatedRequestContext(contextResolver)
+            val authenticated = call.principal<JWTPrincipal>()?.let(contextResolver::resolve)
                 ?: return@put call.respond(HttpStatusCode.Unauthorized)
+            val ctx = authenticated.toRequestContext()
             val id = call.parameters["id"]
                 ?: return@put call.respond(HttpStatusCode.BadRequest)
             val request = call.receive<EditTaskResponse>().copy(TaskID = id)
-            call.respond(HttpStatusCode.OK, updateTaskUseCase.execute(ctx, request))
+            val before = notifications.snapshot(ctx, NotificationEntityType.TASK, id)
+            val result = updateTaskUseCase.execute(ctx, request)
+            notifications.snapshot(ctx, NotificationEntityType.TASK, id)?.let { notifications.onUpdated(ctx, authenticated.companyId, before, it) }
+            call.respond(HttpStatusCode.OK, result)
         }
 
         delete("/tasks/{id}") {
-            val ctx = call.authenticatedRequestContext(contextResolver)
+            val authenticated = call.principal<JWTPrincipal>()?.let(contextResolver::resolve)
                 ?: return@delete call.respond(HttpStatusCode.Unauthorized)
+            val ctx = authenticated.toRequestContext()
             val id = call.parameters["id"]
                 ?: return@delete call.respond(HttpStatusCode.BadRequest)
+            val before = notifications.snapshot(ctx, NotificationEntityType.TASK, id)
             if (deleteTaskUseCase.execute(ctx, id)) {
+                before?.let { notifications.onDeleted(ctx, authenticated.companyId, it) }
                 call.respond(HttpStatusCode.NoContent)
             } else {
                 call.respond(HttpStatusCode.NotFound)

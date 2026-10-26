@@ -164,6 +164,8 @@ data class FieldReports(
     var Description: String?=null,
     var StartDate: String?=null,
     var EndDate: String?=null,
+    var ScheduledStart: String?=null,
+    var ScheduledEnd: String?=null,
     var Title: String?=null,
     var Department: String?=null,
     var ClientName: String?=null,

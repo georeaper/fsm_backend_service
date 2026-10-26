@@ -8,6 +8,8 @@ data class FieldReportCreateDto(
     val Description: String? = null,
     val StartDate: String? = null,
     val EndDate: String? = null,
+    val ScheduledStart: String? = null,
+    val ScheduledEnd: String? = null,
     val ReportStatus: String? = null,
     val Status: String? = null,
     val Priority: String? = null,

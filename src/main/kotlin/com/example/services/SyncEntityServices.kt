@@ -223,6 +223,8 @@ val entityHandlers: Map<String, suspend (Connection, String) -> List<SynCable>> 
                 it[fieldReportsTable.description],
                 it[fieldReportsTable.startDate],
                 it[fieldReportsTable.endDate],
+                it[fieldReportsTable.scheduledStart],
+                it[fieldReportsTable.scheduledEnd],
                 it[fieldReportsTable.title],
                 it[fieldReportsTable.department],
                 it[fieldReportsTable.clientName],

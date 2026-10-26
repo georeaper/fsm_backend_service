@@ -1,0 +1,9 @@
+<h1>Equipment &amp; Spare Parts</h1>
+<h2>Equipment</h2>
+<table><thead><tr><th>Name</th><th>Manufacturer</th><th>Model</th><th>Serial number</th><th>Maintenance</th><th>Completed</th></tr></thead><tbody>
+{% for equipment in equipments %}<tr><td>{{ equipment.name }}</td><td>{{ equipment.manufacturer }}</td><td>{{ equipment.model }}</td><td>{{ equipment.serialNumber }}</td><td>{{ equipment.maintenanceName }}</td><td>{% if equipment.completed %}Yes{% else %}No{% endif %}</td></tr>{% else %}<tr><td colspan="6">No equipment recorded</td></tr>{% endfor %}
+</tbody></table>
+<h2>Inventory / Spare Parts</h2>
+<table><thead><tr><th>Name</th><th>Quantity</th></tr></thead><tbody>
+{% for item in inventories %}<tr><td>{{ item.name }}</td><td>{{ item.quantity }}</td></tr>{% else %}<tr><td colspan="2">No inventory recorded</td></tr>{% endfor %}
+</tbody></table>

@@ -14,6 +14,10 @@ object notificationsTable : Table(name="notifications") {
     val isRead = bool("IsRead").default(false)
     val readAt=varchar("ReadAt", length = 50).nullable()
     val dateCreated = varchar("DateCreated", length = 50).nullable()
+    val jobId = varchar("JobId", length = 36).nullable().uniqueIndex()
+    val idempotencyKey = varchar("IdempotencyKey", length = 255).nullable().uniqueIndex()
+    val createdAtEpochMs = long("CreatedAtEpochMs").nullable()
+    val readAtEpochMs = long("ReadAtEpochMs").nullable()
     val isDeleted = bool("IsDeleted").default(false)
     override val primaryKey = PrimaryKey(notificationId)
 }

@@ -503,6 +503,8 @@ fun upsertFieldReportsData(clientData: List<FieldReports>) {
                 it[description] = data.Description
                 it[startDate] = data.StartDate
                 it[endDate] = data.EndDate
+                it[scheduledStart] = data.ScheduledStart
+                it[scheduledEnd] = data.ScheduledEnd
                 it[title] = data.Title
                 it[department] = data.Department
                 it[clientName] = data.ClientName
@@ -530,6 +532,8 @@ fun upsertFieldReportsData(clientData: List<FieldReports>) {
                 it[description] = data.Description
                 it[startDate] = data.StartDate
                 it[endDate] = data.EndDate
+                it[scheduledStart] = data.ScheduledStart
+                it[scheduledEnd] = data.ScheduledEnd
                 it[title] = data.Title
                 it[department] = data.Department
                 it[clientName] = data.ClientName

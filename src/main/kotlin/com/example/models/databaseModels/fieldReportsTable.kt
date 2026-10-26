@@ -14,6 +14,9 @@ object fieldReportsTable : Table("fieldreports") {
     val description = text("Description").nullable()
     val startDate = varchar("StartDate", 255).nullable()
     val endDate = varchar("EndDate", 255).nullable()
+    // Planned times are intentionally separate from the actual execution times above.
+    val scheduledStart = varchar("ScheduledStart", 255).nullable()
+    val scheduledEnd = varchar("ScheduledEnd", 255).nullable()
     val title = varchar("Title", 255).nullable()
     val department = varchar("Department", 255).nullable()
     val clientName = varchar("ClientName", 255).nullable()

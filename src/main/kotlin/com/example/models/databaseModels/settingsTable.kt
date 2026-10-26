@@ -9,7 +9,7 @@ object settingsTable : Table("settings") {
     val settingsId = varchar("SettingsId", 36).default(UUID.randomUUID().toString())
     val remoteId = integer("RemoteId").nullable()
     val settingsKey = varchar("SettingsKey", 255).nullable()
-    val settingsValue = varchar("SettingsValue", 255).nullable()
+    val settingsValue = text("SettingsValue").nullable()
     val settingsStyle = varchar("SettingsStyle", 255).nullable()
     val settingsDescription = text("SettingsDescription").nullable()
     val systemCategory = varchar("SystemCategory", 20).nullable()
