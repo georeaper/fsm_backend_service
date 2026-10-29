@@ -7,4 +7,4 @@ ALTER TABLE settings
 
 ALTER TABLE settings
     ADD CONSTRAINT settings_system_category_check
-    CHECK ("SystemCategory" IS NULL OR "SystemCategory" IN ('OPEN', 'CLOSED', 'CANCELED'));
+    CHECK ("SystemCategory" IS NULL OR "SystemCategory" IN ('OPEN', 'CLOSED', 'CANCELED', 'LOW', 'MEDIUM', 'HIGH'));

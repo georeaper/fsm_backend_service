@@ -1,5 +1,7 @@
 package com.example.feature.tasks
 
+import com.example.core.respondPaginated
+
 import com.example.feature.auth.service.AuthenticatedRequestContextResolver
 import com.example.feature.auth.service.authenticatedRequestContext
 import com.example.feature.tasks.dto.CreateTaskResponse
@@ -32,7 +34,7 @@ fun Route.tasksRoute(
             val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@get call.respond(HttpStatusCode.Unauthorized)
             val result=getTaskUseCase.execute(ctx)
-            call.respond(result)
+            call.respondPaginated(result)
         }
         post("/tasks"){
             val authenticated = call.principal<JWTPrincipal>()?.let(contextResolver::resolve)

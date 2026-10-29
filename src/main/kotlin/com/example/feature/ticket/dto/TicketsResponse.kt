@@ -21,5 +21,6 @@ data class TicketsResponse(
     val Version: String?,
     val UserID: String?,
     val CustomerID: String?,
+    val CustomerName: String? = null,
     val EquipmentID: String?
 )

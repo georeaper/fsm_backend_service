@@ -7,7 +7,7 @@ import com.example.models.api.Tickets
 
 interface TicketRepository {
     fun save(ctx: RequestContext, data: Tickets): Tickets
-    fun findAll(ctx: RequestContext): List<TicketsResponse>
+    fun findAll(ctx: RequestContext, customerId: String? = null, openOnly: Boolean = false): List<TicketsResponse>
     fun edit(ctx: RequestContext, data: EditTicketResponse): EditTicketResponse
     fun delete(ctx: RequestContext, id: String): Boolean
 }

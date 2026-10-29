@@ -36,6 +36,9 @@ Permanent deletion is deliberately not exposed in the alpha API.
 
 ## Self-service endpoints
 
+`GET /users/me` returns the signed-in user's central account identity together with
+the application-specific profile fields. Use this response to initialize the Edit Information form.
+
 `PUT /users/me` updates profile-only fields:
 
 ```json
@@ -58,6 +61,8 @@ Permanent deletion is deliberately not exposed in the alpha API.
 ```
 
 A successful password change revokes existing refresh sessions.
+The current access token remains valid until its short expiration; after success the web client
+should clear its local access token and redirect to login.
 
 ## Seat-limit response
 

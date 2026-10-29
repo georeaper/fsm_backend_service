@@ -16,6 +16,11 @@ import com.example.feature.categories.usecase.GetCategoryUseCase
 import com.example.feature.categories.usecase.CreateCategoryUseCase
 import com.example.feature.categories.dto.CreateCategoryResponse
 import com.example.feature.settings.usecase.DeleteSettingsUseCase
+import com.example.feature.settings.usecase.UpdateSettingStyleUseCase
+import com.example.feature.settings.usecase.UpdateSystemCategoryUseCase
+import com.example.feature.settings.dto.UpdateSettingStyleRequest
+import com.example.feature.settings.dto.UpdateSystemCategoryRequest
+import com.example.feature.settings.dto.SettingApiError
 import io.ktor.server.auth.authenticate
 import io.ktor.server.routing.Route
 import io.ktor.server.auth.*
@@ -47,6 +52,8 @@ fun Route.settingsRoute(
     createContractTypeUseCase: CreateContractTypeUseCase,
     categorizedSettingsUseCase: CategorizedSettingsUseCase,
     deleteSettingsUseCase: DeleteSettingsUseCase,
+    updateSettingStyleUseCase: UpdateSettingStyleUseCase,
+    updateSystemCategoryUseCase: UpdateSystemCategoryUseCase,
     getCategoryUseCase: GetCategoryUseCase,
     createCategoryUseCase: CreateCategoryUseCase,
     contextResolver: AuthenticatedRequestContextResolver
@@ -136,6 +143,38 @@ fun Route.settingsRoute(
                 } catch (error: IllegalArgumentException) {
                     call.respond(HttpStatusCode.BadRequest, mapOf("code" to "INVALID_SETTING", "message" to (error.message ?: "Invalid setting")))
                 }
+            }
+        }
+        patch("/settings/{id}/style") {
+            val ctx = call.authenticatedRequestContext(contextResolver)
+                ?: return@patch call.respond(HttpStatusCode.Unauthorized, SettingApiError("UNAUTHORIZED", "Authentication is required"))
+            val id = call.parameters["id"]
+                ?.takeIf { runCatching { java.util.UUID.fromString(it) }.isSuccess }
+                ?: return@patch call.respond(HttpStatusCode.BadRequest, SettingApiError("INVALID_SETTING_ID", "setting id must be a UUID"))
+            val request = runCatching { call.receive<UpdateSettingStyleRequest>() }.getOrNull()
+                ?: return@patch call.respond(HttpStatusCode.BadRequest, SettingApiError("INVALID_REQUEST", "Invalid request body"))
+            try {
+                val result = updateSettingStyleUseCase.execute(ctx, id, request)
+                    ?: return@patch call.respond(HttpStatusCode.NotFound, SettingApiError("SETTING_NOT_FOUND", "Setting not found"))
+                call.respond(HttpStatusCode.OK, result)
+            } catch (error: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, SettingApiError("INVALID_STYLE", error.message ?: "Invalid style"))
+            }
+        }
+        patch("/settings/{id}/system-category") {
+            val ctx = call.authenticatedRequestContext(contextResolver)
+                ?: return@patch call.respond(HttpStatusCode.Unauthorized, SettingApiError("UNAUTHORIZED", "Authentication is required"))
+            val id = call.parameters["id"]
+                ?.takeIf { runCatching { java.util.UUID.fromString(it) }.isSuccess }
+                ?: return@patch call.respond(HttpStatusCode.BadRequest, SettingApiError("INVALID_SETTING_ID", "setting id must be a UUID"))
+            val request = runCatching { call.receive<UpdateSystemCategoryRequest>() }.getOrNull()
+                ?: return@patch call.respond(HttpStatusCode.BadRequest, SettingApiError("INVALID_REQUEST", "Invalid request body"))
+            try {
+                val result = updateSystemCategoryUseCase.execute(ctx, id, request)
+                    ?: return@patch call.respond(HttpStatusCode.NotFound, SettingApiError("SETTING_NOT_FOUND", "Setting not found"))
+                call.respond(HttpStatusCode.OK, result)
+            } catch (error: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, SettingApiError("INVALID_SYSTEM_CATEGORY", error.message ?: "Invalid system category"))
             }
         }
     delete("/settings/delete/{id}"){

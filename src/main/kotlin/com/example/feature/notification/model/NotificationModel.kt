@@ -18,7 +18,8 @@ data class EntitySnapshot(
     val assignedUserId: String?,
     val dates: Map<String, String?>,
     val isDeleted: Boolean,
-    val templateValues: Map<String, String?> = emptyMap()
+    val templateValues: Map<String, String?> = emptyMap(),
+    val assignedUserIds: List<String> = listOfNotNull(assignedUserId)
 )
 
 data class NotificationRule(

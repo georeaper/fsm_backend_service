@@ -3,6 +3,7 @@ package com.example.feature.fieldreport
 import com.example.feature.auth.service.AuthenticatedRequestContextResolver
 import com.example.feature.auth.service.authenticatedRequestContext
 import com.example.core.DocumentNumberException
+import com.example.core.respondPaginated
 import com.example.feature.fieldreport.dto.*
 import com.example.feature.fieldreport.repository.FieldReportApiRepository
 import com.example.feature.notification.model.NotificationEntityType
@@ -21,7 +22,7 @@ fun Route.fieldReportRoute(
     authenticate("auth-jwt-v2") {
         get("/fieldreports") {
             val ctx = call.authenticatedRequestContext(contextResolver) ?: return@get call.respond(HttpStatusCode.Unauthorized)
-            call.respond(repository.findAll(ctx))
+            call.respondPaginated(repository.findAll(ctx))
         }
         get("/fieldreports/{id}") {
             val ctx = call.authenticatedRequestContext(contextResolver) ?: return@get call.respond(HttpStatusCode.Unauthorized)
@@ -36,6 +37,8 @@ fun Route.fieldReportRoute(
                 call.respond(HttpStatusCode.Created, result)
             } catch (error: DocumentNumberException) {
                 call.respond(HttpStatusCode.BadRequest, mapOf("error" to error.message))
+            } catch (error: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, mapOf("error" to error.message))
             }
         }
         put("/fieldreports/{id}") {
@@ -43,10 +46,14 @@ fun Route.fieldReportRoute(
             val ctx = authenticated.toRequestContext()
             val id = call.parameters["id"] ?: return@put call.respond(HttpStatusCode.BadRequest)
             val before = notifications.snapshot(ctx, NotificationEntityType.WORK_ORDER, id)
-            repository.update(ctx, id, call.receive<FieldReportUpdateDto>())?.let {
-                notifications.snapshot(ctx, NotificationEntityType.WORK_ORDER, id)?.let { after -> notifications.onUpdated(ctx, authenticated.companyId, before, after) }
-                call.respond(it)
-            } ?: call.respond(HttpStatusCode.NotFound)
+            try {
+                repository.update(ctx, id, call.receive<FieldReportUpdateDto>())?.let {
+                    notifications.snapshot(ctx, NotificationEntityType.WORK_ORDER, id)?.let { after -> notifications.onUpdated(ctx, authenticated.companyId, before, after) }
+                    call.respond(it)
+                } ?: call.respond(HttpStatusCode.NotFound)
+            } catch (error: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, mapOf("error" to error.message))
+            }
         }
         put("/fieldreports/{id}/equipments") {
             val ctx = call.authenticatedRequestContext(contextResolver) ?: return@put call.respond(HttpStatusCode.Unauthorized)
@@ -63,6 +70,64 @@ fun Route.fieldReportRoute(
             val id = call.parameters["id"] ?: return@put call.respond(HttpStatusCode.BadRequest)
             repository.syncTools(ctx, id, call.receive<FieldReportToolsSyncRequest>())?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NotFound)
         }
+        get("/fieldreports/{id}/technical-cases") {
+            val ctx = call.authenticatedRequestContext(contextResolver) ?: return@get call.respond(HttpStatusCode.Unauthorized)
+            val id = call.parameters["id"] ?: return@get call.respond(HttpStatusCode.BadRequest)
+            repository.technicalCases(ctx, id)?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NotFound)
+        }
+        put("/fieldreports/{id}/technical-cases") {
+            val ctx = call.authenticatedRequestContext(contextResolver) ?: return@put call.respond(HttpStatusCode.Unauthorized)
+            val id = call.parameters["id"] ?: return@put call.respond(HttpStatusCode.BadRequest)
+            try {
+                val request = call.receive<ReplaceFieldReportTechnicalCasesRequest>()
+                repository.replaceTechnicalCases(ctx, id, request.TechnicalCaseIDs)?.let { call.respond(it) }
+                    ?: call.respond(HttpStatusCode.NotFound)
+            } catch (error: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, mapOf("error" to error.message))
+            }
+        }
+        get("/fieldreports/{id}/technicians") {
+            val ctx = call.authenticatedRequestContext(contextResolver) ?: return@get call.respond(HttpStatusCode.Unauthorized)
+            val id = call.parameters["id"] ?: return@get call.respond(HttpStatusCode.BadRequest)
+            repository.technicians(ctx, id)?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NotFound)
+        }
+        put("/fieldreports/{id}/technicians") {
+            val ctx = call.authenticatedRequestContext(contextResolver) ?: return@put call.respond(HttpStatusCode.Unauthorized)
+            val id = call.parameters["id"] ?: return@put call.respond(HttpStatusCode.BadRequest)
+            try {
+                val request = call.receive<ReplaceFieldReportTechniciansRequest>()
+                repository.replaceTechnicians(ctx, id, request.Technicians)?.let { call.respond(it) }
+                    ?: call.respond(HttpStatusCode.NotFound)
+            } catch (error: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, mapOf("error" to error.message))
+            }
+        }
+        post("/fieldreports/{id}/complete") {
+            val authenticated = call.principal<io.ktor.server.auth.jwt.JWTPrincipal>()?.let(contextResolver::resolve)
+                ?: return@post call.respond(HttpStatusCode.Unauthorized)
+            val ctx = authenticated.toRequestContext()
+            val id = call.parameters["id"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+            val request = call.receive<CompleteFieldReportRequest>()
+            val linkedCases = repository.technicalCases(ctx, id)
+                ?: return@post call.respond(HttpStatusCode.NotFound)
+            if (linkedCases.isNotEmpty() && request.TechnicalCaseUpdates.isEmpty()) {
+                return@post call.respond(
+                    HttpStatusCode.Conflict,
+                    TechnicalCaseConfirmationRequiredResponse(TechnicalCases = linkedCases)
+                )
+            }
+            try {
+                val before = notifications.snapshot(ctx, NotificationEntityType.WORK_ORDER, id)
+                repository.complete(ctx, id, request)?.let { result ->
+                    notifications.snapshot(ctx, NotificationEntityType.WORK_ORDER, id)?.let { after ->
+                        notifications.onUpdated(ctx, authenticated.companyId, before, after)
+                    }
+                    call.respond(result)
+                } ?: call.respond(HttpStatusCode.NotFound)
+            } catch (error: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, mapOf("error" to error.message))
+            }
+        }
         delete("/fieldreports/{id}") {
             val authenticated = call.principal<io.ktor.server.auth.jwt.JWTPrincipal>()?.let(contextResolver::resolve) ?: return@delete call.respond(HttpStatusCode.Unauthorized)
             val ctx = authenticated.toRequestContext()
@@ -72,6 +137,23 @@ fun Route.fieldReportRoute(
                 before?.let { notifications.onDeleted(ctx, authenticated.companyId, it) }
                 call.respond(HttpStatusCode.NoContent)
             } else call.respond(HttpStatusCode.NotFound)
+        }
+        get("/scheduling/workorders") {
+            val ctx = call.authenticatedRequestContext(contextResolver) ?: return@get call.respond(HttpStatusCode.Unauthorized)
+            val from = call.request.queryParameters["from"]
+                ?: return@get call.respond(HttpStatusCode.BadRequest, mapOf("error" to "from is required"))
+            val to = call.request.queryParameters["to"]
+                ?: return@get call.respond(HttpStatusCode.BadRequest, mapOf("error" to "to is required"))
+            try {
+                val results = repository.scheduledWorkOrders(
+                    ctx, from, to,
+                    call.request.queryParameters["technicianId"],
+                    call.request.queryParameters["status"]
+                )
+                call.respondPaginated(results)
+            } catch (error: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, mapOf("error" to error.message))
+            }
         }
     }
 }

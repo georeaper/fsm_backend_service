@@ -6,8 +6,8 @@ import com.example.feature.ticket.repository.TicketRepository
 import com.example.feature.ticket.dto.TicketsResponse
 
 class GetTicketUseCase (private val repository: TicketRepository){
-    fun execute(ctx: RequestContext) :List<TicketsResponse>{
-        val data =repository.findAll(ctx)
+    fun execute(ctx: RequestContext, customerId: String? = null, openOnly: Boolean = false) :List<TicketsResponse>{
+        val data =repository.findAll(ctx, customerId, openOnly)
         return data.map{
             TicketsResponse(
                 TicketID = it.TicketID,
@@ -27,6 +27,7 @@ class GetTicketUseCase (private val repository: TicketRepository){
                 Version = it.Version,
                 UserID = it.UserID,
                 CustomerID = it.CustomerID,
+                CustomerName = it.CustomerName,
                 EquipmentID = it.EquipmentID
             )
         }

@@ -117,4 +117,51 @@ class SettingsRepositoryImpl(private val dbProvider: DatabaseProvider) : Setting
             } > 0
         }
     }
+
+    override fun updateStyle(ctx: RequestContext, settingId: String, style: String, lastModified: String): Boolean {
+        val db = dbProvider.getDatabase(ctx.dbName)
+        return transaction(db) {
+            settingsTable.update({
+                (settingsTable.settingsId eq settingId) and
+                    (settingsTable.isDeleted eq false)
+            }) {
+                it[settingsStyle] = style
+                it[settingsTable.lastModified] = lastModified
+            } > 0
+        }
+    }
+
+    override fun findSettingById(ctx: RequestContext, settingId: String): SettingsResponse? {
+        val db = dbProvider.getDatabase(ctx.dbName)
+        return transaction(db) {
+            settingsTable.select {
+                (settingsTable.settingsId eq settingId) and (settingsTable.isDeleted eq false)
+            }.limit(1).firstOrNull()?.let {
+                SettingsResponse(
+                    SettingsID = it[settingsTable.settingsId],
+                    RemoteID = it[settingsTable.remoteId],
+                    SettingsKey = it[settingsTable.settingsKey],
+                    SettingsValue = it[settingsTable.settingsValue],
+                    SettingsStyle = it[settingsTable.settingsStyle],
+                    SettingsDescription = it[settingsTable.settingsDescription],
+                    SystemCategory = it[settingsTable.systemCategory],
+                    LastModified = it[settingsTable.lastModified],
+                    DateCreated = it[settingsTable.dateCreated],
+                    Version = it[settingsTable.version]
+                )
+            }
+        }
+    }
+
+    override fun updateSystemCategory(ctx: RequestContext, settingId: String, systemCategory: String, lastModified: String): Boolean {
+        val db = dbProvider.getDatabase(ctx.dbName)
+        return transaction(db) {
+            settingsTable.update({
+                (settingsTable.settingsId eq settingId) and (settingsTable.isDeleted eq false)
+            }) {
+                it[settingsTable.systemCategory] = systemCategory
+                it[settingsTable.lastModified] = lastModified
+            } > 0
+        }
+    }
 }

@@ -1,5 +1,7 @@
 package com.example.feature.maintenance
 
+import com.example.core.respondPaginated
+
 import com.example.feature.auth.service.AuthenticatedRequestContextResolver
 import com.example.feature.auth.service.authenticatedRequestContext
 import com.example.feature.maintenance.dto.CreateMaintenanceWithCheckFormsRequest
@@ -29,7 +31,7 @@ fun Route.maintenanceRoute(
             val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@get call.respond(HttpStatusCode.Unauthorized)
             val result=getMaintenanceUseCase.execute(ctx)
-            call.respond(result)
+            call.respondPaginated(result)
         }
         get("/maintenances/{maintenanceId}") {
             val ctx = call.authenticatedRequestContext(contextResolver)

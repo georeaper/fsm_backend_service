@@ -27,11 +27,16 @@ class CreateSettingsUseCase (private val repository: SettingsRepository){
 }
 
 internal fun validatedSystemCategory(settingsKey: String?, value: String?): String? {
-    if (!settingsKey.orEmpty().endsWith("Status")) return null
+    val key = settingsKey.orEmpty()
+    val allowed = when {
+        key.endsWith("Status") -> setOf("OPEN", "CLOSED", "CANCELED")
+        key.endsWith("Priority") -> setOf("LOW", "MEDIUM", "HIGH")
+        else -> return null
+    }
     val normalized = value?.trim()?.uppercase()
-        ?: throw IllegalArgumentException("SystemCategory is required for status settings")
-    require(normalized in setOf("OPEN", "CLOSED", "CANCELED")) {
-        "SystemCategory must be OPEN, CLOSED, or CANCELED"
+        ?: throw IllegalArgumentException("SystemCategory is required for $key settings")
+    require(normalized in allowed) {
+        "SystemCategory must be one of: ${allowed.joinToString()}"
     }
     return normalized
 }

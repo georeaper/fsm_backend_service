@@ -34,3 +34,31 @@ class GetUserUseCase(
         }
     }
 }
+
+class GetMyProfileUseCase(
+    private val repository: UserRepository,
+    private val authUserRepository: AuthUserProvisioningRepository
+) {
+    fun execute(authenticated: AuthenticatedRequestContext): UserResponse? {
+        val tenant = repository.findByAuthUserId(
+            authenticated.toRequestContext(),
+            authenticated.userId
+        ) ?: return null
+        val auth = authUserRepository.findUser(authenticated.companyId, authenticated.userId)
+            ?: return null
+
+        return UserResponse(
+            userId = tenant.UserID,
+            authUserId = auth.id,
+            username = auth.username,
+            name = tenant.Name,
+            email = auth.email,
+            phone = tenant.Phone,
+            description = tenant.Description,
+            reportPrefix = tenant.ReportPrefix,
+            technicalCasePrefix = tenant.TechnicalCasePrefix,
+            role = auth.role,
+            status = auth.status
+        )
+    }
+}

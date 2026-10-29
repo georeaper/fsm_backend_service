@@ -20,5 +20,6 @@ interface UserRepository {
     fun edit(ctx: RequestContext, data: EditUserResponse): EditUserResponse
     fun findAuthUserId(ctx: RequestContext, tenantUserId: String): Int?
     fun findTenantUserId(ctx: RequestContext, authUserId: Int): String?
+    fun findByAuthUserId(ctx: RequestContext, authUserId: Int): UsersResponse?
     fun updateProfile(ctx: RequestContext, tenantUserId: String, data: UserProfileUpdate): Boolean
 }

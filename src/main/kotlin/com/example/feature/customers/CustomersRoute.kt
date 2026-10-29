@@ -1,5 +1,7 @@
 package com.example.feature.customers
 
+import com.example.core.respondPaginated
+
 
 import com.example.feature.customers.dto.CreateCustomerRequest
 import com.example.feature.customers.usecase.CreateCustomerUseCase
@@ -42,7 +44,7 @@ fun Route.customersRoute(getCustomersUseCase: GetCustomersUseCase,
 
             val ctx = authenticated.toRequestContext()
             val result = getCustomersUseCase.execute(ctx)
-            call.respond(result)
+            call.respondPaginated(result)
 
         }
         post("/customers") {

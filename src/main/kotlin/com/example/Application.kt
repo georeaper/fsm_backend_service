@@ -227,6 +227,8 @@ fun Application.module() {
                 container.createContractTypeUseCase,
                 container.categorizedSettingsUseCase,
                 container.deleteSettingsUseCase,
+                container.updateSettingStyleUseCase,
+                container.updateSystemCategoryUseCase,
                 container.getCategoryUseCase,
                 container.createCategoryUseCase,
                 container.authenticatedRequestContextResolver)
@@ -260,6 +262,7 @@ fun Application.module() {
                 container.createUserUseCase,
                 container.changeUserStatusUseCase,
                 container.updateUserUseCase,
+                container.getMyProfileUseCase,
                 container.updateMyProfileUseCase,
                 container.changeMyPasswordUseCase,
                 container.authenticatedRequestContextResolver)

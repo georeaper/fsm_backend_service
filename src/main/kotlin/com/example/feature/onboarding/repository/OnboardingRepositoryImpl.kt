@@ -23,6 +23,8 @@ import com.example.models.databaseModels.fieldReportCheckformTable
 import com.example.models.databaseModels.fieldReportEquipmentTable
 import com.example.models.databaseModels.fieldReportInventoryTable
 import com.example.models.databaseModels.fieldReportToolsTable
+import com.example.models.databaseModels.fieldReportTechnicalCasesTable
+import com.example.models.databaseModels.fieldReportTechniciansTable
 import com.example.models.databaseModels.fieldReportsTable
 import com.example.models.databaseModels.inventoryTable
 import com.example.models.databaseModels.maintenancesTable
@@ -142,6 +144,8 @@ class OnboardingRepositoryImpl : OnBoardingRepository {
                         fieldReportsTable,
                         fieldReportInventoryTable,
                         fieldReportEquipmentTable,
+                        fieldReportTechnicalCasesTable,
+                        fieldReportTechniciansTable,
                         inventoryTable,
                         manufacturerTable,
                         maintenancesTable,

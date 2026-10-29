@@ -50,6 +50,7 @@ import com.example.feature.user.usecase.UpdateUserUseCase
 import com.example.feature.user.usecase.UpdateMyProfileUseCase
 import com.example.feature.user.usecase.ChangeMyPasswordUseCase
 import com.example.feature.user.usecase.GetUserUseCase 
+import com.example.feature.user.usecase.GetMyProfileUseCase
 
 import com.example.feature.fieldreport.repository.FieldReportBulkRepository
 import com.example.feature.fieldreport.repository.FieldReportBulkRepositoryImpl
@@ -85,6 +86,8 @@ import com.example.feature.settings.usecase.GetSettingsUseCase
 import com.example.feature.settings.usecase.GetTechnicalCasePriorityUseCase
 import com.example.feature.settings.usecase.GetWorkOrderTypeUseCase
 import com.example.feature.settings.usecase.CategorizedSettingsUseCase
+import com.example.feature.settings.usecase.UpdateSettingStyleUseCase
+import com.example.feature.settings.usecase.UpdateSystemCategoryUseCase
 
 import com.example.feature.categories.repository.CategoryRepositoryImpl
 import com.example.feature.categories.repository.CategoryRepository
@@ -299,6 +302,9 @@ class AppContainer {
     val updateMyProfileUseCase by lazy {
         UpdateMyProfileUseCase(userRepository)
     }
+    val getMyProfileUseCase by lazy {
+        GetMyProfileUseCase(userRepository, authUserProvisioningRepository)
+    }
     val changeMyPasswordUseCase by lazy {
         ChangeMyPasswordUseCase(authUserProvisioningRepository)
     }
@@ -346,6 +352,12 @@ class AppContainer {
     }
     val categorizedSettingsUseCase by lazy {
         CategorizedSettingsUseCase(settingRepository)
+    }
+    val updateSettingStyleUseCase by lazy {
+        UpdateSettingStyleUseCase(settingRepository)
+    }
+    val updateSystemCategoryUseCase by lazy {
+        UpdateSystemCategoryUseCase(settingRepository)
     }
     val getCategoryUseCase by lazy{
         GetCategoryUseCase(categoryRepository)

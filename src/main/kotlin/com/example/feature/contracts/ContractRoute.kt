@@ -1,5 +1,7 @@
 package com.example.feature.contracts
 
+import com.example.core.respondPaginated
+
 import com.example.feature.auth.service.AuthenticatedRequestContextResolver
 import com.example.feature.contracts.dto.CreateContractResponse
 import com.example.feature.contracts.dto.EditContractResponse
@@ -38,7 +40,7 @@ fun Route.contractsRoute(
 
             val ctx = authenticated.toRequestContext()
             val result=getContractUseCase.execute(ctx)
-            call.respond(result)
+            call.respondPaginated(result)
         }
         post("/contracts"){
             val principal = call.principal<JWTPrincipal>()

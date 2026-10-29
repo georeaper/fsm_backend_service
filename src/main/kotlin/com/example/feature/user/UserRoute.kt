@@ -1,5 +1,7 @@
 package com.example.feature.user
 
+import com.example.core.respondPaginated
+
 import com.example.feature.auth.service.AuthenticatedRequestContextResolver
 import com.example.feature.user.dto.CreateUserResponse
 import com.example.feature.user.dto.UpdateUserRequest
@@ -9,6 +11,7 @@ import com.example.feature.user.dto.UserApiErrorResponse
 import com.example.feature.user.usecase.CreateUserUseCase
 import com.example.feature.user.usecase.ChangeUserStatusUseCase
 import com.example.feature.user.usecase.GetUserUseCase
+import com.example.feature.user.usecase.GetMyProfileUseCase
 import com.example.feature.user.usecase.UpdateUserUseCase
 import com.example.feature.user.usecase.UpdateMyProfileUseCase
 import com.example.feature.user.usecase.ChangeMyPasswordUseCase
@@ -30,6 +33,7 @@ fun Route.usersRoute(
     createUserUseCase: CreateUserUseCase,
     changeUserStatusUseCase: ChangeUserStatusUseCase,
     updateUserUseCase: UpdateUserUseCase,
+    getMyProfileUseCase: GetMyProfileUseCase,
     updateMyProfileUseCase: UpdateMyProfileUseCase,
     changeMyPasswordUseCase: ChangeMyPasswordUseCase,
     contextResolver: AuthenticatedRequestContextResolver
@@ -42,7 +46,7 @@ fun Route.usersRoute(
                 return@get call.respond(HttpStatusCode.Forbidden)
             }
             val result=getUserUseCase.execute(authenticated)
-            call.respond(result)
+            call.respondPaginated(result)
         }
         post("/users"){
             val authenticated = call.resolveAuthenticated(contextResolver)
@@ -75,6 +79,17 @@ fun Route.usersRoute(
             } catch (error: IllegalArgumentException) {
                 call.respond(HttpStatusCode.BadRequest, mapOf("error" to (error.message ?: "Invalid request")))
             }
+        }
+
+        get("/users/me") {
+            val authenticated = call.resolveAuthenticated(contextResolver)
+                ?: return@get call.respond(HttpStatusCode.Unauthorized)
+            val result = getMyProfileUseCase.execute(authenticated)
+                ?: return@get call.respond(
+                    HttpStatusCode.NotFound,
+                    UserApiErrorResponse("USER_NOT_FOUND", "User not found")
+                )
+            call.respond(HttpStatusCode.OK, result)
         }
 
         put("/users/me") {

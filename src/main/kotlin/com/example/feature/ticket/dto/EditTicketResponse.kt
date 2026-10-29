@@ -4,21 +4,21 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class EditTicketResponse(
-    val TicketID: String,
-    val Title: String?,
-    val TicketNumber: String?,
-    val Description: String?,
-    val Notes: String?,
-    val Urgency: String?,
+    val TicketID: String = "",
+    val Title: String? = null,
+    val TicketNumber: String? = null,
+    val Description: String? = null,
+    val Notes: String? = null,
+    val Urgency: String? = null,
     val Status: String? = null,
     val Type: String? = null,
-    val Active: Boolean?,
-    val DateStart: String?,
-    val DateEnd: String?,
-    val UserID: String?,
-    val CustomerID: String?,
-    val EquipmentID: String?,
-    val LastModified: String?,
-    val DateCreated: String?,
-    val Version: String?
+    val Active: Boolean? = null,
+    val DateStart: String? = null,
+    val DateEnd: String? = null,
+    val UserID: String? = null,
+    val CustomerID: String? = null,
+    val EquipmentID: String? = null,
+    val LastModified: String? = null,
+    val DateCreated: String? = null,
+    val Version: String? = null
 )

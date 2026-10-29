@@ -1,5 +1,7 @@
 package com.example.feature.customers.repository
 
+import org.jetbrains.exposed.sql.SortOrder
+
 import com.example.core.DatabaseProvider
 import com.example.core.RequestContext
 import com.example.feature.customers.dto.CustomersDto
@@ -52,6 +54,7 @@ class CustomerRepositoryImpl(
             // query εδώ
             val map = customerTable
                 .select { customerTable.isDeleted eq false }
+                .orderBy(customerTable.name to SortOrder.ASC, customerTable.customerId to SortOrder.ASC)
                 .map {
                 CustomersDto(
                     id = it[customerTable.customerId],

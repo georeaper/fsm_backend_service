@@ -30,6 +30,7 @@ object ticketHistoryTable : Table("ticket_history") {
     val userId = varchar("UserId",36).references(userTable.userId).nullable()
     val customerId = varchar("CustomerId",36).references(customerTable.customerId).nullable()
     val equipmentId = varchar("EquipmentId",36).references(equipmentTable.equipmentId).nullable()
+    val ticketId = varchar("TicketId",36).references(ticketTable.ticketId).nullable()
 
     override val primaryKey =PrimaryKey(ticketHistoryId)
 }

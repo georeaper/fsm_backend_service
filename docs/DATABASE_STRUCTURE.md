@@ -544,7 +544,7 @@ Application settings and configuration.
 | SettingsValue | VARCHAR(255) | Yes | - | Setting value |
 | SettingsStyle | VARCHAR(255) | Yes | - | UI style/presentation |
 | SettingsDescription | TEXT | Yes | - | Setting description |
-| SystemCategory | VARCHAR(20) | Yes | - | Canonical status category: OPEN, CLOSED, or CANCELED |
+| SystemCategory | VARCHAR(20) | Yes | - | Canonical status (`OPEN`, `CLOSED`, `CANCELED`) or priority (`LOW`, `MEDIUM`, `HIGH`) category |
 | LastModified | VARCHAR(255) | Yes | - | Last modification timestamp |
 | DateCreated | VARCHAR(255) | Yes | - | Creation timestamp |
 | Version | VARCHAR(255) | Yes | - | Version number |

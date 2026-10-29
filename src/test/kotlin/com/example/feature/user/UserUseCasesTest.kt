@@ -12,11 +12,15 @@ import com.example.feature.user.repository.UserProfileUpdate
 import com.example.feature.user.repository.UserRepository
 import com.example.feature.user.usecase.CreateUserUseCase
 import com.example.feature.user.usecase.GetUserUseCase
+import com.example.feature.user.usecase.GetMyProfileUseCase
 import com.example.feature.user.usecase.UpdateMyProfileUseCase
+import com.example.feature.user.usecase.ChangeMyPasswordUseCase
 import com.example.models.api.Users
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
+import at.favre.lib.crypto.bcrypt.BCrypt
 
 class UserUseCasesTest {
     private val owner = AuthenticatedRequestContext("tenant_db", "owner", 1, 10, "owner")
@@ -81,6 +85,34 @@ class UserUseCasesTest {
         assertEquals(null, tenant.profileUpdate?.email)
     }
 
+    @Test
+    fun `my profile combines central identity with tenant application fields`() {
+        val tenant = FakeUserRepository().apply { users += tenantUser(authUserId = 1) }
+        val central = FakeAuthUserRepository().apply { accounts[1] = authAccount(1) }
+
+        val result = GetMyProfileUseCase(tenant, central).execute(owner)
+
+        assertEquals("central-user", result?.username)
+        assertEquals("central@example.com", result?.email)
+        assertEquals("Tenant name", result?.name)
+    }
+
+    @Test
+    fun `password change verifies current password and stores a new hash`() {
+        val currentHash = BCrypt.withDefaults().hashToString(4, "old-password".toCharArray())
+        val central = FakeAuthUserRepository().apply {
+            accounts[1] = authAccount(1).copy(passwordHash = currentHash)
+        }
+
+        val changed = ChangeMyPasswordUseCase(central).execute(
+            owner,
+            com.example.feature.user.dto.ChangePasswordRequest("old-password", "new-password")
+        )
+
+        assertTrue(changed)
+        assertTrue(BCrypt.verifyer().verify("new-password".toCharArray(), central.updatedPasswordHash!!.toCharArray()).verified)
+    }
+
     private fun tenantUser(authUserId: Int) = UsersResponse(
         UserID = "tenant-user",
         RemoteID = null,
@@ -121,6 +153,8 @@ private class FakeUserRepository : UserRepository {
     override fun findAuthUserId(ctx: RequestContext, tenantUserId: String): Int? =
         users.firstOrNull { it.UserID == tenantUserId }?.AuthUserID
     override fun findTenantUserId(ctx: RequestContext, authUserId: Int): String? = tenantIdByAuthId[authUserId]
+    override fun findByAuthUserId(ctx: RequestContext, authUserId: Int): UsersResponse? =
+        users.firstOrNull { it.AuthUserID == authUserId }
     override fun updateProfile(ctx: RequestContext, tenantUserId: String, data: UserProfileUpdate): Boolean {
         updatedTenantUserId = tenantUserId
         profileUpdate = data
@@ -131,6 +165,7 @@ private class FakeUserRepository : UserRepository {
 private class FakeAuthUserRepository : AuthUserProvisioningRepository {
     val accounts = mutableMapOf<Int, AuthUserAccount>()
     var createdUsername: String? = null
+    var updatedPasswordHash: String? = null
 
     override fun createActiveUser(companyId: Int, username: String, email: String, passwordHash: String, role: String): Int {
         createdUsername = username
@@ -144,5 +179,6 @@ private class FakeAuthUserRepository : AuthUserProvisioningRepository {
     override fun findUser(companyId: Int, authUserId: Int) = accounts[authUserId]
     override fun updateUser(companyId: Int, authUserId: Int, username: String, email: String, passwordHash: String?, role: String) = accounts[authUserId]
     override fun restoreUser(companyId: Int, account: AuthUserAccount) = Unit
-    override fun updatePassword(companyId: Int, authUserId: Int, passwordHash: String) = true
+    override fun updatePassword(companyId: Int, authUserId: Int, passwordHash: String) =
+        true.also { updatedPasswordHash = passwordHash }
 }

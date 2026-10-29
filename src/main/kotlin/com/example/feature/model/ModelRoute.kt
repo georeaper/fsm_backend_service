@@ -1,5 +1,7 @@
 package com.example.feature.model
 
+import com.example.core.respondPaginated
+
 import com.example.feature.auth.service.AuthenticatedRequestContextResolver
 import com.example.feature.auth.service.authenticatedRequestContext
 import com.example.feature.model.dto.CreateModelResponse
@@ -26,7 +28,7 @@ fun Route.modelRoute(
             val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@get call.respond(HttpStatusCode.Unauthorized)
             val result=getModelUseCase.execute(ctx)
-            call.respond(result)
+            call.respondPaginated(result)
         }
         post("/model"){
             val ctx = call.authenticatedRequestContext(contextResolver)

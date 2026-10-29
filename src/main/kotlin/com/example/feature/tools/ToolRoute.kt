@@ -1,5 +1,7 @@
 package com.example.feature.tools
 
+import com.example.core.respondPaginated
+
 import com.example.feature.auth.service.AuthenticatedRequestContextResolver
 import com.example.feature.auth.service.authenticatedRequestContext
 import com.example.feature.tools.dto.CreateToolResponse
@@ -29,7 +31,7 @@ fun Route.toolsRoute(
             val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@get call.respond(HttpStatusCode.Unauthorized)
             val result=getToolUseCase.execute(ctx)
-            call.respond(result)
+            call.respondPaginated(result)
         }
         post("/tools"){
             val ctx = call.authenticatedRequestContext(contextResolver)

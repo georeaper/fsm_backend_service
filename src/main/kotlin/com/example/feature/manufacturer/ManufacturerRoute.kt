@@ -1,5 +1,7 @@
 package com.example.feature.manufacturer
 
+import com.example.core.respondPaginated
+
 import com.example.feature.auth.service.AuthenticatedRequestContextResolver
 import com.example.feature.auth.service.authenticatedRequestContext
 import com.example.feature.manufacturer.dto.CreateManufacturerResponse
@@ -26,7 +28,7 @@ fun Route.manufacturerRoute(
             val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@get call.respond(HttpStatusCode.Unauthorized)
             val result=getManufacturerUseCase.execute(ctx)
-            call.respond(result)
+            call.respondPaginated(result)
         }
         post("/manufacturer"){
             val ctx = call.authenticatedRequestContext(contextResolver)

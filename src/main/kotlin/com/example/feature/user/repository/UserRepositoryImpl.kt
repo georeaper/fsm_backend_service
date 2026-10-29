@@ -102,6 +102,33 @@ class UserRepositoryImpl(private val dbProvider: DatabaseProvider) : UserReposit
         }
     }
 
+    override fun findByAuthUserId(ctx: RequestContext, authUserId: Int): UsersResponse? {
+        val db = dbProvider.getDatabase(ctx.dbName)
+        return transaction(db) {
+            userTable.select { userTable.authUserId eq authUserId }
+                .limit(1)
+                .firstOrNull()
+                ?.let {
+                    UsersResponse(
+                        UserID = it[userTable.userId],
+                        RemoteID = it[userTable.remoteId],
+                        AuthUserID = it[userTable.authUserId],
+                        Name = it[userTable.name],
+                        Description = it[userTable.description],
+                        Email = it[userTable.email],
+                        Phone = it[userTable.phone],
+                        ReportPrefix = it[userTable.reportPrefix],
+                        TechnicalCasePrefix = it[userTable.technicalCasePrefix],
+                        LastReportNumber = it[userTable.lastReportNumber],
+                        LastTCNumber = it[userTable.lastTCNumber],
+                        LastModified = it[userTable.lastModified],
+                        DateCreated = it[userTable.dateCreated],
+                        Version = it[userTable.version]
+                    )
+                }
+        }
+    }
+
     override fun updateProfile(
         ctx: RequestContext,
         tenantUserId: String,

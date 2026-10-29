@@ -1,53 +1,60 @@
 package com.example.core
 
-
 import java.text.SimpleDateFormat
-import java.util.*
-object DateUtils {
+import java.util.Date
+import java.util.Locale
 
+object DateUtils {
     private const val STORAGE_FORMAT = "yyyyMMddHHmmss"
     private const val UI_FORMAT = "dd/MM/yyyy"
+    private const val UI_DATE_TIME_FORMAT = "dd/MM/yyyy HH:mm:ss"
 
-    private val storageFormatter by lazy { SimpleDateFormat(STORAGE_FORMAT, Locale.US) }
-    //private val uiFormatter by lazy { SimpleDateFormat(UI_FORMAT, Locale.getDefault()) }
-    private val uiFormatter by lazy {
-        SimpleDateFormat(UI_FORMAT, Locale.US).apply {
-            isLenient = false
-        }
-    }
-    // ---------------- UI -> STORAGE ----------------
     fun uiToStorage(input: String): String? {
-        return try {
-            val date = uiFormatter.parse(input) ?: return null
-
-            val calendar = Calendar.getInstance()
-            calendar.time = date
-
-            // force ώρα = 00:00:00
-            calendar.set(Calendar.HOUR_OF_DAY, 0)
-            calendar.set(Calendar.MINUTE, 0)
-            calendar.set(Calendar.SECOND, 0)
-            calendar.set(Calendar.MILLISECOND, 0)
-
-            storageFormatter.format(calendar.time)
-        } catch (e: Exception) {
-            null
-        }
+        val normalized = input.trim()
+        val pattern = if (normalized.contains(' ')) UI_DATE_TIME_FORMAT else UI_FORMAT
+        val parsed = parse(normalized, pattern) ?: return null
+        return format(parsed, STORAGE_FORMAT)
     }
 
-    // ---------------- STORAGE -> UI ----------------
     fun storageToUi(value: String?): String? {
-        return try {
-            val date = storageFormatter.parse(value) ?: return null
-            uiFormatter.format(date)
-        } catch (e: Exception) {
-            null
-        }
+        val normalized = value?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+        val parsed = parse(normalized, STORAGE_FORMAT)
+            ?: parse(normalized, UI_DATE_TIME_FORMAT)
+            ?: parse(normalized, UI_FORMAT)
+            ?: return null
+        return format(parsed, UI_FORMAT)
     }
 
-    // ---------------- NOW (for audit fields) ----------------
-    fun nowStorage(): String {
-        return storageFormatter.format(Date())
+    fun nowStorage(): String = format(Date(), STORAGE_FORMAT)
+
+    fun normalizeDateTimeStorage(value: String?): String? {
+        val normalized = value?.trim()?.takeIf(String::isNotEmpty) ?: return null
+        val parsed = parse(normalized, STORAGE_FORMAT)
+            ?: parse(normalized, UI_DATE_TIME_FORMAT)
+            ?: return null
+        return format(parsed, STORAGE_FORMAT)
     }
+
+    fun durationHours(start: String?, end: String?): Double {
+        val normalizedStart = normalizeDateTimeStorage(start) ?: return 0.0
+        val normalizedEnd = normalizeDateTimeStorage(end) ?: return 0.0
+        val startDate = parse(normalizedStart, STORAGE_FORMAT) ?: return 0.0
+        val endDate = parse(normalizedEnd, STORAGE_FORMAT) ?: return 0.0
+        return ((endDate.time - startDate.time).coerceAtLeast(0L) / 3_600_000.0)
+    }
+
+    fun rangeDays(start: String?, end: String?): Long? {
+        val normalizedStart = normalizeDateTimeStorage(start) ?: return null
+        val normalizedEnd = normalizeDateTimeStorage(end) ?: return null
+        val startDate = parse(normalizedStart, STORAGE_FORMAT) ?: return null
+        val endDate = parse(normalizedEnd, STORAGE_FORMAT) ?: return null
+        return (endDate.time - startDate.time) / 86_400_000L
+    }
+
+    private fun parse(value: String, pattern: String): Date? = runCatching {
+        SimpleDateFormat(pattern, Locale.US).apply { isLenient = false }.parse(value)
+    }.getOrNull()
+
+    private fun format(value: Date, pattern: String): String =
+        SimpleDateFormat(pattern, Locale.US).format(value)
 }
-

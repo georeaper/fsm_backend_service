@@ -1,5 +1,7 @@
 package com.example.feature.tasks.repository
 
+import org.jetbrains.exposed.sql.SortOrder
+
 import com.example.core.DatabaseProvider
 import com.example.core.RequestContext
 import com.example.feature.tasks.dto.EditTaskResponse
@@ -30,7 +32,7 @@ class TaskRepositoryImpl(private val dbProvider: DatabaseProvider) : TaskReposit
                 it[dateDue] = data.DateDue
                 it[dateCompleted] = data.DateCompleted
                 it[lastModified] = data.LastModified
-                it[dateCreated] = data.DateCreated
+                data.DateCreated?.let { value -> it[dateCreated] = value }
                 it[ticketId] = data.TicketID
                 it[userId] = data.UserID
             }
@@ -57,7 +59,9 @@ class TaskRepositoryImpl(private val dbProvider: DatabaseProvider) : TaskReposit
                     onColumn = tasksTable.userId,
                     otherColumn = userTable.userId
                 )
-            val map = joinQuery.select { tasksTable.isDeleted eq false }.map {
+            val map = joinQuery.select { tasksTable.isDeleted eq false }
+                .orderBy(tasksTable.dateCreated to SortOrder.DESC, tasksTable.taskId to SortOrder.ASC)
+                .map {
                 TasksResponse(
                     TaskID = it[tasksTable.taskId],
                     Title = it[tasksTable.title],
@@ -94,7 +98,7 @@ class TaskRepositoryImpl(private val dbProvider: DatabaseProvider) : TaskReposit
                 it[dateDue] = data.DateDue
                 it[dateCompleted] = data.DateCompleted
                 it[lastModified] = data.LastModified 
-                it[dateCreated] = data.DateCreated
+                data.DateCreated?.let { value -> it[dateCreated] = value }
                 it[ticketId] = data.TicketID
                 it[userId] = data.UserID
             }

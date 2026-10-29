@@ -1,5 +1,7 @@
 package com.example.feature.ticket
 
+import com.example.core.respondPaginated
+
 import com.example.core.DocumentNumberException
 import com.example.feature.auth.service.AuthenticatedRequestContextResolver
 import com.example.feature.auth.service.authenticatedRequestContext
@@ -32,8 +34,12 @@ fun Route.ticketsRoute(
         get("/tickets"){
             val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@get call.respond(HttpStatusCode.Unauthorized)
-            val result=getTicketUseCase.execute(ctx)
-            call.respond(result)
+            val result=getTicketUseCase.execute(
+                ctx,
+                call.request.queryParameters["customerId"],
+                call.request.queryParameters["openOnly"]?.toBooleanStrictOrNull() ?: false
+            )
+            call.respondPaginated(result)
         }
         post("/tickets"){
             val authenticated = call.principal<JWTPrincipal>()?.let(contextResolver::resolve)

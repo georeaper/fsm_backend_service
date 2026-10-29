@@ -1,5 +1,7 @@
 package com.example.feature.inventory
 
+import com.example.core.respondPaginated
+
 import com.example.feature.auth.service.AuthenticatedRequestContextResolver
 import com.example.feature.auth.service.authenticatedRequestContext
 import com.example.feature.inventory.dto.CreateInventoryResponse
@@ -29,7 +31,7 @@ fun Route.inventoryRoute(
             val ctx = call.authenticatedRequestContext(contextResolver)
                 ?: return@get call.respond(HttpStatusCode.Unauthorized)
             val result=getInventoryUseCase.execute(ctx)
-            call.respond(result)
+            call.respondPaginated(result)
         }
         post("/inventory"){
             val ctx = call.authenticatedRequestContext(contextResolver)

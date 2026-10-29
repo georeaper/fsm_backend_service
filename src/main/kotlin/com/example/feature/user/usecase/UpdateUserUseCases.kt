@@ -98,6 +98,11 @@ class UpdateMyProfileUseCase(private val userRepository: UserRepository) {
         authenticated: AuthenticatedRequestContext,
         request: UpdateMyProfileRequest
     ): Boolean {
+        require(request.name == null || request.name.length <= 255) { "Name must not exceed 255 characters" }
+        require(request.description == null || request.description.length <= 2_000) { "Description must not exceed 2000 characters" }
+        require(request.phone == null || request.phone.length <= 20) { "Phone must not exceed 20 characters" }
+        require(request.reportPrefix == null || request.reportPrefix.length <= 50) { "Report prefix must not exceed 50 characters" }
+        require(request.technicalCasePrefix == null || request.technicalCasePrefix.length <= 50) { "Technical case prefix must not exceed 50 characters" }
         val tenantUserId = userRepository.findTenantUserId(
             authenticated.toRequestContext(),
             authenticated.userId
@@ -124,8 +129,12 @@ class ChangeMyPasswordUseCase(
         authenticated: AuthenticatedRequestContext,
         request: ChangePasswordRequest
     ): Boolean {
+        require(request.currentPassword.isNotBlank()) { "Current password is required" }
         require(request.newPassword.length in 8..1024) {
             "New password must contain at least 8 characters"
+        }
+        require(request.currentPassword != request.newPassword) {
+            "New password must be different from the current password"
         }
         val account = authUserRepository.findUser(authenticated.companyId, authenticated.userId)
             ?: return false

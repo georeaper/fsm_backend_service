@@ -99,7 +99,7 @@ class NotificationRepositoryImpl(private val dbProvider: DatabaseProvider) : Not
     override fun snapshot(ctx: RequestContext, entity: NotificationEntityType, id: String) = transaction(db(ctx)) { snapshotsInTransaction(entity, id).singleOrNull() }
 
     override fun recipients(ctx: RequestContext, companyId: Int, rule: NotificationRule, snapshot: EntitySnapshot): List<String> = when (rule.recipientType) {
-        NotificationRecipientType.ASSIGNED_USER -> listOfNotNull(snapshot.assignedUserId).filter { userExists(ctx, it) }
+        NotificationRecipientType.ASSIGNED_USER -> snapshot.assignedUserIds.filter { userExists(ctx, it) }
         NotificationRecipientType.SPECIFIC_USER -> listOfNotNull(rule.specificUserId).filter { userExists(ctx, it) }
         NotificationRecipientType.ADMINISTRATORS -> {
             val authIds = transaction(DatabaseFactory.centralDb) {
@@ -174,9 +174,13 @@ class NotificationRepositoryImpl(private val dbProvider: DatabaseProvider) : Not
         }
         NotificationEntityType.WORK_ORDER -> fieldReportsTable.select { (id?.let { fieldReportsTable.fieldReportId eq it } ?: Op.TRUE) }.map {
             val entityId = it[fieldReportsTable.fieldReportId]; val reportNumber = it[fieldReportsTable.reportNumber]; val title = it[fieldReportsTable.title]; val status = it[fieldReportsTable.reportStatus]
+            val assignedUsers = fieldReportTechniciansTable.slice(fieldReportTechniciansTable.userId).select {
+                (fieldReportTechniciansTable.fieldReportId eq entityId) and (fieldReportTechniciansTable.isDeleted eq false)
+            }.map { assignment -> assignment[fieldReportTechniciansTable.userId] }
+                .ifEmpty { listOfNotNull(it[fieldReportsTable.userID]) }
             EntitySnapshot(entity, entityId, title ?: reportNumber ?: "Work order", status, it[fieldReportsTable.userID], mapOf("SCHEDULED_START" to it[fieldReportsTable.scheduledStart], "SCHEDULED_END" to it[fieldReportsTable.scheduledEnd], "DATE_CREATED" to it[fieldReportsTable.dateCreated]), it[fieldReportsTable.isDeleted], mapOf(
                 "workOrder.id" to entityId, "workOrder.reportNumber" to reportNumber, "workOrder.title" to title, "workOrder.status" to status, "workOrder.scheduledStart" to it[fieldReportsTable.scheduledStart], "workOrder.scheduledEnd" to it[fieldReportsTable.scheduledEnd], "workOrder.dateCreated" to it[fieldReportsTable.dateCreated]
-            ))
+            ), assignedUsers)
         }
         NotificationEntityType.TECHNICAL_CASE -> ticketTable.select { (id?.let { ticketTable.ticketId eq it } ?: Op.TRUE) }.map {
             val entityId = it[ticketTable.ticketId]; val ticketNumber = it[ticketTable.ticketNumber]; val title = it[ticketTable.title]; val status = it[ticketTable.status]

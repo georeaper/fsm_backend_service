@@ -18,6 +18,7 @@ class CreateTechnicalCasePriorityUseCase (private val repository: SettingsReposi
             SettingsValue = request.SettingsValue,
             SettingsStyle = request.SettingsStyle,
             SettingsDescription = request.SettingsDescription,
+            SystemCategory = validatedSystemCategory(valueKey, request.SystemCategory),
             LastModified = storageDate,
             DateCreated = storageDate,
             Version = "1"

@@ -7,6 +7,10 @@ import com.example.feature.equipments.dto.EquipmentsResponse
 import com.example.models.api.Equipments
 import com.example.models.databaseModels.customerTable
 import com.example.models.databaseModels.equipmentTable
+import com.example.models.databaseModels.fieldReportEquipmentTable
+import com.example.models.databaseModels.fieldReportsTable
+import com.example.models.databaseModels.maintenancesTable
+import com.example.models.databaseModels.ticketTable
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
@@ -171,5 +175,49 @@ private val dbProvider: DatabaseProvider
             } > 0
         }
     }
+
+    override fun knowledgeBaseData(ctx: RequestContext): EquipmentKnowledgeBaseData =
+        transaction(dbProvider.getDatabase(ctx.dbName)) {
+            val equipment = equipmentTable.leftJoin(customerTable)
+                .select { equipmentTable.isDeleted eq false }
+                .map {
+                    EquipmentKnowledgeBaseRow(
+                        equipmentId = it[equipmentTable.equipmentId], name = it[equipmentTable.name],
+                        serialNumber = it[equipmentTable.serialNumber], model = it[equipmentTable.model],
+                        manufacturer = it[equipmentTable.manufacturer], description = it[equipmentTable.description],
+                        version = it[equipmentTable.equipmentVersion], category = it[equipmentTable.equipmentCategory],
+                        warranty = it[equipmentTable.warranty], active = it[equipmentTable.equipmentStatus],
+                        installationDate = it[equipmentTable.installationDate], customerId = it[equipmentTable.customerId],
+                        customerName = it[customerTable.name], customerLocation = it[customerTable.address]
+                    )
+                }
+            val cases = ticketTable.select { ticketTable.isDeleted eq false }.map {
+                EquipmentTechnicalCaseRow(
+                    it[ticketTable.ticketId], it[ticketTable.equipmentId], it[ticketTable.ticketNumber],
+                    it[ticketTable.title], it[ticketTable.caseType], it[ticketTable.status], it[ticketTable.urgency],
+                    it[ticketTable.active], it[ticketTable.dateCreated], it[ticketTable.dateEnd]
+                )
+            }
+            val services = fieldReportEquipmentTable
+                .leftJoin(fieldReportsTable)
+                .leftJoin(maintenancesTable)
+                .select {
+                    (fieldReportEquipmentTable.isDeleted eq false) and
+                        (fieldReportsTable.isDeleted eq false)
+                }
+                .map {
+                    EquipmentServiceRow(
+                        equipmentId = it[fieldReportEquipmentTable.equipmentID],
+                        workOrderId = it[fieldReportsTable.fieldReportId], number = it[fieldReportsTable.reportNumber],
+                        title = it[fieldReportsTable.title], type = it[fieldReportsTable.workOrderType],
+                        status = it[fieldReportsTable.reportStatus], description = it[fieldReportsTable.description],
+                        startedAt = it[fieldReportsTable.startDate], completedAt = it[fieldReportsTable.endDate],
+                        scheduledStart = it[fieldReportsTable.scheduledStart], scheduledEnd = it[fieldReportsTable.scheduledEnd],
+                        maintenanceId = it[fieldReportEquipmentTable.maintenanceID],
+                        maintenanceName = it[maintenancesTable.name]
+                    )
+                }
+            EquipmentKnowledgeBaseData(equipment, cases, services)
+        }
 
 }

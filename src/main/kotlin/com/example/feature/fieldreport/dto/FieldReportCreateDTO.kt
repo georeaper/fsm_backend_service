@@ -27,5 +27,7 @@ data class FieldReportCreateDto(
 
     val Equipments: List<FieldReportEquipmentWriteDto> = emptyList(),
     val Inventories: List<FieldReportInventoryWriteDto> = emptyList(),
-    val SpecialTools: List<FieldReportToolsWriteDto> = emptyList()
+    val SpecialTools: List<FieldReportToolsWriteDto> = emptyList(),
+    val TechnicalCaseIDs: List<String> = emptyList(),
+    val Technicians: List<FieldReportTechnicianWriteDto> = emptyList()
 )

@@ -207,3 +207,88 @@ These endpoints accept a `FieldReportEquipment` JSON object. All fields are opti
 - There are no standalone tools, inventory, or checkform endpoints in this Field Reports route set.
 - Report and equipment DELETE operations are soft deletes.
 - Field names preserve the backend capitalization exactly (`FieldReportCheckforms` uses a lowercase `f` in `forms`).
+# Work Order Technical Cases and Completion
+
+One Work Order can be linked to multiple Technical Cases. The legacy `CaseID` / `TicketID`
+field remains available during migration and mirrors the first linked Technical Case.
+
+## Technical Case links
+
+- `GET /fieldreports/{id}/technical-cases` returns the active linked cases.
+- `PUT /fieldreports/{id}/technical-cases` atomically replaces the links.
+
+Each returned Technical Case includes `CustomerID` and `CustomerName`. For the selection
+list, use `GET /tickets?customerId={workOrderCustomerId}&openOnly=true` so the UI only
+presents OPEN cases belonging to the Work Order customer. OPEN is resolved through the
+configured `TechnicalCaseStatus.SystemCategory`, not a hardcoded display value. The backend
+also rejects cross-customer links and newly-added non-open cases. Already-linked cases remain
+visible after completion for history.
+
+```json
+{
+  "TechnicalCaseIDs": ["tc-uuid-1", "tc-uuid-2"]
+}
+```
+
+## Complete Work Order
+
+`POST /fieldreports/{id}/complete` accepts the configured closed Work Order status and one
+explicit status decision for every linked Technical Case.
+
+```json
+{
+  "WorkOrderStatus": "Completed",
+  "TechnicalCaseUpdates": [
+    {
+      "TechnicalCaseID": "tc-uuid-1",
+      "Status": "Resolved",
+      "ResolutionNotes": "Issue fixed during this visit"
+    },
+    {
+      "TechnicalCaseID": "tc-uuid-2",
+      "Status": "In Progress",
+      "ResolutionNotes": "A replacement part is required"
+    }
+  ]
+}
+```
+
+When linked cases exist but `TechnicalCaseUpdates` is empty, the API returns `409` with
+`code = CONFIRM_TECHNICAL_CASE_STATUS_CHANGE` and the linked cases. The UI should use this
+response to show the confirmation/status-selection dialog and then retry the completion.
+Statuses are validated through `TechnicalCaseStatus` / `WorkOrderStatus` settings and their
+`SystemCategory`; no display value is hardcoded as the closed status. When `ResolutionNotes`
+is provided, it is stored both on the Work Order–Technical Case link and as the current
+`Description` of that Technical Case. The previous description is preserved in `ticket_history`.
+
+## Technician assignments
+
+- `GET /fieldreports/{id}/technicians` lists active assignments.
+- `PUT /fieldreports/{id}/technicians` atomically replaces assignments.
+
+```json
+{
+  "Technicians": [
+    { "UserID": "user-1", "Role": "LEAD" },
+    { "UserID": "user-2", "Role": "ASSISTANT" }
+  ]
+}
+```
+
+Roles are `LEAD` and `ASSISTANT`, a user can appear once, and at most one active Lead is
+allowed. `FieldReports.UserId` temporarily mirrors the Lead for backward compatibility.
+
+## Scheduling calendar
+
+```http
+GET /scheduling/workorders?from=20261001000000&to=20261031235959
+GET /scheduling/workorders?from=20261001000000&to=20261031235959&technicianId=user-1&status=Planned
+```
+
+Only Work Orders with both `ScheduledStart` and `ScheduledEnd` are returned. Calendar events
+include customer, `Type`, `TypeColor`, and all technician assignments. `TypeColor` comes from
+the matching `WorkOrderType.SettingsStyle`, so calendar colors follow settings changes without
+a frontend hardcoded mapping. Scheduled values accept `yyyyMMddHHmmss` or
+`dd/MM/yyyy HH:mm:ss`; both values are required and end must be after start.
+The date range cannot exceed 366 days. The endpoint also accepts `page` and `pageSize`
+(default `1`/`50`, maximum page size `200`) and returns pagination metadata in `X-*` headers.

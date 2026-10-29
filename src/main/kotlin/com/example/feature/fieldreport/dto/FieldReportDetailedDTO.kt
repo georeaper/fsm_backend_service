@@ -46,7 +46,9 @@ data class FieldReportDetailDto(
 
     val Inventories: List<FieldReportInventoryDetailDto> = emptyList(),
 
-    val SpecialTools: List<FieldReportToolsDetailDto> = emptyList()
+    val SpecialTools: List<FieldReportToolsDetailDto> = emptyList(),
+    val TechnicalCases: List<FieldReportTechnicalCaseDto> = emptyList(),
+    val Technicians: List<FieldReportTechnicianDto> = emptyList()
 )
 @Serializable
 data class FieldReportEquipmentDetailDto(

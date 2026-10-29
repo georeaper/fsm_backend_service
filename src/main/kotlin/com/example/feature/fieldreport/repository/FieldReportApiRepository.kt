@@ -11,5 +11,11 @@ interface FieldReportApiRepository {
     fun syncEquipments(ctx: RequestContext, id: String, request: FieldReportEquipmentSyncRequest): FieldReportDetailDto?
     fun syncInventories(ctx: RequestContext, id: String, request: FieldReportInventorySyncRequest): FieldReportDetailDto?
     fun syncTools(ctx: RequestContext, id: String, request: FieldReportToolsSyncRequest): FieldReportDetailDto?
+    fun technicalCases(ctx: RequestContext, id: String): List<FieldReportTechnicalCaseDto>?
+    fun replaceTechnicalCases(ctx: RequestContext, id: String, technicalCaseIds: List<String>): List<FieldReportTechnicalCaseDto>?
+    fun technicians(ctx: RequestContext, id: String): List<FieldReportTechnicianDto>?
+    fun replaceTechnicians(ctx: RequestContext, id: String, technicians: List<FieldReportTechnicianWriteDto>): List<FieldReportTechnicianDto>?
+    fun scheduledWorkOrders(ctx: RequestContext, from: String, to: String, technicianId: String?, status: String?): List<SchedulingWorkOrderDto>
+    fun complete(ctx: RequestContext, id: String, request: CompleteFieldReportRequest): CompleteFieldReportResponse?
     fun delete(ctx: RequestContext, id: String): Boolean
 }
